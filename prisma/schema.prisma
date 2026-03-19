@@ -27,6 +27,10 @@ model User {
   testHexaco2 Json?
   testHexaco3 Json?
 
+  // Active skill test session (for secure timer)
+  activeTestId        String?
+  activeTestStartedAt DateTime?
+
   // Skill test results (8 tests)
   testReadingComprehension  Json?
   testDeductiveReasoning    Json?

@@ -54,12 +54,14 @@ export interface SkillTestResult {
   max: number;
   date: string;
   points: number;
+  timeTakenSeconds?: number;
 }
 
 export const skillTestResultSchema = z.object({
   max: z.number().int().positive(),
   date: z.string().datetime(),
   points: z.number().int().min(0),
+  timeTakenSeconds: z.number().int().min(0).optional(),
 });
 
 // --- Computed aggregates (backend) ---
