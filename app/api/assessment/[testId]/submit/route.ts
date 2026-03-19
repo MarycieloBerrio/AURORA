@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { findTestById } from "@/constants/floors";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { testService } from "@/services/test-service";
 import { testRepository } from "@/repositories/test-repository";
 import type { TestFieldKey } from "@/repositories/test-repository";
@@ -64,7 +65,30 @@ export async function POST(request: Request, { params }: { params: Promise<{ tes
       if (!parsed.success) {
         return NextResponse.json({ message: "Formato de respuestas inválido." }, { status: 400 });
       }
-      await testService.saveSkillResult(session.user.id, testField, parsed.data);
+
+      // Calculate time taken from server-side start timestamp
+      let timeTakenSeconds: number | undefined;
+      const user = await prisma.user.findUniqueOrThrow({
+        where: { id: session.user.id },
+        select: { activeTestId: true, activeTestStartedAt: true },
+      });
+
+      if (user.activeTestStartedAt && user.activeTestId === testId) {
+        timeTakenSeconds = Math.round(
+          (Date.now() - user.activeTestStartedAt.getTime()) / 1000,
+        );
+      }
+
+      await testService.saveSkillResult(session.user.id, testField, {
+        ...parsed.data,
+        timeTakenSeconds,
+      });
+
+      // Clear active test session
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { activeTestId: null, activeTestStartedAt: null },
+      });
     }
 
     return NextResponse.json({ success: true });

@@ -7,6 +7,7 @@ export interface FloorTest {
   labelEs: string;
   color: "indigo" | "amber" | "emerald";
   position: { x: number; y: number };
+  timeLimitMinutes?: number;
 }
 
 export interface FloorConfig {
@@ -73,6 +74,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Comprensión Lectora",
         color: "emerald",
         position: { x: 75, y: 45 },
+        timeLimitMinutes: 15,
       },
       {
         id: "deductive-reasoning",
@@ -123,6 +125,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Razonamiento Matemático",
         color: "emerald",
         position: { x: 45, y: 70 },
+        timeLimitMinutes: 20,
       },
     ],
   },

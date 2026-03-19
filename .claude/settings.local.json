@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"RIASEC\\\\|HEXACO\\\\|riasec\\\\|hexaco\" /c/Users/ADMIN/OneDrive/Escritorio/AURORA --include=*.ts --include=*.tsx --include=*.js --include=*.jsx)",
+      "Bash(npx prisma:*)",
+      "Bash(mkdir -p \"C:/Users/ADMIN/OneDrive/Escritorio/AURORA/app/app/floor/[floorId]/questionnaire\")",
+      "Bash(mkdir -p \"C:/Users/ADMIN/OneDrive/Escritorio/AURORA/app/app/floor/[floorId]/completed\")",
+      "Bash(npx tsc:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(mkdir -p \"C:/Users/ADMIN/OneDrive/Escritorio/AURORA/app/app/floor/[floorId]/test/[testId]/completed\")",
+      "Bash(mkdir -p \"C:/Users/ADMIN/OneDrive/Escritorio/AURORA/app/api/assessment/[testId]/submit\")",
+      "Bash(xargs wc:*)",
+      "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA/app/app/floor/[floorId]/test/[testId]/completed -type f)",
+      "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA/features/assessment -type f -name *.tsx -o -name *.ts)",
+      "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA -type f \\\\\\(-path */hooks/* -o -path *use*Hook* \\\\\\) -name *.ts -o -name *.tsx)"
+    ]
+  }
+}

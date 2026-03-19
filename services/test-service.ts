@@ -118,12 +118,13 @@ export const testService = {
   async saveSkillResult(
     userId: string,
     testField: TestFieldKey,
-    input: { max: number; points: number }
+    input: { max: number; points: number; timeTakenSeconds?: number }
   ) {
     const result: SkillTestResult = {
       max: input.max,
       date: new Date().toISOString(),
       points: input.points,
+      timeTakenSeconds: input.timeTakenSeconds,
     };
 
     await testRepository.saveTestResult(userId, testField, result);
