@@ -16,22 +16,18 @@ model User {
   birthdate        DateTime? @db.Date
   educationalLevel String?
 
-  // RIASEC test results (4 attempts)
   testRiasec1 Json?
   testRiasec2 Json?
   testRiasec3 Json?
   testRiasec4 Json?
 
-  // HEXACO test results (3 attempts)
   testHexaco1 Json?
   testHexaco2 Json?
   testHexaco3 Json?
 
-  // Active skill test session (for secure timer)
   activeTestId        String?
   activeTestStartedAt DateTime?
 
-  // Skill test results (8 tests)
   testReadingComprehension  Json?
   testDeductiveReasoning    Json?
   testInductiveReasoning    Json?
@@ -41,7 +37,6 @@ model User {
   testSpatialReasoning      Json?
   testSelectiveAttention    Json?
 
-  // NextAuth fields
   emailVerified DateTime?
   image         String?
   accounts      Account[]
@@ -83,4 +78,73 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+}
+
+// --- O*NET reference tables ---
+
+model Career {
+  onetsocCode String @id @map("onetsoc_code") @db.Char(10)
+  level       String @db.Char(2)
+  title       String @db.VarChar(150)
+  description String @db.VarChar(1500)
+
+  interests  OnetInterest[]
+  workStyles WorkStyle[]
+
+  @@map("careers")
+}
+
+model ContentModelReference {
+  elementId   String @id @map("element_id") @db.VarChar(20)
+  elementName String @map("element_name") @db.VarChar(150)
+  description String @db.VarChar(1500)
+
+  interests  OnetInterest[]
+  workStyles WorkStyle[]
+
+  @@map("content_model_reference")
+}
+
+model ScalesReference {
+  scaleId   String @id @map("scale_id") @db.VarChar(3)
+  scaleName String @map("scale_name") @db.VarChar(50)
+  minimum   Int
+  maximum   Int
+
+  interests  OnetInterest[]
+  workStyles WorkStyle[]
+
+  @@map("scales_reference")
+}
+
+model OnetInterest {
+  id          Int      @id @default(autoincrement())
+  onetsocCode String   @map("onetsoc_code") @db.Char(10)
+  elementId   String   @map("element_id") @db.VarChar(20)
+  scaleId     String   @map("scale_id") @db.VarChar(3)
+  dataValue   Decimal  @map("data_value") @db.Decimal(5, 2)
+  dateUpdated DateTime @map("date_updated") @db.Date
+  domainSource String  @map("domain_source") @db.VarChar(30)
+
+  career                Career                @relation(fields: [onetsocCode], references: [onetsocCode], onDelete: Cascade)
+  contentModelReference ContentModelReference @relation(fields: [elementId], references: [elementId], onDelete: Cascade)
+  scalesReference       ScalesReference       @relation(fields: [scaleId], references: [scaleId], onDelete: Cascade)
+
+  @@map("onet_interests")
+}
+
+model WorkStyle {
+  id          Int      @id @default(autoincrement())
+  onetsocCode String   @map("onetsoc_code") @db.Char(10)
+  elementId   String   @map("element_id") @db.VarChar(20)
+  scaleId     String   @map("scale_id") @db.VarChar(3)
+  dataValue   Decimal  @map("data_value") @db.Decimal(5, 2)
+  dateUpdated DateTime @map("date_updated") @db.Date
+  domainSource String  @map("domain_source") @db.VarChar(30)
+
+  career                Career                @relation(fields: [onetsocCode], references: [onetsocCode], onDelete: Cascade)
+  contentModelReference ContentModelReference @relation(fields: [elementId], references: [elementId], onDelete: Cascade)
+  scalesReference       ScalesReference       @relation(fields: [scaleId], references: [scaleId], onDelete: Cascade)
+
+  @@map("work_styles")
 }

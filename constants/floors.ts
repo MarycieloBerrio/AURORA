@@ -1,3 +1,5 @@
+import type { RiasecBlock, HexacoBlock } from "@/types/test-results";
+
 export type TestType = "riasec" | "hexaco" | "skill";
 
 export interface FloorTest {
@@ -7,6 +9,7 @@ export interface FloorTest {
   labelEs: string;
   color: "indigo" | "amber" | "emerald";
   position: { x: number; y: number };
+  block?: RiasecBlock | HexacoBlock;
   timeLimitMinutes?: number;
 }
 
@@ -28,7 +31,6 @@ export function getTestCompletedPath(floorId: string, testId: string) {
   return `/app/floor/${floorId}/test/${testId}/completed`;
 }
 
-/** Find a FloorTest by its id across all floors */
 export function findTestById(testId: string): { floor: FloorConfig; test: FloorTest } | undefined {
   for (const floor of FLOORS) {
     const test = floor.tests.find((t) => t.id === testId);
@@ -37,7 +39,6 @@ export function findTestById(testId: string): { floor: FloorConfig; test: FloorT
   return undefined;
 }
 
-/** Get all test fields across all floors */
 export function getAllTestFields(): string[] {
   return FLOORS.flatMap((f) => f.tests.map((t) => t.testField));
 }
@@ -58,6 +59,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Intereses I",
         color: "indigo",
         position: { x: 25, y: 35 },
+        block: "A",
       },
       {
         id: "hexaco-1",
@@ -66,6 +68,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Personalidad I",
         color: "amber",
         position: { x: 55, y: 25 },
+        block: "A",
       },
       {
         id: "reading-comprehension",
@@ -101,6 +104,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Intereses II",
         color: "indigo",
         position: { x: 30, y: 30 },
+        block: "B",
       },
       {
         id: "hexaco-2",
@@ -109,6 +113,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Personalidad II",
         color: "amber",
         position: { x: 60, y: 40 },
+        block: "B",
       },
       {
         id: "inductive-reasoning",
@@ -144,6 +149,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Intereses III",
         color: "indigo",
         position: { x: 20, y: 40 },
+        block: "C",
       },
       {
         id: "hexaco-3",
@@ -152,6 +158,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Personalidad III",
         color: "amber",
         position: { x: 50, y: 30 },
+        block: "C",
       },
       {
         id: "memorization",
@@ -186,6 +193,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Intereses IV",
         color: "indigo",
         position: { x: 30, y: 35 },
+        block: "D",
       },
       {
         id: "spatial-reasoning",

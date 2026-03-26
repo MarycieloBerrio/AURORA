@@ -1,9 +1,15 @@
 import type { LikertValue } from "@/types/test-results";
+import type { RiasecQuestion } from "@/constants/questions/riasec";
+import type { HexacoQuestion } from "@/constants/questions/hexaco";
 
 export interface QuestionView {
   key: string;
   statement: string;
   order: number;
+}
+
+export function toQuestionView(q: RiasecQuestion | HexacoQuestion): QuestionView {
+  return { key: q.id, statement: q.statement, order: q.order };
 }
 
 export interface LikertResponsePayload {

@@ -2,24 +2,40 @@ import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { AppShellTemplate } from "@/components/templates/app-shell-template";
 import { findTestById } from "@/constants/floors";
-import { RIASEC_QUESTIONS } from "@/constants/questions/riasec";
-import { HEXACO_QUESTIONS } from "@/constants/questions/hexaco";
+import { getBlockQuestions as getRiasecBlockQuestions } from "@/constants/questions/riasec";
+import { getBlockQuestions as getHexacoBlockQuestions } from "@/constants/questions/hexaco";
 import { READING_COMPREHENSION_PASSAGE } from "@/constants/questions/reading-comprehension";
 import { MATHEMATICAL_REASONING_QUESTIONS } from "@/constants/questions/mathematical-reasoning";
 import { PaginatedQuestionnaire } from "@/features/assessment/components/paginated-questionnaire";
 import { ReadingComprehensionTest } from "@/features/assessment/components/reading-comprehension-test";
 import { MathReasoningTest } from "@/features/assessment/components/math-reasoning-test";
+import { toQuestionView } from "@/features/assessment/types";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { testService } from "@/services/test-service";
+import {
+  RIASEC_LIKERT_LABELS,
+  HEXACO_LIKERT_LABELS,
+  type RiasecBlock,
+  type HexacoBlock,
+} from "@/types/test-results";
+import type { QuestionView } from "@/features/assessment/types";
 
 interface TestPageProps {
   params: Promise<{ floorId: string; testId: string }>;
 }
 
-function getQuestionsForTest(testType: string) {
-  if (testType === "riasec") return RIASEC_QUESTIONS;
-  if (testType === "hexaco") return HEXACO_QUESTIONS;
+function getBlockQuestionsAsViews(
+  testType: string,
+  block: RiasecBlock | HexacoBlock | undefined
+): QuestionView[] | null {
+  if (!block) return null;
+  if (testType === "riasec") {
+    return getRiasecBlockQuestions(block as RiasecBlock).map(toQuestionView);
+  }
+  if (testType === "hexaco") {
+    return getHexacoBlockQuestions(block as HexacoBlock).map(toQuestionView);
+  }
   return null;
 }
 
@@ -53,9 +69,7 @@ export default async function TestPage({ params }: TestPageProps) {
     </AppShellTemplate>
   );
 
-  // Skill tests — each has its own interface with timer
   if (found.test.testType === "skill") {
-    // Check for active test session
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: session.user.id },
       select: { activeTestId: true, activeTestStartedAt: true },
@@ -66,16 +80,13 @@ export default async function TestPage({ params }: TestPageProps) {
 
     let activeSession: { startedAt: string; timeLimitSeconds: number } | null = null;
     if (user.activeTestId === testId && user.activeTestStartedAt) {
-      // Check if the session has expired
       const elapsed = (Date.now() - user.activeTestStartedAt.getTime()) / 1000;
       if (elapsed < timeLimitSeconds + 30) {
-        // Still valid (with 30s grace for network delay)
         activeSession = {
           startedAt: user.activeTestStartedAt.toISOString(),
           timeLimitSeconds,
         };
       } else {
-        // Expired session — clear it
         await prisma.user.update({
           where: { id: session.user.id },
           data: { activeTestId: null, activeTestStartedAt: null },
@@ -109,13 +120,13 @@ export default async function TestPage({ params }: TestPageProps) {
       );
     }
 
-    // Other skill tests not yet implemented
     notFound();
   }
 
-  // Likert-based tests (riasec, hexaco)
-  const questions = getQuestionsForTest(found.test.testType);
+  const questions = getBlockQuestionsAsViews(found.test.testType, found.test.block);
   if (!questions) notFound();
+
+  const scaleLabels = found.test.testType === "riasec" ? RIASEC_LIKERT_LABELS : HEXACO_LIKERT_LABELS;
 
   return shell(
     <PaginatedQuestionnaire
@@ -124,6 +135,7 @@ export default async function TestPage({ params }: TestPageProps) {
       floorId={floorId}
       accentColor={found.test.color}
       testLabel={TEST_TYPE_LABELS[found.test.testType] ?? found.test.testType}
+      scaleLabels={scaleLabels}
     />,
   );
 }
