@@ -1,9 +1,43 @@
 import { z } from "zod";
 
-// --- RIASEC ---
+// --- Likert scale ---
 
-export interface RiasecTestResult {
-  questions: number;
+export type LikertValue = 1 | 2 | 3 | 4 | 5;
+export type LikertScaleLabels = Record<LikertValue, string>;
+
+export const HEXACO_LIKERT_LABELS: LikertScaleLabels = {
+  1: "Totalmente en desacuerdo",
+  2: "En desacuerdo",
+  3: "Ni de acuerdo ni en desacuerdo",
+  4: "De acuerdo",
+  5: "Totalmente de acuerdo",
+};
+
+export const RIASEC_LIKERT_LABELS: LikertScaleLabels = {
+  1: "No me interesa para nada",
+  2: "Me interesa poco",
+  3: "Me interesa algo",
+  4: "Me interesa bastante",
+  5: "Me interesa mucho",
+};
+
+export const LIKERT_OPTIONS: readonly LikertValue[] = [1, 2, 3, 4, 5];
+
+// --- Dimension and block types ---
+
+export type RiasecDimension = "R" | "I" | "A" | "S" | "E" | "C";
+export type HexacoDimension = "H" | "E" | "X" | "A" | "C" | "O";
+export type RiasecBlock = "A" | "B" | "C" | "D";
+export type HexacoBlock = "A" | "B" | "C";
+
+export const RIASEC_DIMENSIONS: readonly RiasecDimension[] = ["R", "I", "A", "S", "E", "C"];
+export const HEXACO_DIMENSIONS: readonly HexacoDimension[] = ["H", "E", "X", "A", "C", "O"];
+
+// --- RIASEC block result ---
+
+export interface RiasecBlockResult {
+  block: RiasecBlock;
+  itemCount: number;
   date: string;
   R: number;
   I: number;
@@ -13,21 +47,23 @@ export interface RiasecTestResult {
   C: number;
 }
 
-export const riasecTestResultSchema = z.object({
-  questions: z.number().int().positive(),
+export const riasecBlockResultSchema = z.object({
+  block: z.enum(["A", "B", "C", "D"]),
+  itemCount: z.number().int().positive(),
   date: z.string().datetime(),
-  R: z.number().int().min(0),
-  I: z.number().int().min(0),
-  A: z.number().int().min(0),
-  S: z.number().int().min(0),
-  E: z.number().int().min(0),
-  C: z.number().int().min(0),
+  R: z.number().min(0).max(100),
+  I: z.number().min(0).max(100),
+  A: z.number().min(0).max(100),
+  S: z.number().min(0).max(100),
+  E: z.number().min(0).max(100),
+  C: z.number().min(0).max(100),
 });
 
-// --- HEXACO ---
+// --- HEXACO block result ---
 
-export interface HexacoTestResult {
-  questions: number;
+export interface HexacoBlockResult {
+  block: HexacoBlock;
+  itemCount: number;
   date: string;
   H: number;
   E: number;
@@ -37,18 +73,19 @@ export interface HexacoTestResult {
   O: number;
 }
 
-export const hexacoTestResultSchema = z.object({
-  questions: z.number().int().positive(),
+export const hexacoBlockResultSchema = z.object({
+  block: z.enum(["A", "B", "C"]),
+  itemCount: z.number().int().positive(),
   date: z.string().datetime(),
-  H: z.number().int().min(0),
-  E: z.number().int().min(0),
-  X: z.number().int().min(0),
-  A: z.number().int().min(0),
-  C: z.number().int().min(0),
-  O: z.number().int().min(0),
+  H: z.number().min(0).max(100),
+  E: z.number().min(0).max(100),
+  X: z.number().min(0).max(100),
+  A: z.number().min(0).max(100),
+  C: z.number().min(0).max(100),
+  O: z.number().min(0).max(100),
 });
 
-// --- Skill tests ---
+// --- Skill test result ---
 
 export interface SkillTestResult {
   max: number;
@@ -64,7 +101,7 @@ export const skillTestResultSchema = z.object({
   timeTakenSeconds: z.number().int().min(0).optional(),
 });
 
-// --- Computed aggregates (backend) ---
+// --- Computed aggregates ---
 
 export interface InterestsList {
   R: number;
@@ -94,25 +131,3 @@ export interface SkillsDict {
   SR: number;
   SA: number;
 }
-
-// --- Likert scale (shared) ---
-
-export type LikertValue = 1 | 2 | 3 | 4 | 5;
-
-export const LIKERT_LABELS: Record<LikertValue, string> = {
-  1: "Muy en desacuerdo",
-  2: "En desacuerdo",
-  3: "Neutral",
-  4: "De acuerdo",
-  5: "Muy de acuerdo",
-};
-
-export const LIKERT_OPTIONS: readonly LikertValue[] = [1, 2, 3, 4, 5];
-
-// --- Dimension types ---
-
-export type RiasecDimension = "R" | "I" | "A" | "S" | "E" | "C";
-export type HexacoDimension = "H" | "E" | "X" | "A" | "C" | "O";
-
-export const RIASEC_DIMENSIONS: readonly RiasecDimension[] = ["R", "I", "A", "S", "E", "C"];
-export const HEXACO_DIMENSIONS: readonly HexacoDimension[] = ["H", "E", "X", "A", "C", "O"];

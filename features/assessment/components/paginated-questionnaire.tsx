@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
 import { LikertCardRow } from "@/features/assessment/components/likert-card-row";
-import type { LikertValue } from "@/types/test-results";
+import type { LikertScaleLabels, LikertValue } from "@/types/test-results";
 import type { QuestionView } from "@/features/assessment/types";
 
 const QUESTIONS_PER_PAGE = 6;
@@ -16,6 +16,7 @@ interface PaginatedQuestionnaireProps {
   floorId: string;
   accentColor: "indigo" | "amber" | "emerald";
   testLabel: string;
+  scaleLabels: LikertScaleLabels;
 }
 
 export function PaginatedQuestionnaire({
@@ -24,6 +25,7 @@ export function PaginatedQuestionnaire({
   floorId,
   accentColor,
   testLabel,
+  scaleLabels,
 }: PaginatedQuestionnaireProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
@@ -136,6 +138,7 @@ export function PaginatedQuestionnaire({
               value={answers[question.key]}
               onChange={(v) => handleAnswer(question.key, v)}
               accentColor={accentColor}
+              scaleLabels={scaleLabels}
             />
           </div>
         ))}

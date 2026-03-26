@@ -1,35 +1,67 @@
 import { FLOORS, findTestById, type FloorConfig, type TestType } from "@/constants/floors";
-import { RIASEC_QUESTIONS } from "@/constants/questions/riasec";
-import { HEXACO_QUESTIONS } from "@/constants/questions/hexaco";
+import { getBlockQuestions as getRiasecBlockQuestions } from "@/constants/questions/riasec";
+import { getBlockQuestions as getHexacoBlockQuestions } from "@/constants/questions/hexaco";
 import { testRepository, type TestFieldKey } from "@/repositories/test-repository";
 import type {
   LikertValue,
-  RiasecTestResult,
-  HexacoTestResult,
+  RiasecBlockResult,
+  HexacoBlockResult,
   SkillTestResult,
   InterestsList,
   PersonalityList,
   SkillsDict,
   RiasecDimension,
   HexacoDimension,
+  RiasecBlock,
+  HexacoBlock,
 } from "@/types/test-results";
 import { RIASEC_DIMENSIONS, HEXACO_DIMENSIONS } from "@/types/test-results";
-
-// --- Input types ---
 
 export interface LikertResponse {
   questionKey: string;
   value: LikertValue;
 }
 
-// --- Service ---
+const LIKERT_MIN = 1;
+const LIKERT_MAX = 5;
+
+function applyReverseScore(value: LikertValue, reversed: boolean): number {
+  return reversed ? LIKERT_MIN + LIKERT_MAX - value : value;
+}
+
+function normalizeToHundred(mean: number): number {
+  return Number((((mean - LIKERT_MIN) / (LIKERT_MAX - LIKERT_MIN)) * 100).toFixed(4));
+}
+
+function scoreBlock<D extends string>(
+  questions: ReadonlyArray<{ id: string; dimension: D; reversed: boolean }>,
+  responses: LikertResponse[]
+): Record<D, number> {
+  const responseMap = new Map(responses.map((r) => [r.questionKey, r.value]));
+  const buckets = new Map<D, number[]>();
+
+  for (const q of questions) {
+    const raw = responseMap.get(q.id);
+    if (raw === undefined) continue;
+    const scored = applyReverseScore(raw, q.reversed);
+    const existing = buckets.get(q.dimension) ?? [];
+    existing.push(scored);
+    buckets.set(q.dimension, existing);
+  }
+
+  const result = {} as Record<D, number>;
+  for (const [dim, scores] of buckets.entries()) {
+    const mean = scores.reduce((acc, s) => acc + s, 0) / scores.length;
+    result[dim] = normalizeToHundred(mean);
+  }
+  return result;
+}
 
 export const testService = {
   getFloorConfig(floorId: string): FloorConfig | undefined {
     return FLOORS.find((f) => f.id === floorId);
   },
 
-  /** Check if a specific test (by testId) has been completed */
   async hasCompletedTestById(userId: string, testId: string): Promise<boolean> {
     const found = findTestById(testId);
     if (!found) return false;
@@ -37,7 +69,6 @@ export const testService = {
     return result !== null;
   },
 
-  /** Get completion status for all tests on a floor */
   async getFloorCompletionStatus(userId: string, floorId: string): Promise<Map<string, boolean>> {
     const floor = FLOORS.find((f) => f.id === floorId);
     if (!floor) return new Map();
@@ -51,7 +82,6 @@ export const testService = {
     return status;
   },
 
-  /** Get global completion progress grouped by test type */
   async getGlobalProgressByType(userId: string): Promise<Record<TestType, { done: number; total: number }>> {
     const allResults = await testRepository.getAllTestResults(userId);
     const progress: Record<TestType, { done: number; total: number }> = {
@@ -73,42 +103,50 @@ export const testService = {
     return progress;
   },
 
-  async saveRiasecResult(userId: string, testField: TestFieldKey, responses: LikertResponse[]) {
-    const scores: Record<RiasecDimension, number> = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-    const questionsByKey = new Map(RIASEC_QUESTIONS.map((q) => [q.key, q]));
+  async saveRiasecResult(
+    userId: string,
+    testField: TestFieldKey,
+    block: RiasecBlock,
+    responses: LikertResponse[]
+  ) {
+    const blockQuestions = getRiasecBlockQuestions(block);
+    const dimensionScores = scoreBlock<RiasecDimension>(blockQuestions, responses);
 
-    for (const r of responses) {
-      const question = questionsByKey.get(r.questionKey);
-      if (question) {
-        scores[question.dimension] += r.value;
-      }
-    }
-
-    const result: RiasecTestResult = {
-      questions: responses.length,
+    const result: RiasecBlockResult = {
+      block,
+      itemCount: responses.length,
       date: new Date().toISOString(),
-      ...scores,
+      R: dimensionScores.R ?? 0,
+      I: dimensionScores.I ?? 0,
+      A: dimensionScores.A ?? 0,
+      S: dimensionScores.S ?? 0,
+      E: dimensionScores.E ?? 0,
+      C: dimensionScores.C ?? 0,
     };
 
     await testRepository.saveTestResult(userId, testField, result);
     return result;
   },
 
-  async saveHexacoResult(userId: string, testField: TestFieldKey, responses: LikertResponse[]) {
-    const scores: Record<HexacoDimension, number> = { H: 0, E: 0, X: 0, A: 0, C: 0, O: 0 };
-    const questionsByKey = new Map(HEXACO_QUESTIONS.map((q) => [q.key, q]));
+  async saveHexacoResult(
+    userId: string,
+    testField: TestFieldKey,
+    block: HexacoBlock,
+    responses: LikertResponse[]
+  ) {
+    const blockQuestions = getHexacoBlockQuestions(block);
+    const dimensionScores = scoreBlock<HexacoDimension>(blockQuestions, responses);
 
-    for (const r of responses) {
-      const question = questionsByKey.get(r.questionKey);
-      if (question) {
-        scores[question.dimension] += r.value;
-      }
-    }
-
-    const result: HexacoTestResult = {
-      questions: responses.length,
+    const result: HexacoBlockResult = {
+      block,
+      itemCount: responses.length,
       date: new Date().toISOString(),
-      ...scores,
+      H: dimensionScores.H ?? 0,
+      E: dimensionScores.E ?? 0,
+      X: dimensionScores.X ?? 0,
+      A: dimensionScores.A ?? 0,
+      C: dimensionScores.C ?? 0,
+      O: dimensionScores.O ?? 0,
     };
 
     await testRepository.saveTestResult(userId, testField, result);
@@ -134,7 +172,7 @@ export const testService = {
   async computeInterests(userId: string): Promise<InterestsList> {
     const data = await testRepository.getAllTestResults(userId);
     const riasecFields = [data.testRiasec1, data.testRiasec2, data.testRiasec3, data.testRiasec4];
-    const completed = riasecFields.filter(Boolean) as unknown as RiasecTestResult[];
+    const completed = riasecFields.filter(Boolean) as unknown as RiasecBlockResult[];
 
     if (completed.length === 0) {
       return { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
@@ -150,7 +188,7 @@ export const testService = {
   async computePersonality(userId: string): Promise<PersonalityList> {
     const data = await testRepository.getAllTestResults(userId);
     const hexacoFields = [data.testHexaco1, data.testHexaco2, data.testHexaco3];
-    const completed = hexacoFields.filter(Boolean) as unknown as HexacoTestResult[];
+    const completed = hexacoFields.filter(Boolean) as unknown as HexacoBlockResult[];
 
     if (completed.length === 0) {
       return { H: 0, E: 0, X: 0, A: 0, C: 0, O: 0 };

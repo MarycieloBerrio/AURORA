@@ -1,50 +1,103 @@
 "use client";
 
-import { LIKERT_LABELS, LIKERT_OPTIONS, type LikertValue } from "@/types/test-results";
+import type { LikertScaleLabels, LikertValue } from "@/types/test-results";
 
-const accentStyles = {
+const SCALE_POINTS = [
+  { value: 5 as LikertValue, sizePx: 46, side: "positive" },
+  { value: 4 as LikertValue, sizePx: 36, side: "positive" },
+  { value: 3 as LikertValue, sizePx: 24, side: "neutral" },
+  { value: 2 as LikertValue, sizePx: 36, side: "negative" },
+  { value: 1 as LikertValue, sizePx: 46, side: "negative" },
+] as const;
+
+const accentThemes = {
   indigo: {
-    selected: "border-indigo-500 bg-indigo-600 text-white shadow-md shadow-indigo-200",
-    hover: "hover:border-indigo-400 hover:bg-indigo-50",
+    positive: {
+      idle: "border-indigo-400 hover:bg-indigo-50",
+      selected: "border-indigo-600 bg-indigo-600",
+    },
+    negative: {
+      idle: "border-rose-300 hover:bg-rose-50",
+      selected: "border-rose-500 bg-rose-500",
+    },
+    positiveLabelColor: "text-indigo-700",
+    negativeLabelColor: "text-rose-600",
   },
   amber: {
-    selected: "border-amber-500 bg-amber-500 text-white shadow-md shadow-amber-200",
-    hover: "hover:border-amber-400 hover:bg-amber-50",
+    positive: {
+      idle: "border-amber-400 hover:bg-amber-50",
+      selected: "border-amber-500 bg-amber-500",
+    },
+    negative: {
+      idle: "border-sky-300 hover:bg-sky-50",
+      selected: "border-sky-500 bg-sky-500",
+    },
+    positiveLabelColor: "text-amber-700",
+    negativeLabelColor: "text-sky-600",
   },
   emerald: {
-    selected: "border-emerald-500 bg-emerald-600 text-white shadow-md shadow-emerald-200",
-    hover: "hover:border-emerald-400 hover:bg-emerald-50",
+    positive: {
+      idle: "border-emerald-400 hover:bg-emerald-50",
+      selected: "border-emerald-600 bg-emerald-600",
+    },
+    negative: {
+      idle: "border-rose-300 hover:bg-rose-50",
+      selected: "border-rose-500 bg-rose-500",
+    },
+    positiveLabelColor: "text-emerald-700",
+    negativeLabelColor: "text-rose-600",
   },
 } as const;
+
+const neutralStyles = {
+  idle: "border-slate-300 hover:bg-slate-50",
+  selected: "border-slate-500 bg-slate-400",
+};
 
 interface LikertCardRowProps {
   value?: LikertValue;
   onChange: (value: LikertValue) => void;
   accentColor: "indigo" | "amber" | "emerald";
+  scaleLabels: LikertScaleLabels;
 }
 
-export function LikertCardRow({ value, onChange, accentColor }: LikertCardRowProps) {
-  const styles = accentStyles[accentColor];
+export function LikertCardRow({ value, onChange, accentColor, scaleLabels }: LikertCardRowProps) {
+  const theme = accentThemes[accentColor];
 
   return (
-    <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
-      {LIKERT_OPTIONS.map((option) => {
-        const isSelected = value === option;
-        return (
-          <button
-            key={option}
-            type="button"
-            onClick={() => onChange(option)}
-            className={`rounded-lg border-2 px-1 py-2 text-center text-[10px] font-medium transition-all sm:px-2 sm:py-2.5 sm:text-xs md:text-sm ${
-              isSelected
-                ? styles.selected
-                : `border-slate-200 bg-white text-slate-600 ${styles.hover}`
-            }`}
-          >
-            {LIKERT_LABELS[option]}
-          </button>
-        );
-      })}
+    <div className="flex items-center gap-3 sm:gap-4">
+      <span className={`w-20 shrink-0 text-right text-xs font-medium sm:w-24 sm:text-sm ${theme.positiveLabelColor}`}>
+        {scaleLabels[5]}
+      </span>
+
+      <div className="flex flex-1 items-center justify-between">
+        {SCALE_POINTS.map((point) => {
+          const isSelected = value === point.value;
+          const styles =
+            point.side === "positive"
+              ? theme.positive
+              : point.side === "neutral"
+                ? neutralStyles
+                : theme.negative;
+
+          return (
+            <button
+              key={point.value}
+              type="button"
+              onClick={() => onChange(point.value)}
+              style={{ width: point.sizePx, height: point.sizePx }}
+              className={`shrink-0 rounded-full border-2 transition-all ${
+                isSelected ? styles.selected : `bg-white ${styles.idle}`
+              }`}
+              aria-label={scaleLabels[point.value]}
+            />
+          );
+        })}
+      </div>
+
+      <span className={`w-20 shrink-0 text-left text-xs font-medium sm:w-24 sm:text-sm ${theme.negativeLabelColor}`}>
+        {scaleLabels[1]}
+      </span>
     </div>
   );
 }

@@ -13,7 +13,13 @@
       "Bash(xargs wc:*)",
       "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA/app/app/floor/[floorId]/test/[testId]/completed -type f)",
       "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA/features/assessment -type f -name *.tsx -o -name *.ts)",
-      "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA -type f \\\\\\(-path */hooks/* -o -path *use*Hook* \\\\\\) -name *.ts -o -name *.tsx)"
+      "Bash(find /c/Users/ADMIN/OneDrive/Escritorio/AURORA -type f \\\\\\(-path */hooks/* -o -path *use*Hook* \\\\\\) -name *.ts -o -name *.tsx)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker compose:*)",
+      "Bash(Get-Service -Name postgresql*)",
+      "Bash(sc query:*)",
+      "Bash(findstr -i postgres)",
+      "Bash(net start:*)"
     ]
   }
 }
