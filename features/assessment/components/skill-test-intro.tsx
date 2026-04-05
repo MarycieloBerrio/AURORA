@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
+import {
+  TEST_ID_SPATIAL_REASONING,
+  TEST_ID_INDUCTIVE_REASONING,
+  TEST_ID_DEDUCTIVE_REASONING,
+  TEST_ID_SELECTIVE_ATTENTION,
+} from "@/constants/assessment-tests";
 
 interface SkillTestIntroProps {
   testLabel: string;
@@ -31,6 +37,49 @@ const TEST_INFO: Record<string, { description: string; tips: string[] }> = {
       "Lee cada enunciado con atención antes de responder",
       "Puedes marcar preguntas como pendientes para revisarlas después",
       "Usa el navegador de preguntas para moverte entre ellas",
+    ],
+  },
+  [TEST_ID_SPATIAL_REASONING]: {
+    description:
+      "En esta prueba se te presentará una figura isométrica y deberás identificar cuál de las opciones corresponde a una rotación de esa misma figura en el espacio tridimensional.",
+    tips: [
+      "Busca un lugar tranquilo y sin distracciones",
+      "Observa la imagen con detenimiento antes de elegir",
+      "Analiza la forma, orientación y proporciones de cada figura",
+      "Puedes marcar preguntas como pendientes para revisarlas después",
+      "Usa el navegador de preguntas para moverte entre ellas",
+    ],
+  },
+  [TEST_ID_INDUCTIVE_REASONING]: {
+    description:
+      "En esta prueba de Matrices de Raven evaluarás tu capacidad de razonamiento inductivo. Se te presentará una matriz con un patrón visual incompleto y deberás identificar cuál de las opciones completa correctamente el patrón.",
+    tips: [
+      "Busca un lugar tranquilo y sin distracciones",
+      "Analiza los patrones de filas y columnas antes de responder",
+      "Observa los cambios en forma, tamaño, cantidad y orientación",
+      "Puedes marcar preguntas como pendientes para revisarlas después",
+      "Usa el navegador de preguntas para moverte entre ellas",
+    ],
+  },
+  [TEST_ID_DEDUCTIVE_REASONING]: {
+    description:
+      "En esta prueba evaluarás tu capacidad de razonamiento deductivo. Se te presentará una figura con una premisa lógica y deberás seleccionar la conclusión que se deriva de ella de forma válida.",
+    tips: [
+      "Busca un lugar tranquilo y sin distracciones",
+      "Lee o analiza cada figura con atención antes de elegir",
+      "Descarta las opciones que contradigan las premisas",
+      "Puedes marcar preguntas como pendientes para revisarlas después",
+      "Usa el navegador de preguntas para moverte entre ellas",
+    ],
+  },
+  [TEST_ID_SELECTIVE_ATTENTION]: {
+    description:
+      "En esta prueba evaluarás tu atención visual. Verás una matriz de caracteres en la que uno de ellos es diferente al resto. Pulsa ese carácter lo más rápido que puedas.",
+    tips: [
+      "Busca un lugar tranquilo y sin distracciones",
+      "Escanea la matriz de forma sistemática, fila por fila",
+      "Las matrices aumentan de tamaño con cada pregunta",
+      "Al pulsar un carácter pasarás automáticamente a la siguiente pregunta",
     ],
   },
 };

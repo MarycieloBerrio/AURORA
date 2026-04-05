@@ -40,3 +40,14 @@ export interface ReadingPassage {
   content: string;
   questions: SkillQuestion[];
 }
+
+export interface AttentionQuestion {
+  key: string;
+  prompt: string;
+  gridRows: number;
+  gridCols: number;
+  distractorChar: string;
+  targetChar: string;
+  targetIndex: number;
+  order: number;
+}

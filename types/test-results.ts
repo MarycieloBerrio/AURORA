@@ -126,8 +126,6 @@ export interface SkillsDict {
   DR: number;
   IR: number;
   MR: number;
-  MM: number;
-  PS: number;
   SR: number;
   SA: number;
 }

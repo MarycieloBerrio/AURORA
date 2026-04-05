@@ -12,8 +12,6 @@ const TEST_FIELD_SELECT = {
   testDeductiveReasoning: true,
   testInductiveReasoning: true,
   testMathematicalReasoning: true,
-  testMemorization: true,
-  testPerceptualSpeed: true,
   testSpatialReasoning: true,
   testSelectiveAttention: true,
 } as const;
