@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/atoms/button";
@@ -55,6 +56,14 @@ export function CompleteProfileForm() {
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Guardando..." : "Guardar y continuar"}
       </Button>
+
+      <button
+        type="button"
+        onClick={() => signOut({ callbackUrl: "/login" })}
+        className="w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+      >
+        Cerrar sesión
+      </button>
     </form>
   );
 }

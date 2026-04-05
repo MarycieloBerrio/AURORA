@@ -19,14 +19,22 @@ export async function POST(request: Request) {
 
   const { gender, birthdate, educationalLevel } = parsedPayload.data;
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
-      gender,
-      birthdate,
-      educationalLevel,
-    },
-  });
+  try {
+    await prisma.user.upsert({
+      where: { id: session.user.id },
+      update: { gender, birthdate, educationalLevel },
+      create: {
+        id: session.user.id,
+        email: session.user.email!,
+        gender,
+        birthdate,
+        educationalLevel,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return NextResponse.json({ message: "Error al guardar el perfil." }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }
