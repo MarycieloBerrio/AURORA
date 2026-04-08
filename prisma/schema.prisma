@@ -32,8 +32,6 @@ model User {
   testDeductiveReasoning    Json?
   testInductiveReasoning    Json?
   testMathematicalReasoning Json?
-  testMemorization          Json?
-  testPerceptualSpeed       Json?
   testSpatialReasoning      Json?
   testSelectiveAttention    Json?
 
@@ -80,18 +78,56 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
-// --- O*NET reference tables ---
+// --- Application: careers (denormalized with precomputed scores) ---
 
 model Career {
+  onetsocCode           String  @id @map("onetsoc_code") @db.Char(10)
+  academicLevel         String  @map("academic_level") @db.Char(2)
+  title                 String  @db.VarChar(150)
+  description           String  @db.VarChar(1500)
+
+  interestsR            Decimal @map("interests_R") @db.Decimal(6, 3)
+  interestsI            Decimal @map("interests_I") @db.Decimal(6, 3)
+  interestsA            Decimal @map("interests_A") @db.Decimal(6, 3)
+  interestsS            Decimal @map("interests_S") @db.Decimal(6, 3)
+  interestsE            Decimal @map("interests_E") @db.Decimal(6, 3)
+  interestsC            Decimal @map("interests_C") @db.Decimal(6, 3)
+
+  personalityH          Decimal @map("personality_H") @db.Decimal(6, 3)
+  personalityE          Decimal @map("personality_E") @db.Decimal(6, 3)
+  personalityX          Decimal @map("personality_X") @db.Decimal(6, 3)
+  personalityA          Decimal @map("personality_A") @db.Decimal(6, 3)
+  personalityC          Decimal @map("personality_C") @db.Decimal(6, 3)
+  personalityO          Decimal @map("personality_O") @db.Decimal(6, 3)
+
+  readingComprehension  Decimal @map("reading_comprehension") @db.Decimal(6, 3)
+  deductiveReasoning    Decimal @map("deductive_reasoning") @db.Decimal(6, 3)
+  inductiveReasoning    Decimal @map("inductive_reasoning") @db.Decimal(6, 3)
+  mathematicalReasoning Decimal @map("mathematical_reasoning") @db.Decimal(6, 3)
+  spatialReasoning      Decimal @map("spatial_reasoning") @db.Decimal(6, 3)
+  selectiveAttention    Decimal @map("selective_attention") @db.Decimal(6, 3)
+
+  @@map("careers")
+}
+
+// --- O*NET reference tables ---
+
+model OccupationData {
   onetsocCode String @id @map("onetsoc_code") @db.Char(10)
-  level       String @db.Char(2)
   title       String @db.VarChar(150)
   description String @db.VarChar(1500)
 
-  interests  OnetInterest[]
-  workStyles WorkStyle[]
+  @@map("occupation_data")
+}
 
-  @@map("careers")
+model OccupationDataFilteredAndTranslated {
+  onetsocCode   String @map("onetsoc_code") @db.Char(10)
+  academicLevel String @map("academic_level") @db.Char(2)
+  title         String @db.VarChar(150)
+  description   String @db.VarChar(1500)
+
+  @@id([onetsocCode, academicLevel])
+  @@map("occupation_data_filtered_and_translated")
 }
 
 model ContentModelReference {
@@ -101,6 +137,7 @@ model ContentModelReference {
 
   interests  OnetInterest[]
   workStyles WorkStyle[]
+  abilities  Ability[]
 
   @@map("content_model_reference")
 }
@@ -113,20 +150,20 @@ model ScalesReference {
 
   interests  OnetInterest[]
   workStyles WorkStyle[]
+  abilities  Ability[]
 
   @@map("scales_reference")
 }
 
 model OnetInterest {
-  id          Int      @id @default(autoincrement())
-  onetsocCode String   @map("onetsoc_code") @db.Char(10)
-  elementId   String   @map("element_id") @db.VarChar(20)
-  scaleId     String   @map("scale_id") @db.VarChar(3)
-  dataValue   Decimal  @map("data_value") @db.Decimal(5, 2)
-  dateUpdated DateTime @map("date_updated") @db.Date
-  domainSource String  @map("domain_source") @db.VarChar(30)
+  id           Int      @id @default(autoincrement())
+  onetsocCode  String   @map("onetsoc_code") @db.Char(10)
+  elementId    String   @map("element_id") @db.VarChar(20)
+  scaleId      String   @map("scale_id") @db.VarChar(3)
+  dataValue    Decimal  @map("data_value") @db.Decimal(5, 2)
+  dateUpdated  DateTime @map("date_updated") @db.Date
+  domainSource String   @map("domain_source") @db.VarChar(30)
 
-  career                Career                @relation(fields: [onetsocCode], references: [onetsocCode], onDelete: Cascade)
   contentModelReference ContentModelReference @relation(fields: [elementId], references: [elementId], onDelete: Cascade)
   scalesReference       ScalesReference       @relation(fields: [scaleId], references: [scaleId], onDelete: Cascade)
 
@@ -134,17 +171,37 @@ model OnetInterest {
 }
 
 model WorkStyle {
-  id          Int      @id @default(autoincrement())
-  onetsocCode String   @map("onetsoc_code") @db.Char(10)
-  elementId   String   @map("element_id") @db.VarChar(20)
-  scaleId     String   @map("scale_id") @db.VarChar(3)
-  dataValue   Decimal  @map("data_value") @db.Decimal(5, 2)
-  dateUpdated DateTime @map("date_updated") @db.Date
-  domainSource String  @map("domain_source") @db.VarChar(30)
+  id           Int      @id @default(autoincrement())
+  onetsocCode  String   @map("onetsoc_code") @db.Char(10)
+  elementId    String   @map("element_id") @db.VarChar(20)
+  scaleId      String   @map("scale_id") @db.VarChar(3)
+  dataValue    Decimal  @map("data_value") @db.Decimal(5, 2)
+  dateUpdated  DateTime @map("date_updated") @db.Date
+  domainSource String   @map("domain_source") @db.VarChar(30)
 
-  career                Career                @relation(fields: [onetsocCode], references: [onetsocCode], onDelete: Cascade)
   contentModelReference ContentModelReference @relation(fields: [elementId], references: [elementId], onDelete: Cascade)
   scalesReference       ScalesReference       @relation(fields: [scaleId], references: [scaleId], onDelete: Cascade)
 
   @@map("work_styles")
+}
+
+model Ability {
+  onetsocCode       String   @map("onetsoc_code") @db.Char(10)
+  elementId         String   @map("element_id") @db.VarChar(20)
+  scaleId           String   @map("scale_id") @db.VarChar(3)
+  dataValue         Decimal  @map("data_value") @db.Decimal(5, 2)
+  n                 Decimal? @db.Decimal(4, 0)
+  standardError     Decimal? @map("standard_error") @db.Decimal(7, 4)
+  lowerCiBound      Decimal? @map("lower_ci_bound") @db.Decimal(7, 4)
+  upperCiBound      Decimal? @map("upper_ci_bound") @db.Decimal(7, 4)
+  recommendSuppress String?  @map("recommend_suppress") @db.Char(1)
+  notRelevant       String?  @map("not_relevant") @db.Char(1)
+  dateUpdated       DateTime @map("date_updated") @db.Date
+  domainSource      String   @map("domain_source") @db.VarChar(30)
+
+  contentModelReference ContentModelReference @relation(fields: [elementId], references: [elementId], onDelete: Cascade)
+  scalesReference       ScalesReference       @relation(fields: [scaleId], references: [scaleId], onDelete: Cascade)
+
+  @@id([onetsocCode, elementId, scaleId])
+  @@map("abilities")
 }

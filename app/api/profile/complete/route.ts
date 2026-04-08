@@ -20,9 +20,12 @@ export async function POST(request: Request) {
   const { gender, birthdate, educationalLevel } = parsedPayload.data;
 
   try {
-    await prisma.user.update({
+    await prisma.user.upsert({
       where: { id: session.user.id },
-      data: {
+      update: { gender, birthdate, educationalLevel },
+      create: {
+        id: session.user.id,
+        email: session.user.email!,
         gender,
         birthdate,
         educationalLevel,
