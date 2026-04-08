@@ -37,6 +37,25 @@ async function main() {
       testRiasec1: demoRiasecResult,
     },
   });
+
+  await prisma.user.upsert({
+    where: { email: "demo1@aurora.app" },
+    update: {
+      passwordHash: demoPasswordHash,
+      name: "Usuario Demo 1",
+      gender: "PREFER_NOT_TO_SAY",
+      birthdate: new Date("2000-01-15"),
+      educationalLevel: "UNIVERSITY",
+    },
+    create: {
+      email: "demo1@aurora.app",
+      name: "Usuario Demo 1",
+      passwordHash: demoPasswordHash,
+      gender: "PREFER_NOT_TO_SAY",
+      birthdate: new Date("2000-01-15"),
+      educationalLevel: "UNIVERSITY",
+    },
+  });
 }
 
 main()
