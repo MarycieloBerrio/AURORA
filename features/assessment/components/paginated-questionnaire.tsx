@@ -4,8 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
-import { LikertCardRow } from "@/features/assessment/components/likert-card-row";
-import type { LikertScaleLabels, LikertValue } from "@/types/test-results";
+import { LikertSlider, percentToLikert } from "@/features/assessment/components/likert-slider";
 import type { QuestionView } from "@/features/assessment/types";
 
 const QUESTIONS_PER_PAGE = 6;
@@ -16,7 +15,6 @@ interface PaginatedQuestionnaireProps {
   floorId: string;
   accentColor: "indigo" | "amber" | "emerald";
   testLabel: string;
-  scaleLabels: LikertScaleLabels;
 }
 
 export function PaginatedQuestionnaire({
@@ -25,11 +23,10 @@ export function PaginatedQuestionnaire({
   floorId,
   accentColor,
   testLabel,
-  scaleLabels,
 }: PaginatedQuestionnaireProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, LikertValue>>({});
+  const [answers, setAnswers] = useState<Record<string, number>>({});
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +48,7 @@ export function PaginatedQuestionnaire({
     [answers, questions],
   );
 
-  const handleAnswer = (questionKey: string, value: LikertValue) => {
+  const handleAnswer = (questionKey: string, value: number) => {
     setAnswers((prev) => ({ ...prev, [questionKey]: value }));
     setErrorMessage("");
   };
@@ -82,7 +79,7 @@ export function PaginatedQuestionnaire({
     const payload = {
       responses: questions.map((q) => ({
         questionKey: q.key,
-        value: answers[q.key],
+        value: percentToLikert(answers[q.key] ?? 50),
       })),
     };
 
@@ -127,18 +124,37 @@ export function PaginatedQuestionnaire({
         </span>
       </div>
 
+      {currentPage === 0 ? (
+        <div className="mb-5 flex items-start gap-3 rounded-xl bg-slate-50 p-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <p className="text-sm text-slate-600">
+            Mueve el deslizador para indicar qué tan de acuerdo estás con cada afirmación.
+          </p>
+        </div>
+      ) : null}
+
       <div className="space-y-6">
         {currentQuestions.map((question, idx) => (
-          <div key={question.key} className="space-y-2">
+          <div key={question.key} className="space-y-3">
             <p className="text-sm font-medium text-slate-800 md:text-base">
               <span className="text-slate-400">{currentPage * QUESTIONS_PER_PAGE + idx + 1}.</span>{" "}
               {question.statement}
             </p>
-            <LikertCardRow
+            <LikertSlider
               value={answers[question.key]}
               onChange={(v) => handleAnswer(question.key, v)}
               accentColor={accentColor}
-              scaleLabels={scaleLabels}
             />
           </div>
         ))}

@@ -209,8 +209,6 @@ export const testService = {
       ["testDeductiveReasoning", "DR"],
       ["testInductiveReasoning", "IR"],
       ["testMathematicalReasoning", "MR"],
-      ["testMemorization", "MM"],
-      ["testPerceptualSpeed", "PS"],
       ["testSpatialReasoning", "SR"],
       ["testSelectiveAttention", "SA"],
     ];

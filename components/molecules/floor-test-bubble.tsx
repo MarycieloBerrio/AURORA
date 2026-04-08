@@ -47,11 +47,11 @@ export function FloorTestBubble({ test, floorId, completed }: FloorTestBubblePro
         style={{ left: `${test.position.x}%`, top: `${test.position.y}%` }}
       >
         <div
-          className={`flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/60 ${styles.bgCompleted} text-2xl font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} md:h-16 md:w-16 md:text-3xl`}
+          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/60 ${styles.bgCompleted} text-lg font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} md:h-12 md:w-12 md:text-xl`}
         >
           ✓
         </div>
-        <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${styles.label} shadow-md md:text-xs`}>
+        <span className={`rounded-full px-2 py-0.5 text-[9px] font-medium ${styles.label} shadow-md md:text-[10px]`}>
           {test.labelEs}
         </span>
       </div>
@@ -65,12 +65,12 @@ export function FloorTestBubble({ test, floorId, completed }: FloorTestBubblePro
       style={{ left: `${test.position.x}%`, top: `${test.position.y}%` }}
     >
       <div
-        className={`flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/60 ${styles.bg} text-2xl font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} transition-all ${styles.hover} group-hover:scale-110 md:h-16 md:w-16 md:text-3xl`}
+        className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/60 ${styles.bg} text-lg font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} transition-all ${styles.hover} group-hover:scale-110 md:h-12 md:w-12 md:text-xl`}
       >
         ?
       </div>
       <span
-        className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${styles.label} shadow-md transition-all group-hover:scale-105 md:text-xs`}
+        className={`rounded-full px-2 py-0.5 text-[9px] font-medium ${styles.label} shadow-md transition-all group-hover:scale-105 md:text-[10px]`}
       >
         {test.labelEs}
       </span>

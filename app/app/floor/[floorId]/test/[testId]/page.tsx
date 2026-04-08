@@ -6,16 +6,26 @@ import { getBlockQuestions as getRiasecBlockQuestions } from "@/constants/questi
 import { getBlockQuestions as getHexacoBlockQuestions } from "@/constants/questions/hexaco";
 import { READING_COMPREHENSION_PASSAGE } from "@/constants/questions/reading-comprehension";
 import { MATHEMATICAL_REASONING_QUESTIONS } from "@/constants/questions/mathematical-reasoning";
+import { SPATIAL_REASONING_QUESTIONS } from "@/constants/questions/spatial-reasoning";
+import { INDUCTIVE_REASONING_QUESTIONS } from "@/constants/questions/inductive-reasoning";
+import { DEDUCTIVE_REASONING_QUESTIONS } from "@/constants/questions/deductive-reasoning";
+import { SELECTIVE_ATTENTION_QUESTIONS } from "@/constants/questions/selective-attention";
 import { PaginatedQuestionnaire } from "@/features/assessment/components/paginated-questionnaire";
 import { ReadingComprehensionTest } from "@/features/assessment/components/reading-comprehension-test";
 import { MathReasoningTest } from "@/features/assessment/components/math-reasoning-test";
+import { ImageReasoningTest } from "@/features/assessment/components/image-reasoning-test";
+import { SelectiveAttentionTest } from "@/features/assessment/components/selective-attention-test";
+import {
+  TEST_ID_SPATIAL_REASONING,
+  TEST_ID_INDUCTIVE_REASONING,
+  TEST_ID_DEDUCTIVE_REASONING,
+  TEST_ID_SELECTIVE_ATTENTION,
+} from "@/constants/assessment-tests";
 import { toQuestionView } from "@/features/assessment/types";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { testService } from "@/services/test-service";
 import {
-  RIASEC_LIKERT_LABELS,
-  HEXACO_LIKERT_LABELS,
   type RiasecBlock,
   type HexacoBlock,
 } from "@/types/test-results";
@@ -120,13 +130,63 @@ export default async function TestPage({ params }: TestPageProps) {
       );
     }
 
+    if (testId === TEST_ID_SPATIAL_REASONING) {
+      return shell(
+        <ImageReasoningTest
+          questions={SPATIAL_REASONING_QUESTIONS}
+          testId={testId}
+          floorId={floorId}
+          testLabel={found.test.labelEs}
+          timeLimitMinutes={timeLimitMinutes}
+          activeSession={activeSession}
+        />,
+      );
+    }
+
+    if (testId === TEST_ID_INDUCTIVE_REASONING) {
+      return shell(
+        <ImageReasoningTest
+          questions={INDUCTIVE_REASONING_QUESTIONS}
+          testId={testId}
+          floorId={floorId}
+          testLabel={found.test.labelEs}
+          timeLimitMinutes={timeLimitMinutes}
+          activeSession={activeSession}
+        />,
+      );
+    }
+
+    if (testId === TEST_ID_DEDUCTIVE_REASONING) {
+      return shell(
+        <ImageReasoningTest
+          questions={DEDUCTIVE_REASONING_QUESTIONS}
+          testId={testId}
+          floorId={floorId}
+          testLabel={found.test.labelEs}
+          timeLimitMinutes={timeLimitMinutes}
+          activeSession={activeSession}
+        />,
+      );
+    }
+
+    if (testId === TEST_ID_SELECTIVE_ATTENTION) {
+      return shell(
+        <SelectiveAttentionTest
+          questions={SELECTIVE_ATTENTION_QUESTIONS}
+          testId={testId}
+          floorId={floorId}
+          testLabel={found.test.labelEs}
+          timeLimitMinutes={timeLimitMinutes}
+          activeSession={activeSession}
+        />,
+      );
+    }
+
     notFound();
   }
 
   const questions = getBlockQuestionsAsViews(found.test.testType, found.test.block);
   if (!questions) notFound();
-
-  const scaleLabels = found.test.testType === "riasec" ? RIASEC_LIKERT_LABELS : HEXACO_LIKERT_LABELS;
 
   return shell(
     <PaginatedQuestionnaire
@@ -135,7 +195,6 @@ export default async function TestPage({ params }: TestPageProps) {
       floorId={floorId}
       accentColor={found.test.color}
       testLabel={TEST_TYPE_LABELS[found.test.testType] ?? found.test.testType}
-      scaleLabels={scaleLabels}
     />,
   );
 }
