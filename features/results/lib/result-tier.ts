@@ -13,7 +13,7 @@ const TIER_THRESHOLDS: Array<{
 }> = [
   { tier: "complete", riasec: 4, hexaco: 3, skill: 6 },
   { tier: "intermediate", riasec: 3, hexaco: 2, skill: 4 },
-  { tier: "minimum", riasec: 1, hexaco: 1, skill: 1 },
+  { tier: "minimum", riasec: 2, hexaco: 1, skill: 2 },
 ];
 
 export function computeResultTier(
