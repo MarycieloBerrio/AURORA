@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { SpeechBubble } from "@/components/atoms/speech-bubble";
@@ -9,6 +10,7 @@ import { LogoutButton } from "@/components/organisms/logout-button";
 import { authOptions } from "@/lib/auth";
 import { getFloorById } from "@/lib/floor-helpers";
 import { testService } from "@/services/test-service";
+import { computeResultTier } from "@/features/results/lib/result-tier";
 
 interface FloorPageProps {
   params: Promise<{ floorId: string }>;
@@ -29,6 +31,11 @@ export default async function FloorPage({ params }: FloorPageProps) {
     testService.getGlobalProgressByType(session.user.id),
   ]);
   const allCompleted = floor.tests.every((t) => completionStatus.get(t.id));
+  const resultTier = computeResultTier(
+    globalProgress.riasec.done,
+    globalProgress.hexaco.done,
+    globalProgress.skill.done,
+  );
 
   return (
     <main className="flex h-screen flex-col overflow-hidden">
@@ -41,7 +48,17 @@ export default async function FloorPage({ params }: FloorPageProps) {
             {floor.nameEs} · {floor.subtitleEs}
           </h1>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-2">
+          {resultTier && (
+            <Link
+              href="/app/results"
+              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
+            >
+              Ver resultados
+            </Link>
+          )}
+          <LogoutButton />
+        </div>
       </header>
 
       <section className="relative min-h-0 flex-1">
