@@ -10,7 +10,7 @@ const AFFINITY_STYLES = [
 
 const LEVEL_LABELS: Record<"TG" | "UN", string> = {
   TG: "Tecnología",
-  UN: "Pregrado",
+  UN: "Profesional",
 };
 
 const LEVEL_STYLES: Record<"TG" | "UN", string> = {

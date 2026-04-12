@@ -93,7 +93,8 @@ interface HexacoChartProps {
 }
 
 export function HexacoChart({ personality, overlays = [] }: HexacoChartProps) {
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [tooltip,        setTooltip]        = useState<TooltipState | null>(null);
+  const [hoveredOverlay, setHoveredOverlay] = useState<string | null>(null);
 
   const pts = HEXACO_DIMENSIONS.map((d, i) => ({ x: xAt(i), y: yAt(personality[d]) }));
   const samples  = buildCurveSamples(pts);
@@ -143,43 +144,62 @@ export function HexacoChart({ personality, overlays = [] }: HexacoChartProps) {
           strokeLinejoin="round" strokeLinecap="round"
         />
 
-        {overlays.map((ov) => (
-          <path
-            key={ov.career.onetsoc_code}
-            d={buildOverlayCurve(ov)}
-            fill="none"
-            stroke={ov.color}
-            strokeWidth="1.5"
-            strokeDasharray="4 2"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        ))}
-
-        {overlays.map((ov) =>
-          HEXACO_DIMENSIONS.map((dim, i) => {
-            const cx  = xAt(i);
-            const cy  = yAt(ov.career.personality[dim] * 100);
-            const pct = Math.round(ov.career.personality[dim] * 100);
-            return (
-              <circle
-                key={`${ov.career.onetsoc_code}-${dim}`}
-                cx={cx.toFixed(2)} cy={cy.toFixed(2)}
-                r="3"
-                fill={ov.color}
-                stroke="white" strokeWidth="1.5"
-                style={{ cursor: "default" }}
-                onMouseEnter={(e) =>
-                  setTooltip({ x: e.clientX, y: e.clientY, label: ov.career.title, value: `${pct}%`, color: ov.color })
-                }
-                onMouseMove={(e) =>
-                  setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
-                }
-                onMouseLeave={() => setTooltip(null)}
+        {overlays.map((ov) => {
+          const isHovered = hoveredOverlay === ov.career.onetsoc_code;
+          const curvePath = buildOverlayCurve(ov);
+          return (
+            <g
+              key={ov.career.onetsoc_code}
+              opacity={isHovered ? 1 : 0.6}
+              style={{ transition: "opacity 0.15s ease" }}
+            >
+              {/* Visible dashed curve */}
+              <path
+                d={curvePath}
+                fill="none"
+                stroke={ov.color}
+                strokeWidth="1.5"
+                strokeDasharray="4 2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                pointerEvents="none"
               />
-            );
-          }),
-        )}
+              {/* Wide invisible hit area */}
+              <path
+                d={curvePath}
+                fill="none"
+                stroke="transparent"
+                strokeWidth="12"
+                onMouseEnter={() => setHoveredOverlay(ov.career.onetsoc_code)}
+                onMouseLeave={() => setHoveredOverlay(null)}
+              />
+              {/* Dimension dots */}
+              {HEXACO_DIMENSIONS.map((dim, i) => {
+                const cx  = xAt(i);
+                const cy  = yAt(ov.career.personality[dim] * 100);
+                const pct = Math.round(ov.career.personality[dim] * 100);
+                return (
+                  <circle
+                    key={`${ov.career.onetsoc_code}-${dim}`}
+                    cx={cx.toFixed(2)} cy={cy.toFixed(2)}
+                    r="3"
+                    fill={ov.color}
+                    stroke="white" strokeWidth="1.5"
+                    style={{ cursor: "default" }}
+                    onMouseEnter={(e) => {
+                      setHoveredOverlay(ov.career.onetsoc_code);
+                      setTooltip({ x: e.clientX, y: e.clientY, label: ov.career.title, value: `${pct}%`, color: ov.color });
+                    }}
+                    onMouseMove={(e) =>
+                      setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+                    }
+                    onMouseLeave={() => setTooltip(null)}
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
 
         {HEXACO_DIMENSIONS.map((dim, i) => {
           const cx = xAt(i);

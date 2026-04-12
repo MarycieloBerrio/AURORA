@@ -5,28 +5,39 @@ import { CareerCard } from "@/features/results/components/career-card";
 import type { CareerWithAffinity } from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
-type SortKey = "affinity-desc" | "affinity-asc" | "alpha-asc" | "alpha-desc";
+type SortBy  = "affinity" | "alpha";
+type SortDir = "desc" | "asc";
 type LevelFilter = "all" | "TG" | "UN";
-
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: "affinity-desc", label: "Mayor afinidad" },
-  { key: "affinity-asc",  label: "Menor afinidad" },
-  { key: "alpha-asc",     label: "A → Z" },
-  { key: "alpha-desc",    label: "Z → A" },
-];
 
 const LEVEL_FILTERS: Array<{ key: LevelFilter; label: string }> = [
   { key: "all", label: "Todos" },
-  { key: "UN",  label: "Pregrado" },
+  { key: "UN",  label: "Profesional" },
   { key: "TG",  label: "Tecnología" },
 ];
 
-function sortCareers(careers: CareerWithAffinity[], sort: SortKey): CareerWithAffinity[] {
+const SORT_BY_OPTIONS: Array<{ key: SortBy; label: string }> = [
+  { key: "affinity", label: "Afinidad" },
+  { key: "alpha",    label: "Alfabético" },
+];
+
+const SORT_DIR_OPTIONS: Record<SortBy, Array<{ key: SortDir; label: string }>> = {
+  affinity: [
+    { key: "desc", label: "Mayor" },
+    { key: "asc",  label: "Menor" },
+  ],
+  alpha: [
+    { key: "asc",  label: "A → Z" },
+    { key: "desc", label: "Z → A" },
+  ],
+};
+
+function sortCareers(careers: CareerWithAffinity[], by: SortBy, dir: SortDir): CareerWithAffinity[] {
   return [...careers].sort((a, b) => {
-    if (sort === "affinity-desc") return b.affinity - a.affinity;
-    if (sort === "affinity-asc")  return a.affinity - b.affinity;
-    if (sort === "alpha-asc")     return a.title.localeCompare(b.title, "es");
-    return b.title.localeCompare(a.title, "es");
+    const cmp =
+      by === "affinity"
+        ? a.affinity - b.affinity
+        : a.title.localeCompare(b.title, "es");
+    return dir === "desc" ? -cmp : cmp;
   });
 }
 
@@ -38,10 +49,11 @@ interface CareersPanelProps {
 
 export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps) {
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
-  const [sort, setSort]               = useState<SortKey>("affinity-desc");
+  const [sortBy,  setSortBy]  = useState<SortBy>("affinity");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const filtered = careers.filter((c) => levelFilter === "all" || c.academic_level === levelFilter);
-  const sorted   = sortCareers(filtered, sort);
+  const sorted   = sortCareers(filtered, sortBy, sortDir);
 
   return (
     <div className="space-y-4">
@@ -54,7 +66,9 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
         </p>
       </div>
 
+      {/* Filters row */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Level filter */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
           {LEVEL_FILTERS.map(({ key, label }) => (
             <button
@@ -71,18 +85,48 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
             </button>
           ))}
         </div>
-
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortKey)}
-          className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 shadow-sm focus:outline-none"
-        >
-          {SORT_OPTIONS.map(({ key, label }) => (
-            <option key={key} value={key}>{label}</option>
-          ))}
-        </select>
       </div>
 
+      {/* Sort row */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Sort criterion */}
+        <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          {SORT_BY_OPTIONS.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => { setSortBy(key); setSortDir("desc"); }}
+              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                sortBy === key
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort direction — options change based on criterion */}
+        <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          {SORT_DIR_OPTIONS[sortBy].map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSortDir(key)}
+              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                sortDir === key
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Career list */}
       <div className="space-y-2">
         {sorted.length === 0 ? (
           <p className="rounded-lg bg-slate-50 px-3 py-4 text-center text-[11px] text-slate-400">

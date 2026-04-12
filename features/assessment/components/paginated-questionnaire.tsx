@@ -139,7 +139,7 @@ export function PaginatedQuestionnaire({
             />
           </svg>
           <p className="text-sm text-slate-600">
-            Mueve el deslizador para indicar qué tan de acuerdo estás con cada afirmación.
+            Mueve el deslizador para indicar qué tan interesado estás en cada afirmación.
           </p>
         </div>
       ) : null}

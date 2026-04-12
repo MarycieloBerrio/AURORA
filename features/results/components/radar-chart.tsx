@@ -77,7 +77,8 @@ interface RadarChartProps {
 }
 
 export function RadarChart({ interests, overlays = [] }: RadarChartProps) {
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [tooltip,        setTooltip]        = useState<TooltipState | null>(null);
+  const [hoveredOverlay, setHoveredOverlay] = useState<string | null>(null);
 
   return (
     <>
@@ -112,41 +113,60 @@ export function RadarChart({ interests, overlays = [] }: RadarChartProps) {
           strokeLinejoin="round"
         />
 
-        {overlays.map((ov) => (
-          <polygon
-            key={ov.career.onetsoc_code}
-            points={overlayPolygonPoints(ov)}
-            fill="none"
-            stroke={ov.color}
-            strokeWidth="1.5"
-            strokeDasharray="4 2"
-            strokeLinejoin="round"
-          />
-        ))}
-
-        {overlays.map((ov) =>
-          overlayVertices(ov).map((pt, i) => {
-            const dim = DIMENSION_ORDER[i];
-            const pct = Math.round(ov.career.interests[dim] * 100);
-            return (
-              <circle
-                key={`${ov.career.onetsoc_code}-${dim}`}
-                cx={pt.x.toFixed(2)} cy={pt.y.toFixed(2)}
-                r="3.5"
-                fill={ov.color}
-                stroke="white" strokeWidth="1.5"
-                style={{ cursor: "default" }}
-                onMouseEnter={(e) =>
-                  setTooltip({ x: e.clientX, y: e.clientY, label: ov.career.title, value: `${pct}%`, color: ov.color })
-                }
-                onMouseMove={(e) =>
-                  setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
-                }
-                onMouseLeave={() => setTooltip(null)}
+        {overlays.map((ov) => {
+          const isHovered = hoveredOverlay === ov.career.onetsoc_code;
+          const pts       = overlayPolygonPoints(ov);
+          return (
+            <g
+              key={ov.career.onetsoc_code}
+              opacity={isHovered ? 1 : 0.6}
+              style={{ transition: "opacity 0.15s ease" }}
+            >
+              {/* Visible dashed polygon */}
+              <polygon
+                points={pts}
+                fill="none"
+                stroke={ov.color}
+                strokeWidth="1.5"
+                strokeDasharray="4 2"
+                strokeLinejoin="round"
+                pointerEvents="none"
               />
-            );
-          }),
-        )}
+              {/* Wide invisible hit area */}
+              <polygon
+                points={pts}
+                fill="none"
+                stroke="transparent"
+                strokeWidth="12"
+                onMouseEnter={() => setHoveredOverlay(ov.career.onetsoc_code)}
+                onMouseLeave={() => setHoveredOverlay(null)}
+              />
+              {/* Vertex dots */}
+              {overlayVertices(ov).map((pt, i) => {
+                const dim = DIMENSION_ORDER[i];
+                const pct = Math.round(ov.career.interests[dim] * 100);
+                return (
+                  <circle
+                    key={`${ov.career.onetsoc_code}-${dim}`}
+                    cx={pt.x.toFixed(2)} cy={pt.y.toFixed(2)}
+                    r="3.5"
+                    fill={ov.color}
+                    stroke="white" strokeWidth="1.5"
+                    style={{ cursor: "default" }}
+                    onMouseEnter={(e) => {
+                      setHoveredOverlay(ov.career.onetsoc_code);
+                      setTooltip({ x: e.clientX, y: e.clientY, label: ov.career.title, value: `${pct}%`, color: ov.color });
+                    }}
+                    onMouseMove={(e) =>
+                      setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+                    }
+                    onMouseLeave={() => setTooltip(null)}
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
 
         {DIMENSION_ORDER.map((dim, i) => {
           const r = (MAX_RADIUS * interests[dim]) / 100;
