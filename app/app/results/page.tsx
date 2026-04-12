@@ -4,12 +4,9 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { testService } from "@/services/test-service";
 import { computeResultTier } from "@/features/results/lib/result-tier";
-import { RiasecPanel } from "@/features/results/components/riasec-panel";
-import { HexacoPanel } from "@/features/results/components/hexaco-panel";
-import { AptitudePanel } from "@/features/results/components/aptitude-panel";
-import { CareersPanel } from "@/features/results/components/careers-panel";
+import { rankCareers } from "@/features/results/lib/affinity";
+import { ResultsDashboard } from "@/features/results/components/results-dashboard";
 import { ResultTierBadge } from "@/features/results/components/result-tier-badge";
-import { Card } from "@/components/atoms/card";
 import { Button } from "@/components/atoms/button";
 import { LogoutButton } from "@/components/organisms/logout-button";
 
@@ -33,6 +30,8 @@ export default async function ResultsPage() {
 
   if (!tier) redirect("/app/floor/floor-1");
 
+  const careers = rankCareers(interests, personality, skills);
+
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
@@ -53,25 +52,12 @@ export default async function ResultsPage() {
           </div>
         </header>
 
-        <div className="flex flex-col gap-5 lg:flex-row">
-          <div className="flex flex-col gap-5 lg:w-1/2">
-            <Card className="p-5">
-              <RiasecPanel interests={interests} />
-            </Card>
-            <Card className="p-5">
-              <HexacoPanel personality={personality} />
-            </Card>
-            <Card className="p-5">
-              <AptitudePanel skills={skills} />
-            </Card>
-          </div>
-
-          <div className="lg:w-1/2">
-            <Card className="sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto p-5">
-              <CareersPanel tier={tier} />
-            </Card>
-          </div>
-        </div>
+        <ResultsDashboard
+          careers={careers}
+          interests={interests}
+          personality={personality}
+          skills={skills}
+        />
       </div>
     </main>
   );

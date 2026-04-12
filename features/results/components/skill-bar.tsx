@@ -11,9 +11,10 @@ function resolveScoreStyle(pct: number) {
 interface SkillBarProps {
   label: string;
   percentage: number;
+  overlayPct?: number;
 }
 
-export function SkillBar({ label, percentage }: SkillBarProps) {
+export function SkillBar({ label, percentage, overlayPct }: SkillBarProps) {
   const pct = Math.round(Math.min(100, Math.max(0, percentage)));
   const style = resolveScoreStyle(pct);
 
@@ -23,11 +24,17 @@ export function SkillBar({ label, percentage }: SkillBarProps) {
         <span className="text-xs font-medium text-slate-600">{label}</span>
         <span className={`text-xs font-bold ${style.label}`}>{pct}%</span>
       </div>
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
         <div
           className={`h-full rounded-full ${style.bar}`}
           style={{ width: `${pct}%` }}
         />
+        {overlayPct !== undefined && (
+          <div
+            className="absolute top-0 h-full w-0.5 bg-slate-400"
+            style={{ left: `${Math.min(100, Math.max(0, overlayPct))}%` }}
+          />
+        )}
       </div>
     </div>
   );

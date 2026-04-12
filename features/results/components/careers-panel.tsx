@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import { CareerCard } from "@/features/results/components/career-card";
-import { MOCK_STEM_CAREERS, type CareerLevel } from "@/constants/mock-careers";
-import type { ResultTier } from "@/features/results/lib/result-tier";
-
-const TIER_CAREER_COUNT: Record<ResultTier, number> = {
-  minimum: 5,
-  intermediate: 10,
-  complete: MOCK_STEM_CAREERS.length,
-};
+import type { CareerWithAffinity } from "@/constants/careers";
+import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 type SortKey = "affinity-desc" | "affinity-asc" | "alpha-asc" | "alpha-desc";
+type LevelFilter = "all" | "TG" | "UN";
 
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "affinity-desc", label: "Mayor afinidad" },
@@ -20,16 +15,13 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "alpha-desc",    label: "Z → A" },
 ];
 
-const LEVEL_FILTERS: Array<{ key: CareerLevel | "all"; label: string }> = [
-  { key: "all",        label: "Todos" },
-  { key: "Pregrado",   label: "Pregrado" },
-  { key: "Tecnología", label: "Tecnología" },
+const LEVEL_FILTERS: Array<{ key: LevelFilter; label: string }> = [
+  { key: "all", label: "Todos" },
+  { key: "UN",  label: "Pregrado" },
+  { key: "TG",  label: "Tecnología" },
 ];
 
-function sortCareers(
-  careers: typeof MOCK_STEM_CAREERS,
-  sort: SortKey,
-) {
+function sortCareers(careers: CareerWithAffinity[], sort: SortKey): CareerWithAffinity[] {
   return [...careers].sort((a, b) => {
     if (sort === "affinity-desc") return b.affinity - a.affinity;
     if (sort === "affinity-asc")  return a.affinity - b.affinity;
@@ -39,17 +31,17 @@ function sortCareers(
 }
 
 interface CareersPanelProps {
-  tier: ResultTier;
+  careers: CareerWithAffinity[];
+  overlays: CareerOverlay[];
+  onSelect: (career: CareerWithAffinity) => void;
 }
 
-export function CareersPanel({ tier }: CareersPanelProps) {
-  const [levelFilter, setLevelFilter] = useState<CareerLevel | "all">("all");
+export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps) {
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
   const [sort, setSort]               = useState<SortKey>("affinity-desc");
 
-  const count   = TIER_CAREER_COUNT[tier];
-  const pool    = MOCK_STEM_CAREERS.slice(0, count);
-  const filtered = pool.filter((c) => levelFilter === "all" || c.level === levelFilter);
-  const careers  = sortCareers(filtered, sort);
+  const filtered = careers.filter((c) => levelFilter === "all" || c.academic_level === levelFilter);
+  const sorted   = sortCareers(filtered, sort);
 
   return (
     <div className="space-y-4">
@@ -57,12 +49,12 @@ export function CareersPanel({ tier }: CareersPanelProps) {
         <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
           Carreras recomendadas
         </h2>
-        <p className="mt-0.5 text-[11px] text-slate-400">Solo carreras STEM</p>
+        <p className="mt-0.5 text-[11px] text-slate-400">
+          Selecciona hasta 3 para comparar — Solo carreras STEM
+        </p>
       </div>
 
-      {/* Filters + sort */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Level filter */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
           {LEVEL_FILTERS.map(({ key, label }) => (
             <button
@@ -80,7 +72,6 @@ export function CareersPanel({ tier }: CareersPanelProps) {
           ))}
         </div>
 
-        {/* Sort */}
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
@@ -92,24 +83,26 @@ export function CareersPanel({ tier }: CareersPanelProps) {
         </select>
       </div>
 
-      {/* Career list */}
       <div className="space-y-2">
-        {careers.length === 0 ? (
+        {sorted.length === 0 ? (
           <p className="rounded-lg bg-slate-50 px-3 py-4 text-center text-[11px] text-slate-400">
             No hay carreras para este nivel
           </p>
         ) : (
-          careers.map((career, i) => (
-            <CareerCard key={career.id} career={career} rank={i + 1} />
-          ))
+          sorted.map((career, i) => {
+            const overlay = overlays.find((o) => o.career.onetsoc_code === career.onetsoc_code);
+            return (
+              <CareerCard
+                key={career.onetsoc_code}
+                career={career}
+                rank={i + 1}
+                overlay={overlay}
+                onClick={() => onSelect(career)}
+              />
+            );
+          })
         )}
       </div>
-
-      {tier !== "complete" && (
-        <p className="rounded-lg bg-slate-50 px-3 py-2.5 text-center text-[11px] text-slate-400">
-          Completa mas pruebas para desbloquear todas las carreras
-        </p>
-      )}
     </div>
   );
 }

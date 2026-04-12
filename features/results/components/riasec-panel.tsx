@@ -1,5 +1,6 @@
 import { RadarChart } from "@/features/results/components/radar-chart";
 import type { InterestsList } from "@/types/test-results";
+import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const DIMENSION_INFO: Record<
   keyof InterestsList,
@@ -24,9 +25,10 @@ const SORTED_DIMS: (keyof InterestsList)[] = ["R", "I", "A", "S", "E", "C"];
 
 interface RiasecPanelProps {
   interests: InterestsList;
+  overlays?: CareerOverlay[];
 }
 
-export function RiasecPanel({ interests }: RiasecPanelProps) {
+export function RiasecPanel({ interests, overlays }: RiasecPanelProps) {
   const code = hollandCode(interests);
   const sortedByScore = [...SORTED_DIMS].sort((a, b) => interests[b] - interests[a]);
 
@@ -48,7 +50,7 @@ export function RiasecPanel({ interests }: RiasecPanelProps) {
       </div>
 
       {/* Chart — primary view, full-width */}
-      <RadarChart interests={interests} />
+      <RadarChart interests={interests} overlays={overlays} />
 
       {/* Collapsible detail */}
       <details className="group rounded-xl border border-slate-100 bg-slate-50">
