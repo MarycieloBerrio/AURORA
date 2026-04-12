@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { PersonalityList } from "@/types/test-results";
 import { HEXACO_DIMENSIONS, type HexacoDimension } from "@/types/test-results";
-import { SvgTooltip, scaledTooltipSize } from "@/features/results/components/svg-tooltip";
+import type { CareerOverlay } from "@/features/results/lib/career-colors";
+import { FloatingTooltip } from "@/features/results/components/floating-tooltip";
 import { formatScore } from "@/features/results/lib/result-tier";
 
 const CHART_W = 280;
@@ -12,10 +13,6 @@ const PLOT = { left: 28, right: 268, top: 12, bottom: 118 };
 const PLOT_H = PLOT.bottom - PLOT.top;
 const PLOT_W = PLOT.right - PLOT.left;
 const X_STEP = PLOT_W / (HEXACO_DIMENSIONS.length - 1);
-
-// Scale that keeps the tooltip the same physical size as the radar chart tooltip (max-w-[320px])
-// Formula: CHART_W(280) × radar_maxw(320) / hexaco_maxw(560) = 160
-const { s: TOOLTIP_SCALE, w: TOOLTIP_W, h: TOOLTIP_H } = scaledTooltipSize(160);
 
 const DIMENSION_NAMES: Record<HexacoDimension, string> = {
   H: "Honestidad",
@@ -37,7 +34,6 @@ function yAt(value: number): number {
   return PLOT.bottom - (Math.max(1, value) / 100) * PLOT_H;
 }
 
-/** Lagrange interpolation through the 6 data points. */
 function lagrange(pts: { x: number; y: number }[], x: number): number {
   return pts.reduce((sum, pi, i) => {
     const basis = pts.reduce(
@@ -65,7 +61,7 @@ function buildLinePath(samples: { x: number; y: number }[]): string {
 }
 
 function buildAreaPath(samples: { x: number; y: number }[]): string {
-  const last = samples[samples.length - 1];
+  const last  = samples[samples.length - 1];
   const first = samples[0];
   return [
     buildLinePath(samples),
@@ -75,133 +71,158 @@ function buildAreaPath(samples: { x: number; y: number }[]): string {
   ].join(" ");
 }
 
-interface TooltipState {
-  dim: HexacoDimension;
-  cx: number;
-  cy: number;
+function buildOverlayCurve(overlay: CareerOverlay): string {
+  const pts = HEXACO_DIMENSIONS.map((d, i) => ({
+    x: xAt(i),
+    y: yAt(overlay.career.personality[d] * 100),
+  }));
+  return buildLinePath(buildCurveSamples(pts));
 }
 
-function tooltipPos(cx: number, cy: number): { rx: number; ry: number } {
-  const ry = cy < 44 ? cy + 8 : cy - TOOLTIP_H - 6;
-  const rx = Math.max(PLOT.left, Math.min(PLOT.right - TOOLTIP_W, cx - TOOLTIP_W / 2));
-  return { rx, ry };
+interface TooltipState {
+  x: number;
+  y: number;
+  label: string;
+  value: string;
+  color: string;
 }
 
 interface HexacoChartProps {
   personality: PersonalityList;
+  overlays?: CareerOverlay[];
 }
 
-export function HexacoChart({ personality }: HexacoChartProps) {
+export function HexacoChart({ personality, overlays = [] }: HexacoChartProps) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
-  const pts = HEXACO_DIMENSIONS.map((d, i) => ({
-    x: xAt(i),
-    y: yAt(personality[d]),
-  }));
-
-  const samples = buildCurveSamples(pts);
+  const pts = HEXACO_DIMENSIONS.map((d, i) => ({ x: xAt(i), y: yAt(personality[d]) }));
+  const samples  = buildCurveSamples(pts);
   const linePath = buildLinePath(samples);
   const areaPath = buildAreaPath(samples);
 
   return (
-    <svg
-      viewBox={`0 0 ${CHART_W} ${CHART_H}`}
-      className="w-full"
-      role="img"
-      aria-label="Perfil de personalidad HEXACO"
-      style={{ overflow: "visible" }}
-    >
-      <defs>
-        <filter id="hx-shadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.10)" />
-        </filter>
-      </defs>
+    <>
+      <svg
+        viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+        className="w-full"
+        role="img"
+        aria-label="Perfil de personalidad HEXACO"
+        style={{ overflow: "visible" }}
+      >
+        <defs>
+          <filter id="hx-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.10)" />
+          </filter>
+        </defs>
 
-      {GRID_VALUES.map((v) => (
-        <line
-          key={v}
-          x1={PLOT.left}
-          y1={yAt(v).toFixed(2)}
-          x2={PLOT.right}
-          y2={yAt(v).toFixed(2)}
-          stroke={v === 0 ? "#94a3b8" : "#f1f5f9"}
-          strokeWidth={v === 0 ? "1" : "0.75"}
+        {GRID_VALUES.map((v) => (
+          <g key={v}>
+            <line
+              x1={PLOT.left} y1={yAt(v).toFixed(2)}
+              x2={PLOT.right} y2={yAt(v).toFixed(2)}
+              stroke={v === 0 ? "#94a3b8" : "#f1f5f9"}
+              strokeWidth={v === 0 ? "1" : "0.75"}
+            />
+            {v > 0 && (
+              <text
+                x={PLOT.left - 4} y={yAt(v).toFixed(2)}
+                textAnchor="end" dominantBaseline="middle"
+                fontSize="7" fill="#94a3b8"
+              >
+                {v}
+              </text>
+            )}
+          </g>
+        ))}
+
+        <path d={areaPath} fill="rgba(245,158,11,0.08)" />
+
+        <path
+          d={linePath} fill="none"
+          stroke="#f59e0b" strokeWidth="2"
+          strokeLinejoin="round" strokeLinecap="round"
         />
-      ))}
 
-      {GRID_VALUES.filter((v) => v > 0).map((v) => (
-        <text
-          key={v}
-          x={PLOT.left - 4}
-          y={yAt(v).toFixed(2)}
-          textAnchor="end"
-          dominantBaseline="middle"
-          fontSize="7"
-          fill="#94a3b8"
-        >
-          {v}
-        </text>
-      ))}
-
-      <path d={areaPath} fill="rgba(245,158,11,0.08)" />
-
-      <path
-        d={linePath}
-        fill="none"
-        stroke="#f59e0b"
-        strokeWidth="2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-
-      {HEXACO_DIMENSIONS.map((dim, i) => {
-        const cx = xAt(i);
-        const cy = yAt(personality[dim]);
-        const hovered = tooltip?.dim === dim;
-        return (
-          <circle
-            key={dim}
-            cx={cx.toFixed(2)}
-            cy={cy.toFixed(2)}
-            r={hovered ? "5" : "3.5"}
-            fill={hovered ? "#d97706" : "#f59e0b"}
-            stroke="white"
+        {overlays.map((ov) => (
+          <path
+            key={ov.career.onetsoc_code}
+            d={buildOverlayCurve(ov)}
+            fill="none"
+            stroke={ov.color}
             strokeWidth="1.5"
-            style={{ cursor: "default" }}
-            onMouseEnter={() => setTooltip({ dim, cx, cy })}
-            onMouseLeave={() => setTooltip(null)}
+            strokeDasharray="4 2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
           />
-        );
-      })}
+        ))}
 
-      {HEXACO_DIMENSIONS.map((dim, i) => (
-        <text
-          key={dim}
-          x={xAt(i).toFixed(2)}
-          y={PLOT.bottom + 13}
-          textAnchor="middle"
-          fontSize="9"
-          fontWeight="700"
-          fill="#475569"
-        >
-          {dim}
-        </text>
-      ))}
+        {overlays.map((ov) =>
+          HEXACO_DIMENSIONS.map((dim, i) => {
+            const cx  = xAt(i);
+            const cy  = yAt(ov.career.personality[dim] * 100);
+            const pct = Math.round(ov.career.personality[dim] * 100);
+            return (
+              <circle
+                key={`${ov.career.onetsoc_code}-${dim}`}
+                cx={cx.toFixed(2)} cy={cy.toFixed(2)}
+                r="3"
+                fill={ov.color}
+                stroke="white" strokeWidth="1.5"
+                style={{ cursor: "default" }}
+                onMouseEnter={(e) =>
+                  setTooltip({ x: e.clientX, y: e.clientY, label: ov.career.title, value: `${pct}%`, color: ov.color })
+                }
+                onMouseMove={(e) =>
+                  setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+                }
+                onMouseLeave={() => setTooltip(null)}
+              />
+            );
+          }),
+        )}
 
-      {tooltip && (() => {
-        const { rx, ry } = tooltipPos(tooltip.cx, tooltip.cy);
-        return (
-          <SvgTooltip
-            x={rx} y={ry}
-            value={formatScore(Math.max(1, personality[tooltip.dim]))}
-            name={DIMENSION_NAMES[tooltip.dim]}
-            scale={TOOLTIP_SCALE}
-            accentColor="#b45309"
-            borderColor="#fde68a"
-            filterId="hx-shadow"
-          />
-        );
-      })()}
-    </svg>
+        {HEXACO_DIMENSIONS.map((dim, i) => {
+          const cx = xAt(i);
+          const cy = yAt(personality[dim]);
+          const hovered = tooltip?.label === DIMENSION_NAMES[dim] && tooltip?.color === "#b45309";
+          return (
+            <circle
+              key={dim}
+              cx={cx.toFixed(2)} cy={cy.toFixed(2)}
+              r={hovered ? "5" : "3.5"}
+              fill={hovered ? "#d97706" : "#f59e0b"}
+              stroke="white" strokeWidth="1.5"
+              style={{ cursor: "default" }}
+              onMouseEnter={(e) =>
+                setTooltip({ x: e.clientX, y: e.clientY, label: DIMENSION_NAMES[dim], value: formatScore(Math.max(1, personality[dim])), color: "#b45309" })
+              }
+              onMouseMove={(e) =>
+                setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)
+              }
+              onMouseLeave={() => setTooltip(null)}
+            />
+          );
+        })}
+
+        {HEXACO_DIMENSIONS.map((dim, i) => (
+          <text
+            key={dim}
+            x={xAt(i).toFixed(2)} y={PLOT.bottom + 13}
+            textAnchor="middle" fontSize="9" fontWeight="700" fill="#475569"
+          >
+            {dim}
+          </text>
+        ))}
+      </svg>
+
+      {tooltip && (
+        <FloatingTooltip
+          x={tooltip.x} y={tooltip.y}
+          label={tooltip.label}
+          value={tooltip.value}
+          color={tooltip.color}
+        />
+      )}
+    </>
   );
 }

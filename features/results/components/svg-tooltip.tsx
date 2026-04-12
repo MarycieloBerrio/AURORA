@@ -1,67 +1,57 @@
 /**
  * Reusable SVG tooltip rendered as a <g> element.
  *
+ * Width adapts to the name string so long career titles are never clipped.
+ *
  * `scale` normalises sizes across charts with different viewBox widths:
  *   scale = viewBoxWidth / REFERENCE_VIEWBOX_W  (reference = 200)
- *
- * This ensures both RadarChart (viewBox 200) and HexacoChart (viewBox 280)
- * produce tooltips of equal physical CSS-pixel size when rendered at the
- * same container width.
  */
 
 const REFERENCE_W = 200;
 
-/** Base dimensions at scale 1.0 (RadarChart 200-wide viewBox). */
 const BASE = {
-  tooltipW: 82,
+  tooltipMinW: 82,
   tooltipH: 28,
   rx: 6,
   strokeW: 0.8,
   fontValue: 11,
   fontName: 8.5,
-};
+  avgCharW: 4.8,   // px per character at scale=1 for the 8.5px name font
+  hPad: 16,        // total horizontal padding inside the tooltip
+} as const;
 
+/** Returns the scaled tooltip height (constant regardless of name length). */
 export function scaledTooltipSize(viewBoxWidth: number) {
   const s = viewBoxWidth / REFERENCE_W;
-  return {
-    s,
-    w: BASE.tooltipW * s,
-    h: BASE.tooltipH * s,
-  };
+  return { s, h: BASE.tooltipH * s };
+}
+
+/**
+ * Estimates the rendered tooltip width for a given name at a given scale.
+ * Use this wherever you need to position the tooltip (clamp logic, etc.).
+ */
+export function estimateTooltipWidth(name: string, scale = 1): number {
+  const natural = name.length * BASE.avgCharW + BASE.hPad;
+  return Math.max(BASE.tooltipMinW, natural) * scale;
 }
 
 interface SvgTooltipProps {
-  /** Top-left corner of the tooltip rectangle in SVG units. */
   x: number;
   y: number;
-  /** Tooltip value line (bold, accent colour). */
   value: string | number;
-  /** Tooltip name line (smaller, slate). */
   name: string;
-  /**
-   * Scale factor = viewBoxWidth / 200.
-   * RadarChart (200 wide) → 1.0
-   * HexacoChart (280 wide) → 1.4
-   */
   scale?: number;
-  /** Hex/rgb colour for the value text and border. */
   accentColor: string;
   borderColor: string;
-  /** `id` of a pre-defined <filter> in the parent <defs>. */
   filterId: string;
 }
 
 export function SvgTooltip({
-  x,
-  y,
-  value,
-  name,
+  x, y, value, name,
   scale = 1,
-  accentColor,
-  borderColor,
-  filterId,
+  accentColor, borderColor, filterId,
 }: SvgTooltipProps) {
-  const w = BASE.tooltipW * scale;
+  const w = estimateTooltipWidth(name, scale);
   const h = BASE.tooltipH * scale;
   const midX = x + w / 2;
 
@@ -78,8 +68,7 @@ export function SvgTooltip({
       />
       <text
         x={midX} y={y + h * 0.42}
-        textAnchor="middle"
-        dominantBaseline="middle"
+        textAnchor="middle" dominantBaseline="middle"
         fontSize={BASE.fontValue * scale}
         fontWeight="800"
         fill={accentColor}
@@ -88,8 +77,7 @@ export function SvgTooltip({
       </text>
       <text
         x={midX} y={y + h * 0.80}
-        textAnchor="middle"
-        dominantBaseline="middle"
+        textAnchor="middle" dominantBaseline="middle"
         fontSize={BASE.fontName * scale}
         fill="#64748b"
       >

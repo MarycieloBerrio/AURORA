@@ -1,6 +1,7 @@
 import { HexacoChart } from "@/features/results/components/hexaco-chart";
 import type { PersonalityList } from "@/types/test-results";
 import { HEXACO_DIMENSIONS, type HexacoDimension } from "@/types/test-results";
+import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const DIMENSION_INFO: Record<HexacoDimension, { name: string; description: string }> = {
   H: { name: "Honestidad", description: "Sincero, justo y con poco interes en el estatus social. Evita la manipulacion y actua con integridad." },
@@ -13,9 +14,10 @@ const DIMENSION_INFO: Record<HexacoDimension, { name: string; description: strin
 
 interface HexacoPanelProps {
   personality: PersonalityList;
+  overlays?: CareerOverlay[];
 }
 
-export function HexacoPanel({ personality }: HexacoPanelProps) {
+export function HexacoPanel({ personality, overlays }: HexacoPanelProps) {
   const sortedDims = [...HEXACO_DIMENSIONS].sort((a, b) => personality[b] - personality[a]);
 
   return (
@@ -36,7 +38,7 @@ export function HexacoPanel({ personality }: HexacoPanelProps) {
       </div>
 
       {/* Chart — primary view */}
-      <HexacoChart personality={personality} />
+      <HexacoChart personality={personality} overlays={overlays} />
 
       {/* Collapsible detail */}
       <details className="group rounded-xl border border-slate-100 bg-slate-50">
