@@ -89,7 +89,7 @@ export const SELECTIVE_ATTENTION_QUESTIONS: AttentionQuestion[] = [
     gridRows: 5,
     gridCols: 5,
     distractorContent: { type: "image", src: `${IMG_BASE}/scissors.png`, alt: "tijeras" },
-    targetContent: { type: "image", src: `${IMG_BASE}/scissors-alt.png`, alt: "tijeras diferentes" },
+    targetContent: { type: "image", src: `${IMG_BASE}/scissors_alt.png`, alt: "tijeras diferentes" },
     points: 4,
     order: 10,
   },
