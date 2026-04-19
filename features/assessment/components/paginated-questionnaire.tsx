@@ -12,7 +12,6 @@ const QUESTIONS_PER_PAGE = 6;
 interface PaginatedQuestionnaireProps {
   questions: QuestionView[];
   testId: string;
-  floorId: string;
   accentColor: "indigo" | "amber" | "emerald";
   testLabel: string;
 }
@@ -20,7 +19,6 @@ interface PaginatedQuestionnaireProps {
 export function PaginatedQuestionnaire({
   questions,
   testId,
-  floorId,
   accentColor,
   testLabel,
 }: PaginatedQuestionnaireProps) {
@@ -97,7 +95,7 @@ export function PaginatedQuestionnaire({
         return;
       }
 
-      router.push(`/app/floor/${floorId}/test/${testId}/completed`);
+      router.push(`/app/floor/${testId}/completed`);
       router.refresh();
     } catch {
       setErrorMessage("Hubo un problema de conexión. Inténtalo nuevamente.");

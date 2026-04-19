@@ -1,115 +1,204 @@
 import type { ReadingPassage } from "@/features/assessment/types";
 
-export const READING_COMPREHENSION_PASSAGE: ReadingPassage = {
-  id: "rc-passage-1",
-  title: "El agua: recurso vital en peligro",
-  content: `El agua es uno de los recursos más importantes para la vida en la Tierra. Cubre aproximadamente el 71% de la superficie del planeta, pero solo el 2.5% es agua dulce, y de esa cantidad, menos del 1% está disponible para el consumo humano directo. El resto se encuentra congelada en glaciares y casquetes polares o en acuíferos subterráneos de difícil acceso.
+export const READING_COMPREHENSION_PASSAGES: ReadingPassage[] = [
+  {
+    id: "rc-passage-1",
+    title: "Los parques en las ciudades",
+    content: `En muchos barrios de las ciudades colombianas, los parques cumplen una función importante en la vida de las personas. No solo son espacios para el descanso, sino también lugares donde los niños juegan, los jóvenes se reúnen y los adultos realizan actividad física. Sin embargo, en algunos sectores, estos espacios han sido descuidados por falta de mantenimiento o por el mal uso de los ciudadanos.
 
-A pesar de su aparente abundancia, el agua dulce es un recurso cada vez más escaso. El crecimiento poblacional, la industrialización y la agricultura intensiva han incrementado dramáticamente la demanda de agua en las últimas décadas. Se estima que la agricultura consume alrededor del 70% del agua dulce disponible a nivel mundial, mientras que la industria utiliza un 20% y el uso doméstico representa apenas el 10% restante.
+Un parque bien cuidado puede mejorar la calidad de vida de quienes viven cerca. Por ejemplo, las personas tienen un lugar seguro para caminar, hacer ejercicio o compartir con sus familias. Además, estos espacios ayudan a reducir el estrés y fomentan la convivencia entre vecinos. Por el contrario, cuando un parque está abandonado, puede convertirse en un foco de inseguridad y afectar negativamente la percepción del barrio.
 
-El cambio climático agrava esta situación de múltiples maneras. Las alteraciones en los patrones de precipitación provocan sequías más prolongadas en algunas regiones y lluvias torrenciales en otras. El derretimiento acelerado de los glaciares, que funcionan como reservorios naturales de agua dulce, representa una amenaza a largo plazo para millones de personas que dependen de los ríos alimentados por estas fuentes.
+En los últimos años, algunas comunidades han decidido organizarse para recuperar estos espacios. A través de jornadas de limpieza, siembra de árboles y actividades culturales, los vecinos logran transformar parques deteriorados en lugares agradables. Este tipo de iniciativas demuestra que la participación ciudadana es clave para mejorar el entorno.`,
+    questions: [
+      {
+        key: "rc-q1",
+        prompt: "¿Cuál es una función de los parques mencionada en el texto?",
+        options: [
+          { id: "a", text: "Ser lugares para la actividad física" },
+          { id: "b", text: "Servir como centros comerciales" },
+          { id: "c", text: "Funcionar como oficinas públicas" },
+          { id: "d", text: "Reemplazar las escuelas" },
+        ],
+        correctOptionId: "a",
+        points: 3,
+        order: 1,
+      },
+      {
+        key: "rc-q2",
+        prompt: "¿Por qué un parque abandonado puede afectar negativamente a un barrio?",
+        options: [
+          { id: "a", text: "Porque puede generar inseguridad" },
+          { id: "b", text: "Porque ocupa mucho espacio" },
+          { id: "c", text: "Porque reduce el valor de las viviendas únicamente" },
+          { id: "d", text: "Porque impide construir edificios" },
+        ],
+        correctOptionId: "a",
+        points: 4,
+        order: 2,
+      },
+      {
+        key: "rc-q3",
+        prompt: "¿Cuál de las siguientes acciones sería más coherente con la idea principal del texto?",
+        options: [
+          { id: "a", text: "Promover la participación comunitaria en su cuidado" },
+          { id: "b", text: "Cerrar los parques para evitar su deterioro" },
+          { id: "c", text: "Delegar el cuidado exclusivamente al gobierno" },
+          { id: "d", text: "Convertir los parques en estacionamientos" },
+        ],
+        correctOptionId: "a",
+        points: 5,
+        order: 3,
+      },
+    ],
+  },
+  {
+    id: "rc-passage-2",
+    title: "La tecnología en la educación",
+    content: `El uso de la tecnología en la educación ha aumentado considerablemente en las últimas décadas. En muchas instituciones educativas, los estudiantes utilizan computadores, tabletas y plataformas virtuales como parte de su proceso de aprendizaje. Estas herramientas permiten acceder a una gran cantidad de información y facilitan nuevas formas de enseñar y aprender.
 
-La contaminación del agua es otro problema crítico. Los vertidos industriales, los pesticidas agrícolas y las aguas residuales sin tratar terminan en ríos, lagos y acuíferos, reduciendo aún más la cantidad de agua apta para el consumo. Según la Organización Mundial de la Salud, aproximadamente 2,000 millones de personas en el mundo utilizan fuentes de agua contaminadas.
+No obstante, el uso de la tecnología también plantea desafíos. Por ejemplo, no todos los estudiantes tienen acceso a dispositivos o conexión a internet, lo que genera desigualdades. Además, el exceso de uso puede afectar la concentración y reducir la interacción directa entre estudiantes y docentes. Por esta razón, algunos expertos sugieren que la tecnología debe utilizarse de manera equilibrada.
 
-Frente a estos desafíos, diversas soluciones se están implementando a nivel global. La desalinización del agua de mar, aunque costosa y energéticamente intensiva, se ha convertido en una alternativa viable en regiones áridas como Medio Oriente. La reutilización de aguas residuales tratadas para riego agrícola e industrial es otra estrategia en crecimiento. Además, tecnologías de riego por goteo y sistemas de captación de agua de lluvia permiten un uso más eficiente del recurso disponible.
+A pesar de estas dificultades, muchos docentes han encontrado formas creativas de integrar la tecnología en sus clases. Desde el uso de videos educativos hasta simulaciones interactivas, estas herramientas pueden enriquecer el aprendizaje cuando se emplean adecuadamente. En este sentido, el reto no es eliminar la tecnología, sino aprender a usarla de manera responsable.`,
+    questions: [
+      {
+        key: "rc-q4",
+        prompt: "¿Qué dispositivos se mencionan en el texto?",
+        options: [
+          { id: "a", text: "Computadores y tabletas" },
+          { id: "b", text: "Televisores y radios" },
+          { id: "c", text: "Teléfonos fijos" },
+          { id: "d", text: "Consolas de videojuegos" },
+        ],
+        correctOptionId: "a",
+        points: 3,
+        order: 4,
+      },
+      {
+        key: "rc-q5",
+        prompt: "¿Qué se puede deducir sobre el uso excesivo de la tecnología?",
+        options: [
+          { id: "a", text: "Puede afectar la concentración" },
+          { id: "b", text: "Mejora siempre el aprendizaje" },
+          { id: "c", text: "No tiene ningún efecto en los estudiantes" },
+          { id: "d", text: "Reemplaza completamente al docente" },
+        ],
+        correctOptionId: "a",
+        points: 4,
+        order: 5,
+      },
+      {
+        key: "rc-q6",
+        prompt: "¿Cuál postura refleja mejor la intención del autor?",
+        options: [
+          { id: "a", text: "Utilizar la tecnología de manera equilibrada" },
+          { id: "b", text: "Prohibir el uso de la tecnología en educación" },
+          { id: "c", text: "Usar la tecnología sin restricciones" },
+          { id: "d", text: "Sustituir a los docentes por tecnología" },
+        ],
+        correctOptionId: "a",
+        points: 5,
+        order: 6,
+      },
+    ],
+  },
+  {
+    id: "rc-passage-3",
+    title: "Las ciudades y el medio ambiente",
+    content: `El crecimiento de las ciudades ha generado importantes cambios en el medio ambiente. La expansión urbana implica la transformación de ecosistemas naturales en espacios construidos, lo que afecta la biodiversidad y altera los ciclos naturales. Por ejemplo, la reducción de zonas verdes puede aumentar la temperatura en las ciudades, fenómeno conocido como "isla de calor urbana".
 
-Sin embargo, los expertos coinciden en que la solución más efectiva a largo plazo es la gestión integral de los recursos hídricos, que combina políticas públicas, educación ambiental, innovación tecnológica y cooperación internacional. Sin un cambio fundamental en la forma en que valoramos y administramos el agua, las generaciones futuras enfrentarán una crisis hídrica sin precedentes.`,
-  questions: [
-    {
-      key: "rc-q1",
-      prompt: "Según el texto, ¿qué porcentaje del agua en la Tierra es agua dulce?",
-      options: [
-        { id: "a", text: "71%" },
-        { id: "b", text: "2.5%" },
-        { id: "c", text: "1%" },
-        { id: "d", text: "10%" },
-      ],
-      correctOptionId: "b",
-      order: 1,
-    },
-    {
-      key: "rc-q2",
-      prompt: "¿Cuál es el sector que consume la mayor cantidad de agua dulce a nivel mundial?",
-      options: [
-        { id: "a", text: "La industria" },
-        { id: "b", text: "El uso doméstico" },
-        { id: "c", text: "La agricultura" },
-        { id: "d", text: "La minería" },
-      ],
-      correctOptionId: "c",
-      order: 2,
-    },
-    {
-      key: "rc-q3",
-      prompt: "Según el texto, ¿cómo afecta el cambio climático a los recursos hídricos?",
-      options: [
-        { id: "a", text: "Solo provoca sequías en todas las regiones" },
-        { id: "b", text: "Altera los patrones de precipitación y acelera el derretimiento de glaciares" },
-        { id: "c", text: "Aumenta la cantidad de agua dulce disponible" },
-        { id: "d", text: "No tiene relación con los recursos hídricos" },
-      ],
-      correctOptionId: "b",
-      order: 3,
-    },
-    {
-      key: "rc-q4",
-      prompt: "¿Cuántas personas aproximadamente utilizan fuentes de agua contaminadas según la OMS?",
-      options: [
-        { id: "a", text: "500 millones" },
-        { id: "b", text: "1,000 millones" },
-        { id: "c", text: "2,000 millones" },
-        { id: "d", text: "3,500 millones" },
-      ],
-      correctOptionId: "c",
-      order: 4,
-    },
-    {
-      key: "rc-q5",
-      prompt: "¿Qué desventaja se menciona sobre la desalinización del agua de mar?",
-      options: [
-        { id: "a", text: "Es lenta y poco efectiva" },
-        { id: "b", text: "Solo funciona en climas fríos" },
-        { id: "c", text: "Es costosa y consume mucha energía" },
-        { id: "d", text: "Contamina los océanos" },
-      ],
-      correctOptionId: "c",
-      order: 5,
-    },
-    {
-      key: "rc-q6",
-      prompt: "¿Cuál es la idea principal del último párrafo del texto?",
-      options: [
-        { id: "a", text: "La tecnología resolverá todos los problemas del agua" },
-        { id: "b", text: "La gestión integral de recursos hídricos es la solución más efectiva a largo plazo" },
-        { id: "c", text: "La cooperación internacional es imposible de lograr" },
-        { id: "d", text: "Las generaciones futuras no tendrán problemas de agua" },
-      ],
-      correctOptionId: "b",
-      order: 6,
-    },
-    {
-      key: "rc-q7",
-      prompt: "¿Qué se puede inferir del texto sobre la relación entre población y agua?",
-      options: [
-        { id: "a", text: "El crecimiento poblacional no afecta la disponibilidad de agua" },
-        { id: "b", text: "A mayor población, menor demanda de agua" },
-        { id: "c", text: "El crecimiento poblacional incrementa la presión sobre los recursos hídricos" },
-        { id: "d", text: "La población mundial está disminuyendo" },
-      ],
-      correctOptionId: "c",
-      order: 7,
-    },
-    {
-      key: "rc-q8",
-      prompt: "¿Cuál de las siguientes NO se menciona como una solución al problema del agua?",
-      options: [
-        { id: "a", text: "Desalinización del agua de mar" },
-        { id: "b", text: "Reutilización de aguas residuales" },
-        { id: "c", text: "Construcción de represas en todos los ríos" },
-        { id: "d", text: "Sistemas de captación de agua de lluvia" },
-      ],
-      correctOptionId: "c",
-      order: 8,
-    },
-  ],
-};
+Además, el aumento de la población urbana incrementa la demanda de recursos como agua y energía. Esto puede generar presión sobre los sistemas de abastecimiento y contribuir al deterioro ambiental. A esto se suma la producción de residuos, que en muchos casos no se gestionan adecuadamente.
+
+Sin embargo, algunas ciudades han comenzado a implementar estrategias para mitigar estos efectos. Entre ellas se encuentran la creación de corredores verdes, el uso de energías renovables y la promoción del transporte sostenible. Estas iniciativas buscan equilibrar el desarrollo urbano con la protección del medio ambiente.`,
+    questions: [
+      {
+        key: "rc-q7",
+        prompt: '¿Qué es una "isla de calor urbana"?',
+        options: [
+          { id: "a", text: "Un aumento de temperatura en la ciudad" },
+          { id: "b", text: "Un tipo de parque" },
+          { id: "c", text: "Un fenómeno marino" },
+          { id: "d", text: "Un sistema de transporte" },
+        ],
+        correctOptionId: "a",
+        points: 3,
+        order: 7,
+      },
+      {
+        key: "rc-q8",
+        prompt: "¿Por qué aumenta la temperatura en las ciudades?",
+        options: [
+          { id: "a", text: "Por la reducción de zonas verdes" },
+          { id: "b", text: "Por la presencia de ríos" },
+          { id: "c", text: "Por la lluvia constante" },
+          { id: "d", text: "Por el turismo" },
+        ],
+        correctOptionId: "a",
+        points: 4,
+        order: 8,
+      },
+      {
+        key: "rc-q9",
+        prompt: "¿Cuál medida es más coherente con el texto?",
+        options: [
+          { id: "a", text: "Promover el transporte sostenible" },
+          { id: "b", text: "Eliminar los espacios verdes" },
+          { id: "c", text: "Aumentar el uso de combustibles fósiles" },
+          { id: "d", text: "Expandir la ciudad sin control" },
+        ],
+        correctOptionId: "a",
+        points: 5,
+        order: 9,
+      },
+    ],
+  },
+  {
+    id: "rc-passage-4",
+    title: "La ciencia y el conocimiento",
+    content: `A lo largo de la historia, la ciencia ha sido considerada una de las principales herramientas para comprender el mundo. Sin embargo, el conocimiento científico no es estático, sino que evoluciona con el tiempo. Las teorías que en un momento se consideraron verdaderas pueden ser cuestionadas o reemplazadas a medida que surgen nuevas evidencias.
+
+Este carácter dinámico de la ciencia implica que el conocimiento se construye de manera provisional. Es decir, las explicaciones científicas no son verdades absolutas, sino interpretaciones basadas en la mejor información disponible en un momento determinado. Este enfoque permite que la ciencia avance, ya que promueve la revisión constante de ideas.
+
+No obstante, esta misma característica puede generar desconfianza en algunas personas, quienes interpretan los cambios en el conocimiento como una señal de debilidad. En realidad, la capacidad de cuestionar y corregir errores es una de las fortalezas más importantes de la ciencia. Comprender este aspecto es fundamental para desarrollar una visión crítica y fundamentada del conocimiento científico.`,
+    questions: [
+      {
+        key: "rc-q10",
+        prompt: "¿Cómo se describe el conocimiento científico en el texto?",
+        options: [
+          { id: "a", text: "Como dinámico y cambiante" },
+          { id: "b", text: "Como definitivo e inmutable" },
+          { id: "c", text: "Como irrelevante" },
+          { id: "d", text: "Como basado en opiniones" },
+        ],
+        correctOptionId: "a",
+        points: 3,
+        order: 10,
+      },
+      {
+        key: "rc-q11",
+        prompt: "¿Por qué algunas personas desconfían de la ciencia?",
+        options: [
+          { id: "a", text: "Porque el conocimiento cambia con el tiempo" },
+          { id: "b", text: "Porque no entienden los experimentos" },
+          { id: "c", text: "Porque los científicos no investigan" },
+          { id: "d", text: "Porque es demasiado sencilla" },
+        ],
+        correctOptionId: "a",
+        points: 4,
+        order: 11,
+      },
+      {
+        key: "rc-q12",
+        prompt: "¿Cuál afirmación refleja mejor la postura de quien escribió el texto?",
+        options: [
+          { id: "a", text: "La revisión constante fortalece la ciencia" },
+          { id: "b", text: "La ciencia no es confiable" },
+          { id: "c", text: "La ciencia debe evitar cambiar" },
+          { id: "d", text: "El conocimiento científico es absoluto" },
+        ],
+        correctOptionId: "a",
+        points: 5,
+        order: 12,
+      },
+    ],
+  },
+];

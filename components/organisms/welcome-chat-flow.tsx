@@ -64,7 +64,7 @@ export function WelcomeChatFlow() {
 
       {/* Action */}
       {isLast ? (
-        <Link href="/app/floor/floor-1">
+        <Link href="/app/floor">
           <Button className="px-10 py-3 text-base">Comenzar recorrido</Button>
         </Link>
       ) : (

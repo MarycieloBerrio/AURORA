@@ -20,23 +20,24 @@ interface SkillTestIntroProps {
 const TEST_INFO: Record<string, { description: string; tips: string[] }> = {
   "reading-comprehension": {
     description:
-      "En esta prueba se te presentará un texto de lectura y una serie de preguntas de comprensión. Deberás leer atentamente el texto y seleccionar la respuesta correcta para cada pregunta.",
+      "En esta prueba encontrarás una serie de textos los cuales debes leer con atención. Cada texto tiene algunas preguntas que requieren comprender información explícita y otras implican hacer inferencias o evaluar el contenido. Ten en cuenta que solo hay una respuesta correcta. Si no tienes certeza de cuál es, deja la respuesta en blanco.",
     tips: [
       "Busca un lugar tranquilo y sin distracciones",
-      "Lee el texto completo antes de responder las preguntas",
+      "Ten a la mano algo con qué escribir",
+      "Lee cada texto con atención antes de responder sus preguntas",
       "Puedes volver al texto en cualquier momento mientras respondes",
-      "No te detengas demasiado en una sola pregunta, avanza y regresa después",
+      "Trabaja de manera rápida pero cuidadosa",
     ],
   },
   "mathematical-reasoning": {
     description:
-      "En esta prueba resolverás problemas de razonamiento lógico y matemático. Cada pregunta puede incluir texto e imágenes en su enunciado y en las opciones de respuesta.",
+      "En esta prueba encontrarás una serie de problemas aritméticos. Ten en cuenta que solo hay una respuesta correcta. Si no tienes certeza de cuál es, deja la respuesta en blanco.",
     tips: [
       "Busca un lugar tranquilo y sin distracciones",
-      "Ten papel y lápiz a la mano para hacer cálculos",
+      "Ten a la mano algo con qué escribir",
+      "No uses calculadora ni otros dispositivos",
       "Lee cada enunciado con atención antes de responder",
-      "Puedes marcar preguntas como pendientes para revisarlas después",
-      "Usa el navegador de preguntas para moverte entre ellas",
+      "Trabaja de manera rápida pero cuidadosa",
     ],
   },
   [TEST_ID_SPATIAL_REASONING]: {
@@ -63,23 +64,24 @@ const TEST_INFO: Record<string, { description: string; tips: string[] }> = {
   },
   [TEST_ID_DEDUCTIVE_REASONING]: {
     description:
-      "En esta prueba evaluarás tu capacidad de razonamiento deductivo. Se te presentará una figura con una premisa lógica y deberás seleccionar la conclusión que se deriva de ella de forma válida.",
+      "En esta prueba encontrarás una serie de problemas para evaluar tu razonamiento lógico deductivo, es decir, tu habilidad para sacar conclusiones válidas a partir de información dada. Ten en cuenta que solo hay una respuesta correcta. Si no tienes certeza de cuál es, deja la respuesta en blanco.\n\nBasa tus respuestas únicamente en la información proporcionada en cada enunciado. No uses conocimientos externos ni supuestos adicionales.",
     tips: [
       "Busca un lugar tranquilo y sin distracciones",
-      "Lee o analiza cada figura con atención antes de elegir",
-      "Descarta las opciones que contradigan las premisas",
-      "Puedes marcar preguntas como pendientes para revisarlas después",
-      "Usa el navegador de preguntas para moverte entre ellas",
+      "Ten a la mano algo con qué escribir",
+      "Lee cada enunciado con atención antes de elegir",
+      "Basa tus respuestas solo en la información dada, sin supuestos externos",
+      "Trabaja de manera rápida pero cuidadosa",
     ],
   },
   [TEST_ID_SELECTIVE_ATTENTION]: {
     description:
-      "En esta prueba evaluarás tu atención visual. Verás una matriz de caracteres en la que uno de ellos es diferente al resto. Pulsa ese carácter lo más rápido que puedas.",
+      "En esta prueba encontrarás una serie de elementos organizados en matrices. En cada matriz hay un elemento diferente a los demás, tu tarea es encontrarlo en el menor tiempo posible. Ten en cuenta que solo hay una respuesta correcta. Si no tienes certeza de cuál es, deja la respuesta en blanco.",
     tips: [
       "Busca un lugar tranquilo y sin distracciones",
       "Escanea la matriz de forma sistemática, fila por fila",
-      "Las matrices aumentan de tamaño con cada pregunta",
-      "Al pulsar un carácter pasarás automáticamente a la siguiente pregunta",
+      "Las matrices varían en tamaño a lo largo de la prueba",
+      "Al pulsar un elemento pasarás automáticamente a la siguiente pregunta",
+      "Trabaja de manera rápida pero cuidadosa",
     ],
   },
 };

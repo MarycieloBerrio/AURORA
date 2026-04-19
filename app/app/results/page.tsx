@@ -28,7 +28,7 @@ export default async function ResultsPage() {
     progress.skill.done,
   );
 
-  if (!tier) redirect("/app/floor/floor-1");
+  if (!tier) redirect("/app/floor");
 
   const careers = rankCareers(interests, personality, skills);
 
@@ -45,8 +45,8 @@ export default async function ResultsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <ResultTierBadge tier={tier} />
-            <Link href="/app/floor/floor-1">
-              <Button variant="secondary" className="text-xs">Volver a los pisos</Button>
+            <Link href="/app/floor">
+              <Button variant="secondary" className="text-xs">Volver a la sala</Button>
             </Link>
             <LogoutButton />
           </div>

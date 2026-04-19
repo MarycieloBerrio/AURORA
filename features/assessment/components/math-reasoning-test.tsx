@@ -14,10 +14,10 @@ const OPTION_LABELS = ["A", "B", "C", "D", "E"];
 interface MathReasoningTestProps {
   questions: SkillQuestion[];
   testId: string;
-  floorId: string;
   testLabel: string;
   timeLimitMinutes: number;
   activeSession?: { startedAt: string; timeLimitSeconds: number } | null;
+  shuffleOptions?: boolean;
 }
 
 type QuestionStatus = "unanswered" | "answered" | "pending";
@@ -25,10 +25,10 @@ type QuestionStatus = "unanswered" | "answered" | "pending";
 export function MathReasoningTest({
   questions,
   testId,
-  floorId,
   testLabel,
   timeLimitMinutes,
   activeSession,
+  shuffleOptions = false,
 }: MathReasoningTestProps) {
   const router = useRouter();
   const [session, setSession] = useState(activeSession ?? null);
@@ -39,7 +39,15 @@ export function MathReasoningTest({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittedRef = useRef(false);
 
+  const shuffledOptionsMap = useMemo(() => {
+    if (!shuffleOptions) return null;
+    return Object.fromEntries(
+      questions.map((q) => [q.key, [...q.options].sort(() => Math.random() - 0.5)]),
+    );
+  }, [questions, shuffleOptions]);
+
   const currentQuestion = questions[currentIndex];
+  const currentOptions = shuffledOptionsMap?.[currentQuestion.key] ?? currentQuestion.options;
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === questions.length - 1;
   const answeredCount = Object.keys(answers).length;
@@ -86,15 +94,17 @@ export function MathReasoningTest({
     setIsSubmitting(true);
     setErrorMessage("");
 
-    const currentPoints = questions.filter(
-      (q) => answers[q.key] === q.correctOptionId,
-    ).length;
+    const maxPoints = questions.reduce((sum, q) => sum + (q.points ?? 1), 0);
+    const currentPoints = questions.reduce(
+      (sum, q) => (answers[q.key] === q.correctOptionId ? sum + (q.points ?? 1) : sum),
+      0,
+    );
 
     try {
       const response = await fetch(`/api/assessment/${testId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ max: questions.length, points: currentPoints }),
+        body: JSON.stringify({ max: maxPoints, points: currentPoints }),
       });
 
       if (!response.ok) {
@@ -105,14 +115,14 @@ export function MathReasoningTest({
         return;
       }
 
-      router.push(`/app/floor/${floorId}/test/${testId}/completed`);
+      router.push(`/app/floor/${testId}/completed`);
       router.refresh();
     } catch {
       setErrorMessage("Hubo un problema de conexión. Inténtalo nuevamente.");
       setIsSubmitting(false);
       submittedRef.current = false;
     }
-  }, [answeredCount, answers, floorId, questions, router, testId]);
+  }, [answeredCount, answers, questions, router, testId]);
 
   const handleTimeUp = useCallback(() => {
     doSubmit(true);
@@ -191,7 +201,7 @@ export function MathReasoningTest({
 
           {/* Options */}
           <div className="space-y-2">
-            {currentQuestion.options.map((option, oIdx) => (
+            {currentOptions.map((option, oIdx) => (
               <McOptionCard
                 key={option.id}
                 option={option}

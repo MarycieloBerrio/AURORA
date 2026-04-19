@@ -1,10 +1,10 @@
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { AppShellTemplate } from "@/components/templates/app-shell-template";
-import { findTestById } from "@/constants/floors";
+import { findTestById, getTestCompletedPath } from "@/constants/floors";
 import { getBlockQuestions as getRiasecBlockQuestions } from "@/constants/questions/riasec";
 import { getBlockQuestions as getHexacoBlockQuestions } from "@/constants/questions/hexaco";
-import { READING_COMPREHENSION_PASSAGE } from "@/constants/questions/reading-comprehension";
+import { READING_COMPREHENSION_PASSAGES } from "@/constants/questions/reading-comprehension";
 import { MATHEMATICAL_REASONING_QUESTIONS } from "@/constants/questions/mathematical-reasoning";
 import { SPATIAL_REASONING_QUESTIONS } from "@/constants/questions/spatial-reasoning";
 import { INDUCTIVE_REASONING_QUESTIONS } from "@/constants/questions/inductive-reasoning";
@@ -25,27 +25,20 @@ import { toQuestionView } from "@/features/assessment/types";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { testService } from "@/services/test-service";
-import {
-  type RiasecBlock,
-  type HexacoBlock,
-} from "@/types/test-results";
+import type { RiasecBlock, HexacoBlock } from "@/types/test-results";
 import type { QuestionView } from "@/features/assessment/types";
 
 interface TestPageProps {
-  params: Promise<{ floorId: string; testId: string }>;
+  params: Promise<{ testId: string }>;
 }
 
 function getBlockQuestionsAsViews(
   testType: string,
-  block: RiasecBlock | HexacoBlock | undefined
+  block: RiasecBlock | HexacoBlock | undefined,
 ): QuestionView[] | null {
   if (!block) return null;
-  if (testType === "riasec") {
-    return getRiasecBlockQuestions(block as RiasecBlock).map(toQuestionView);
-  }
-  if (testType === "hexaco") {
-    return getHexacoBlockQuestions(block as HexacoBlock).map(toQuestionView);
-  }
+  if (testType === "riasec") return getRiasecBlockQuestions(block as RiasecBlock).map(toQuestionView);
+  if (testType === "hexaco") return getHexacoBlockQuestions(block as HexacoBlock).map(toQuestionView);
   return null;
 }
 
@@ -56,24 +49,22 @@ const TEST_TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function TestPage({ params }: TestPageProps) {
-  const { floorId, testId } = await params;
+  const { testId } = await params;
 
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
   if (!session.user.profileCompleted) redirect("/welcome/complete-profile");
 
   const found = findTestById(testId);
-  if (!found || found.floor.id !== floorId) notFound();
+  if (!found) notFound();
 
   const hasCompleted = await testService.hasCompletedTestById(session.user.id, testId);
-  if (hasCompleted) {
-    redirect(`/app/floor/${floorId}/test/${testId}/completed`);
-  }
+  if (hasCompleted) redirect(getTestCompletedPath(testId));
 
   const shell = (children: React.ReactNode) => (
     <AppShellTemplate
       title={found.test.labelEs}
-      subtitle={`${found.floor.nameEs} · ${found.floor.subtitleEs}`}
+      subtitle={found.floor.subtitleEs}
     >
       {children}
     </AppShellTemplate>
@@ -107,9 +98,8 @@ export default async function TestPage({ params }: TestPageProps) {
     if (testId === "reading-comprehension") {
       return shell(
         <ReadingComprehensionTest
-          passage={READING_COMPREHENSION_PASSAGE}
+          passages={READING_COMPREHENSION_PASSAGES}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
@@ -122,10 +112,10 @@ export default async function TestPage({ params }: TestPageProps) {
         <MathReasoningTest
           questions={MATHEMATICAL_REASONING_QUESTIONS}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
+          shuffleOptions
         />,
       );
     }
@@ -135,7 +125,6 @@ export default async function TestPage({ params }: TestPageProps) {
         <ImageReasoningTest
           questions={SPATIAL_REASONING_QUESTIONS}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
@@ -148,7 +137,6 @@ export default async function TestPage({ params }: TestPageProps) {
         <ImageReasoningTest
           questions={INDUCTIVE_REASONING_QUESTIONS}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
@@ -158,13 +146,13 @@ export default async function TestPage({ params }: TestPageProps) {
 
     if (testId === TEST_ID_DEDUCTIVE_REASONING) {
       return shell(
-        <ImageReasoningTest
+        <MathReasoningTest
           questions={DEDUCTIVE_REASONING_QUESTIONS}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
+          shuffleOptions
         />,
       );
     }
@@ -174,7 +162,6 @@ export default async function TestPage({ params }: TestPageProps) {
         <SelectiveAttentionTest
           questions={SELECTIVE_ATTENTION_QUESTIONS}
           testId={testId}
-          floorId={floorId}
           testLabel={found.test.labelEs}
           timeLimitMinutes={timeLimitMinutes}
           activeSession={activeSession}
@@ -192,7 +179,6 @@ export default async function TestPage({ params }: TestPageProps) {
     <PaginatedQuestionnaire
       questions={questions}
       testId={testId}
-      floorId={floorId}
       accentColor={found.test.color}
       testLabel={TEST_TYPE_LABELS[found.test.testType] ?? found.test.testType}
     />,

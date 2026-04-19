@@ -14,7 +14,6 @@ const OPTION_LABELS = ["A", "B", "C", "D"];
 interface ImageReasoningTestProps {
   questions: SkillQuestion[];
   testId: string;
-  floorId: string;
   testLabel: string;
   timeLimitMinutes: number;
   activeSession?: { startedAt: string; timeLimitSeconds: number } | null;
@@ -25,7 +24,6 @@ type QuestionStatus = "unanswered" | "answered" | "pending";
 export function ImageReasoningTest({
   questions,
   testId,
-  floorId,
   testLabel,
   timeLimitMinutes,
   activeSession,
@@ -107,7 +105,7 @@ export function ImageReasoningTest({
           return;
         }
 
-        router.push(`/app/floor/${floorId}/test/${testId}/completed`);
+        router.push(`/app/floor/${testId}/completed`);
         router.refresh();
       } catch {
         setErrorMessage("Hubo un problema de conexión. Inténtalo nuevamente.");
@@ -115,7 +113,7 @@ export function ImageReasoningTest({
         submittedRef.current = false;
       }
     },
-    [answeredCount, answers, floorId, questions, router, testId],
+    [answeredCount, answers, questions, router, testId],
   );
 
   const handleTimeUp = useCallback(() => {

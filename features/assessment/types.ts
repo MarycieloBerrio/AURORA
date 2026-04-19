@@ -31,6 +31,7 @@ export interface SkillQuestion {
   promptImageSrc?: string;
   options: AnswerOption[];
   correctOptionId: string;
+  points?: number;
   order: number;
 }
 
@@ -41,13 +42,16 @@ export interface ReadingPassage {
   questions: SkillQuestion[];
 }
 
+export type AttentionCellContent =
+  | { type: "text"; value: string; italic?: boolean }
+  | { type: "image"; src: string; alt: string };
+
 export interface AttentionQuestion {
   key: string;
-  prompt: string;
   gridRows: number;
   gridCols: number;
-  distractorChar: string;
-  targetChar: string;
-  targetIndex: number;
+  distractorContent: AttentionCellContent;
+  targetContent: AttentionCellContent;
+  points?: number;
   order: number;
 }

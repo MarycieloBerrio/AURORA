@@ -1,9 +1,11 @@
 "use client";
 
+import type { AttentionCellContent } from "@/features/assessment/types";
+
 export type CellStatus = "idle" | "correct" | "incorrect" | "revealed" | "dimmed";
 
 interface AttentionGridCellProps {
-  char: string;
+  content: AttentionCellContent;
   status: CellStatus;
   onClick: () => void;
 }
@@ -16,16 +18,32 @@ const STATUS_STYLES: Record<CellStatus, string> = {
   dimmed: "bg-slate-50 border-slate-100 text-slate-300 cursor-default",
 };
 
-export function AttentionGridCell({ char, status, onClick }: AttentionGridCellProps) {
+export function AttentionGridCell({ content, status, onClick }: AttentionGridCellProps) {
+  const label = content.type === "text" ? `Elemento ${content.value}` : content.alt;
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={status !== "idle"}
-      aria-label={`Carácter ${char}`}
-      className={`aspect-square w-full select-none rounded-md font-mono font-bold transition-all duration-200 ${STATUS_STYLES[status]}`}
+      aria-label={label}
+      className={`relative aspect-square w-full select-none overflow-hidden rounded-md font-mono font-bold transition-all duration-200 ${STATUS_STYLES[status]}`}
     >
-      {char}
+      {content.type === "image" ? (
+        <img
+          src={content.src}
+          alt={content.alt}
+          className="absolute inset-1 object-contain"
+          style={{ width: "calc(100% - 8px)", height: "calc(100% - 8px)" }}
+          draggable={false}
+        />
+      ) : (
+        <span
+          className={`absolute inset-0 flex items-center justify-center${content.italic ? " italic" : ""}`}
+        >
+          {content.value}
+        </span>
+      )}
     </button>
   );
 }

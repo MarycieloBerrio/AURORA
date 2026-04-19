@@ -6,7 +6,6 @@ import type { FloorTest } from "@/constants/floors";
 
 interface FloorTestBubbleProps {
   test: FloorTest;
-  floorId: string;
   completed: boolean;
 }
 
@@ -37,7 +36,7 @@ const colorStyles = {
   },
 } as const;
 
-export function FloorTestBubble({ test, floorId, completed }: FloorTestBubbleProps) {
+export function FloorTestBubble({ test, completed }: FloorTestBubbleProps) {
   const styles = colorStyles[test.color];
 
   if (completed) {
@@ -60,7 +59,7 @@ export function FloorTestBubble({ test, floorId, completed }: FloorTestBubblePro
 
   return (
     <Link
-      href={getTestPath(floorId, test.id)}
+      href={getTestPath(test.id)}
       className="group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5"
       style={{ left: `${test.position.x}%`, top: `${test.position.y}%` }}
     >

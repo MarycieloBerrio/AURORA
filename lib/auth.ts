@@ -16,7 +16,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID ?? "",
       clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "",
-      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
@@ -28,7 +27,7 @@ export const authOptions: NextAuthOptions = {
         token.userId = user.id;
       }
 
-      if (token.userId) {
+      if (token.userId && !token.profileCompleted) {
         const currentUser = await prisma.user.findUnique({
           where: { id: token.userId },
           select: { name: true, birthdate: true, educationalLevel: true },

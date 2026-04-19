@@ -1,35 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { SpeechBubble } from "@/components/atoms/speech-bubble";
 import { FloorCarousel } from "@/components/organisms/floor-carousel";
 import { FloorTestBubble } from "@/components/molecules/floor-test-bubble";
 import { TestTypeProgress } from "@/components/molecules/test-type-progress";
 import { LogoutButton } from "@/components/organisms/logout-button";
 import { authOptions } from "@/lib/auth";
-import { getFloorById } from "@/lib/floor-helpers";
+import { FLOORS } from "@/constants/floors";
 import { testService } from "@/services/test-service";
 import { hasMinimumResults } from "@/features/results/lib/result-tier";
 
-interface FloorPageProps {
-  params: Promise<{ floorId: string }>;
-}
-
-export default async function FloorPage({ params }: FloorPageProps) {
-  const { floorId } = await params;
-
+export default async function FloorPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
   if (!session.user.profileCompleted) redirect("/welcome/complete-profile");
 
-  const floor = getFloorById(floorId);
-  if (!floor) notFound();
+  const floor = FLOORS[0];
 
   const [completionStatus, globalProgress] = await Promise.all([
-    testService.getFloorCompletionStatus(session.user.id, floorId),
+    testService.getFloorCompletionStatus(session.user.id, floor.id),
     testService.getGlobalProgressByType(session.user.id),
   ]);
+
   const allCompleted = floor.tests.every((t) => completionStatus.get(t.id));
   const canViewResults = hasMinimumResults(
     globalProgress.riasec.done,
@@ -44,9 +38,7 @@ export default async function FloorPage({ params }: FloorPageProps) {
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-indigo-200 bg-indigo-50">
             <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain p-0.5" sizes="40px" />
           </div>
-          <h1 className="text-sm font-semibold text-slate-900">
-            {floor.nameEs} · {floor.subtitleEs}
-          </h1>
+          <h1 className="text-sm font-semibold text-slate-900">{floor.subtitleEs}</h1>
         </div>
         {canViewResults && (
           <Link
@@ -60,7 +52,7 @@ export default async function FloorPage({ params }: FloorPageProps) {
       </header>
 
       <section className="relative min-h-0 flex-1">
-        <FloorCarousel currentFloorId={floorId} />
+        <FloorCarousel />
 
         <TestTypeProgress progress={globalProgress} />
 
@@ -68,7 +60,6 @@ export default async function FloorPage({ params }: FloorPageProps) {
           <FloorTestBubble
             key={test.id}
             test={test}
-            floorId={floorId}
             completed={completionStatus.get(test.id) ?? false}
           />
         ))}
@@ -85,7 +76,7 @@ export default async function FloorPage({ params }: FloorPageProps) {
           </div>
           <SpeechBubble tail="left" className="pointer-events-auto mb-8 max-w-[10rem] animate-fade-in sm:mb-12 sm:max-w-xs md:mb-20">
             {allCompleted ? (
-              <p className="text-sm text-emerald-700">Has completado todas las pruebas de este piso.</p>
+              <p className="text-sm text-emerald-700">Has completado todas las pruebas de la sala.</p>
             ) : (
               <p className="text-sm text-slate-700">{floor.speechEs}</p>
             )}

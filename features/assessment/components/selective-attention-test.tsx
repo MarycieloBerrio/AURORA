@@ -6,14 +6,14 @@ import { Card } from "@/components/atoms/card";
 import { AttentionGridCell, type CellStatus } from "@/components/atoms/attention-grid-cell";
 import { TestTimerBar } from "@/features/assessment/components/test-timer-bar";
 import { SkillTestIntro } from "@/features/assessment/components/skill-test-intro";
-import type { AttentionQuestion } from "@/features/assessment/types";
+import type { AttentionCellContent, AttentionQuestion } from "@/features/assessment/types";
 
 const ADVANCE_DELAY_MS = 900;
+const PROMPT = "Encuentra y pulsa el elemento diferente en la matriz.";
 
 interface SelectiveAttentionTestProps {
   questions: AttentionQuestion[];
   testId: string;
-  floorId: string;
   testLabel: string;
   timeLimitMinutes: number;
   activeSession?: { startedAt: string; timeLimitSeconds: number } | null;
@@ -24,50 +24,42 @@ interface AnswerRecord {
   isCorrect: boolean;
 }
 
-function buildGridChars(question: AttentionQuestion): string[] {
+function buildGridCells(
+  question: AttentionQuestion,
+  targetIndex: number,
+): AttentionCellContent[] {
   const total = question.gridRows * question.gridCols;
-  const cells = Array<string>(total).fill(question.distractorChar);
-  cells[question.targetIndex] = question.targetChar;
+  const cells: AttentionCellContent[] = Array(total).fill(question.distractorContent);
+  cells[targetIndex] = question.targetContent;
   return cells;
 }
 
 function getCellStatus(
   cellIndex: number,
-  question: AttentionQuestion,
+  targetIndex: number,
   answer: AnswerRecord | undefined,
 ): CellStatus {
   if (!answer) return "idle";
-
-  if (cellIndex === answer.clickedIndex) {
-    return answer.isCorrect ? "correct" : "incorrect";
-  }
-  if (!answer.isCorrect && cellIndex === question.targetIndex) {
-    return "revealed";
-  }
+  if (cellIndex === answer.clickedIndex) return answer.isCorrect ? "correct" : "incorrect";
+  if (!answer.isCorrect && cellIndex === targetIndex) return "revealed";
   return "dimmed";
 }
 
-function buildGridStyle(gridCols: number): React.CSSProperties {
-  return { gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` };
-}
-
-function buildGridMaxWidth(gridCols: number): string {
-  const cellPx = gridCols <= 5 ? 56 : gridCols <= 7 ? 44 : gridCols <= 9 ? 36 : 30;
+function buildGridMaxWidth(gridCols: number, isImageGrid: boolean): string {
+  const cellPx = isImageGrid ? 72 : gridCols <= 3 ? 72 : gridCols <= 5 ? 56 : 44;
   const gapPx = 6;
   return `${gridCols * cellPx + (gridCols - 1) * gapPx}px`;
 }
 
 function buildFontSize(gridCols: number): string {
-  if (gridCols <= 5) return "1rem";
-  if (gridCols <= 7) return "0.875rem";
-  if (gridCols <= 9) return "0.75rem";
-  return "0.65rem";
+  if (gridCols <= 3) return "1.25rem";
+  if (gridCols <= 5) return "0.875rem";
+  return "0.75rem";
 }
 
 export function SelectiveAttentionTest({
   questions,
   testId,
-  floorId,
   testLabel,
   timeLimitMinutes,
   activeSession,
@@ -80,10 +72,27 @@ export function SelectiveAttentionTest({
   const [errorMessage, setErrorMessage] = useState("");
   const submittedRef = useRef(false);
 
+  const targetIndices = useMemo(
+    () =>
+      Object.fromEntries(
+        questions.map((q) => [
+          q.key,
+          Math.floor(Math.random() * q.gridRows * q.gridCols),
+        ]),
+      ),
+    [questions],
+  );
+
   const currentQuestion = questions[currentIndex];
   const currentAnswer = answers[currentQuestion.key];
+  const currentTargetIndex = targetIndices[currentQuestion.key] ?? 0;
   const isLastQuestion = currentIndex === questions.length - 1;
-  const gridChars = useMemo(() => buildGridChars(currentQuestion), [currentQuestion]);
+  const isImageGrid = currentQuestion.distractorContent.type === "image";
+
+  const gridCells = useMemo(
+    () => buildGridCells(currentQuestion, currentTargetIndex),
+    [currentQuestion, currentTargetIndex],
+  );
 
   const doSubmit = useCallback(
     async (force?: boolean) => {
@@ -91,15 +100,17 @@ export function SelectiveAttentionTest({
       submittedRef.current = true;
       setIsSubmitting(true);
 
-      const points = questions.filter(
-        (q) => answers[q.key]?.isCorrect,
-      ).length;
+      const maxPoints = questions.reduce((sum, q) => sum + (q.points ?? 1), 0);
+      const earnedPoints = questions.reduce(
+        (sum, q) => (answers[q.key]?.isCorrect ? sum + (q.points ?? 1) : sum),
+        0,
+      );
 
       try {
         const response = await fetch(`/api/assessment/${testId}/submit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ max: questions.length, points }),
+          body: JSON.stringify({ max: maxPoints, points: earnedPoints }),
         });
 
         if (!response.ok) {
@@ -110,7 +121,7 @@ export function SelectiveAttentionTest({
           return;
         }
 
-        router.push(`/app/floor/${floorId}/test/${testId}/completed`);
+        router.push(`/app/floor/${testId}/completed`);
         router.refresh();
       } catch {
         setErrorMessage("Hubo un problema de conexión. Inténtalo nuevamente.");
@@ -118,14 +129,13 @@ export function SelectiveAttentionTest({
         submittedRef.current = false;
       }
     },
-    [answers, floorId, questions, router, testId],
+    [answers, questions, router, testId],
   );
 
   const handleTimeUp = useCallback(() => doSubmit(true), [doSubmit]);
 
   useEffect(() => {
     if (!currentAnswer) return;
-
     const timer = setTimeout(() => {
       if (isLastQuestion) {
         doSubmit(true);
@@ -133,7 +143,6 @@ export function SelectiveAttentionTest({
         setCurrentIndex((i) => i + 1);
       }
     }, ADVANCE_DELAY_MS);
-
     return () => clearTimeout(timer);
   }, [currentAnswer, isLastQuestion, doSubmit]);
 
@@ -143,7 +152,7 @@ export function SelectiveAttentionTest({
       ...prev,
       [currentQuestion.key]: {
         clickedIndex: cellIndex,
-        isCorrect: cellIndex === currentQuestion.targetIndex,
+        isCorrect: cellIndex === currentTargetIndex,
       },
     }));
   };
@@ -179,7 +188,6 @@ export function SelectiveAttentionTest({
           </span>
         </div>
 
-        {/* Progress bar */}
         <div className="mb-6 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
           <div
             className="h-full rounded-full bg-emerald-500 transition-all duration-500"
@@ -187,14 +195,11 @@ export function SelectiveAttentionTest({
           />
         </div>
 
-        <p className="mb-6 text-center text-sm font-medium text-slate-700">
-          {currentQuestion.prompt}
-        </p>
+        <p className="mb-6 text-center text-sm font-medium text-slate-700">{PROMPT}</p>
 
-        {/* Feedback banner */}
         {currentAnswer ? (
           <div
-            className={`mb-5 rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition-all ${
+            className={`mb-5 rounded-xl px-4 py-2.5 text-center text-sm font-semibold ${
               currentAnswer.isCorrect
                 ? "bg-emerald-50 text-emerald-700"
                 : "bg-rose-50 text-rose-700"
@@ -204,22 +209,21 @@ export function SelectiveAttentionTest({
           </div>
         ) : null}
 
-        {/* Character grid */}
         <div className="flex justify-center">
           <div
             className="grid gap-1.5"
             style={{
-              ...buildGridStyle(currentQuestion.gridCols),
-              maxWidth: buildGridMaxWidth(currentQuestion.gridCols),
-              fontSize: buildFontSize(currentQuestion.gridCols),
+              gridTemplateColumns: `repeat(${currentQuestion.gridCols}, minmax(0, 1fr))`,
+              maxWidth: buildGridMaxWidth(currentQuestion.gridCols, isImageGrid),
+              fontSize: isImageGrid ? undefined : buildFontSize(currentQuestion.gridCols),
               width: "100%",
             }}
           >
-            {gridChars.map((char, idx) => (
+            {gridCells.map((content, idx) => (
               <AttentionGridCell
                 key={idx}
-                char={char}
-                status={getCellStatus(idx, currentQuestion, currentAnswer)}
+                content={content}
+                status={getCellStatus(idx, currentTargetIndex, currentAnswer)}
                 onClick={() => handleCellClick(idx)}
               />
             ))}
