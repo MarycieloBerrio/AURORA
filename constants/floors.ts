@@ -59,7 +59,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "skill",
         labelEs: "Atención Selectiva",
         color: "emerald",
-        position: { x: 12, y: 26 },
+        position: { x: 24, y: 27 },
         timeLimitMinutes: 12,
       },
       {
@@ -68,7 +68,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "riasec",
         labelEs: "Intereses I",
         color: "indigo",
-        position: { x: 35, y: 26 },
+        position: { x: 42, y: 27 },
         block: "A",
       },
       {
@@ -77,7 +77,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "skill",
         labelEs: "Razonamiento Deductivo",
         color: "emerald",
-        position: { x: 58, y: 26 },
+        position: { x: 60, y: 27 },
         timeLimitMinutes: 15,
       },
       {
@@ -86,7 +86,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "riasec",
         labelEs: "Intereses III",
         color: "indigo",
-        position: { x: 82, y: 26 },
+        position: { x: 78, y: 27 },
         block: "C",
       },
       // ── Fila 2 (medio-fondo, y≈43) ───────────────────────────────────────
