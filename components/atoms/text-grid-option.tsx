@@ -6,7 +6,8 @@
  * system fonts, so we compensate with per-symbol font sizes.
  */
 const SYMBOL_SIZES: Record<string, string> = {
-  "•": "3.8rem",   // bullet is tiny — push it up significantly
+  "•": "3.8rem",   // U+2022 BULLET — tiny, push it up significantly
+  "●": "1.85rem",  // U+25CF BLACK CIRCLE — similar visual weight to ■
   "▲": "1.35rem",  // triangle renders very large — cut it down
   "■": "1.85rem",  // square is the visual middle ground
   "♦": "2.0rem",
