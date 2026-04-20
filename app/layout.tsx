@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Aurora",
   description: "Guía vocacional gamificada para estudiantes",
+  icons: {
+    icon: "/assets/favicon.png",
+  },
 };
 
 interface RootLayoutProps {
