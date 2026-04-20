@@ -1,22 +1,36 @@
 "use client";
 
-import type React from "react";
-
 /**
  * Unicode geometric symbols have very different visual weights at the same font-size.
- * These sizes are calibrated so •, ▲, ■ and ♦ appear roughly the same visual height
- * inside the answer option cards.
+ * Calibrated so •, ▲, ■ and ♦ appear roughly the same visual height inside option cards.
  */
-const SINGLE_SYMBOL_SIZE: Record<string, string> = {
+const SYMBOL_SIZES: Record<string, string> = {
   "•": "3.2rem",  // bullet is inherently tiny — needs ~2× the size of a square
   "▲": "2.2rem",  // triangle slightly smaller than square visually
   "■": "1.7rem",  // square fills its bounding box completely — keep it smaller
   "♦": "2.4rem",  // diamond sits between bullet and square
 };
 
-function textStyle(text: string): React.CSSProperties {
-  const fontSize = SINGLE_SYMBOL_SIZE[text];
-  return fontSize ? { fontSize } : {};
+/** Renders option text with per-character size normalization for known symbols. */
+function OptionText({ value }: { value: string }) {
+  const chars = [...value];
+  if (!chars.some((c) => c in SYMBOL_SIZES)) {
+    return <span className="text-xl font-bold text-slate-800">{value}</span>;
+  }
+
+  return (
+    <span className="inline-flex items-center leading-none">
+      {chars.map((char, i) => (
+        <span
+          key={i}
+          style={{ fontSize: SYMBOL_SIZES[char] }}
+          className="font-bold leading-none text-slate-800"
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 interface TextGridOptionProps {
@@ -44,9 +58,7 @@ export function TextGridOption({ text, label, isSelected, onClick }: TextGridOpt
       >
         {label}
       </span>
-      <span style={textStyle(text)} className="text-xl font-bold text-slate-800">
-        {text}
-      </span>
+      <OptionText value={text} />
     </button>
   );
 }

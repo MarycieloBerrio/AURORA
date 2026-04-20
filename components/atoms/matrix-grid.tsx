@@ -2,19 +2,29 @@ const MISSING_CELL = "?";
 
 /**
  * Unicode geometric symbols have very different visual weights at the same font-size.
- * These sizes are calibrated so •, ▲, ■ and ♦ appear roughly the same visual height.
+ * Calibrated so •, ▲, ■ and ♦ appear roughly the same visual height inside matrix cells.
  */
-const SINGLE_SYMBOL_SIZE: Record<string, string> = {
+const SYMBOL_SIZES: Record<string, string> = {
   "•": "2.2rem",  // bullet is inherently tiny — needs ~2× the size of a square
   "▲": "1.5rem",  // triangle slightly smaller than square visually
   "■": "1.15rem", // square fills its bounding box completely — keep it smaller
   "♦": "1.6rem",  // diamond sits between bullet and square
 };
 
-function cellStyle(cell: string): React.CSSProperties {
-  if (cell === MISSING_CELL) return {};
-  const fontSize = SINGLE_SYMBOL_SIZE[cell];
-  return fontSize ? { fontSize } : {};
+/** Renders cell text with per-character size normalization for known symbols. */
+function CellContent({ value }: { value: string }) {
+  const chars = [...value];
+  if (!chars.some((c) => c in SYMBOL_SIZES)) return <>{value}</>;
+
+  return (
+    <span className="inline-flex items-center leading-none">
+      {chars.map((char, i) => (
+        <span key={i} style={{ fontSize: SYMBOL_SIZES[char] }} className="leading-none">
+          {char}
+        </span>
+      ))}
+    </span>
+  );
 }
 
 interface MatrixGridProps {
@@ -32,14 +42,13 @@ export function MatrixGrid({ cells }: MatrixGridProps) {
       {cells.flat().map((cell, i) => (
         <div
           key={i}
-          style={cellStyle(cell)}
           className={`flex min-h-[72px] items-center justify-center border border-slate-200 p-4 text-center font-medium ${
             cell === MISSING_CELL
               ? "bg-indigo-50 text-3xl font-bold text-indigo-500"
               : "text-lg text-slate-800"
           }`}
         >
-          {cell}
+          {cell === MISSING_CELL ? cell : <CellContent value={cell} />}
         </div>
       ))}
     </div>
