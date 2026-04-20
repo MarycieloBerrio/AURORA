@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Aurora",
   description: "Guía vocacional gamificada para estudiantes",
   icons: {
-    icon: "/assets/favicon.png",
+    icon: { url: "/assets/favicon.png", sizes: "32x32", type: "image/png" },
   },
 };
 
