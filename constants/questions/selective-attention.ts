@@ -72,8 +72,8 @@ export const SELECTIVE_ATTENTION_QUESTIONS: AttentionQuestion[] = [
     gridCols: 5,
     distractorContent: { type: "image", src: `${IMG_BASE}/drill.png`, alt: "taladro" },
     targetContent: { type: "image", src: `${IMG_BASE}/drill_alt.png`, alt: "taladro diferente" },
-    points: 4,
-    order: 8,
+    points: 5,
+    order: 12,
   },
   {
     key: "sa-q9",
@@ -109,7 +109,7 @@ export const SELECTIVE_ATTENTION_QUESTIONS: AttentionQuestion[] = [
     distractorContent: { type: "image", src: `${IMG_BASE}/hammer.png`, alt: "martillo" },
     targetContent: { type: "image", src: `${IMG_BASE}/hammer_alt.png`, alt: "martillo diferente" },
     points: 4,
-    order: 12,
+    order: 8,
   },
   {
     key: "sa-q13",
