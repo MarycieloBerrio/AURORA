@@ -59,7 +59,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "skill",
         labelEs: "Atención Selectiva",
         color: "emerald",
-        position: { x: 24, y: 27 },
+        position: { x: 30, y: 30 },
         timeLimitMinutes: 12,
       },
       {
@@ -123,7 +123,7 @@ export const FLOORS: FloorConfig[] = [
         testType: "riasec",
         labelEs: "Intereses II",
         color: "indigo",
-        position: { x: 12, y: 59 },
+        position: { x: 20, y: 59 },
         block: "B",
       },
       {
