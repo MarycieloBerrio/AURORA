@@ -192,8 +192,11 @@ export function ImageReasoningTest({
           </div>
 
           <div className="flex flex-col gap-6 lg:flex-row">
-            {/* Left panel — matrix or image + prompt */}
+            {/* Left panel — prompt + matrix or image */}
             <div className="flex flex-col gap-4 lg:w-[55%]">
+              <p className="text-sm font-medium leading-relaxed text-slate-800">
+                {currentQuestion.prompt}
+              </p>
               {currentQuestion.matrixCells ? (
                 <MatrixGrid cells={currentQuestion.matrixCells} />
               ) : currentQuestion.promptImageSrc ? (
@@ -203,9 +206,6 @@ export function ImageReasoningTest({
                   className="max-h-56 w-full rounded-xl object-contain lg:max-h-80"
                 />
               ) : null}
-              <p className="text-sm font-medium leading-relaxed text-slate-800">
-                {currentQuestion.prompt}
-              </p>
             </div>
 
             {/* Right panel — 2×2 options grid */}

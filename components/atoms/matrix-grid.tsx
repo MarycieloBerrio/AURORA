@@ -1,5 +1,22 @@
 const MISSING_CELL = "?";
 
+/**
+ * Unicode geometric symbols have very different visual weights at the same font-size.
+ * These sizes are calibrated so •, ▲, ■ and ♦ appear roughly the same visual height.
+ */
+const SINGLE_SYMBOL_SIZE: Record<string, string> = {
+  "•": "2.2rem",  // bullet is inherently tiny — needs ~2× the size of a square
+  "▲": "1.5rem",  // triangle slightly smaller than square visually
+  "■": "1.15rem", // square fills its bounding box completely — keep it smaller
+  "♦": "1.6rem",  // diamond sits between bullet and square
+};
+
+function cellStyle(cell: string): React.CSSProperties {
+  if (cell === MISSING_CELL) return {};
+  const fontSize = SINGLE_SYMBOL_SIZE[cell];
+  return fontSize ? { fontSize } : {};
+}
+
 interface MatrixGridProps {
   cells: string[][];
 }
@@ -15,10 +32,11 @@ export function MatrixGrid({ cells }: MatrixGridProps) {
       {cells.flat().map((cell, i) => (
         <div
           key={i}
-          className={`flex items-center justify-center border border-slate-200 p-3 text-center text-sm font-medium ${
+          style={cellStyle(cell)}
+          className={`flex min-h-[72px] items-center justify-center border border-slate-200 p-4 text-center font-medium ${
             cell === MISSING_CELL
-              ? "bg-indigo-50 text-2xl font-bold text-indigo-500"
-              : "text-slate-800"
+              ? "bg-indigo-50 text-3xl font-bold text-indigo-500"
+              : "text-lg text-slate-800"
           }`}
         >
           {cell}
