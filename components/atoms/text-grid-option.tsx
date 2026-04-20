@@ -2,13 +2,14 @@
 
 /**
  * Unicode geometric symbols have very different visual weights at the same font-size.
- * Calibrated so •, ▲, ■ and ♦ appear roughly the same visual height inside option cards.
+ * Calibrated empirically: ▲ renders ~3× larger than • and ~2× larger than ■ in most
+ * system fonts, so we compensate with per-symbol font sizes.
  */
 const SYMBOL_SIZES: Record<string, string> = {
-  "•": "3.2rem",  // bullet is inherently tiny — needs ~2× the size of a square
-  "▲": "2.2rem",  // triangle slightly smaller than square visually
-  "■": "1.7rem",  // square fills its bounding box completely — keep it smaller
-  "♦": "2.4rem",  // diamond sits between bullet and square
+  "•": "3.8rem",   // bullet is tiny — push it up significantly
+  "▲": "1.35rem",  // triangle renders very large — cut it down
+  "■": "1.85rem",  // square is the visual middle ground
+  "♦": "2.0rem",
 };
 
 /** Renders option text with per-character size normalization for known symbols. */

@@ -2,13 +2,14 @@ const MISSING_CELL = "?";
 
 /**
  * Unicode geometric symbols have very different visual weights at the same font-size.
- * Calibrated so •, ▲, ■ and ♦ appear roughly the same visual height inside matrix cells.
+ * Calibrated empirically: ▲ renders ~3× larger than • and ~2× larger than ■ in most
+ * system fonts, so we compensate with per-symbol font sizes.
  */
 const SYMBOL_SIZES: Record<string, string> = {
-  "•": "2.2rem",  // bullet is inherently tiny — needs ~2× the size of a square
-  "▲": "1.5rem",  // triangle slightly smaller than square visually
-  "■": "1.15rem", // square fills its bounding box completely — keep it smaller
-  "♦": "1.6rem",  // diamond sits between bullet and square
+  "•": "2.8rem",   // bullet is tiny — push it up significantly
+  "▲": "1.0rem",   // triangle renders very large — cut it down
+  "■": "1.35rem",  // square is the visual middle ground
+  "♦": "1.4rem",
 };
 
 /** Renders cell text with per-character size normalization for known symbols. */
@@ -19,7 +20,11 @@ function CellContent({ value }: { value: string }) {
   return (
     <span className="inline-flex items-center leading-none">
       {chars.map((char, i) => (
-        <span key={i} style={{ fontSize: SYMBOL_SIZES[char] }} className="leading-none">
+        <span
+          key={i}
+          style={{ fontSize: SYMBOL_SIZES[char] }}
+          className="leading-none"
+        >
           {char}
         </span>
       ))}
