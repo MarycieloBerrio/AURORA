@@ -149,6 +149,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Razonamiento Espacial",
         color: "emerald",
         position: { x: 18, y: 73 },
+        timeLimitMinutes: 12,
       },
       // Intereses III → dron (zona STEM / emprendimiento)
       {

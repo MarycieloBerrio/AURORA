@@ -42,13 +42,13 @@ const TEST_INFO: Record<string, { description: string; tips: string[] }> = {
   },
   [TEST_ID_SPATIAL_REASONING]: {
     description:
-      "En esta prueba se te presentará una figura isométrica y deberás identificar cuál de las opciones corresponde a una rotación de esa misma figura en el espacio tridimensional.",
+      "En algunas preguntas se te presentará una figura plana con líneas punteadas para indicar por dónde puede ser doblada. Imagina que es de papel y determina a cuál figura tridimensional corresponde luego de doblarla y/o enrollarla.\n\nEn otras preguntas se te presentará una figura tridimensional compuesta por varios cubos. Debes determinar a cuál otra figura corresponde de manera exacta aunque vista desde otro ángulo (rotada).",
     tips: [
       "Busca un lugar tranquilo y sin distracciones",
-      "Observa la imagen con detenimiento antes de elegir",
-      "Analiza la forma, orientación y proporciones de cada figura",
+      "Observa cada figura con detenimiento antes de elegir",
+      "Analiza la forma, orientación y proporciones de cada opción",
       "Puedes marcar preguntas como pendientes para revisarlas después",
-      "Usa el navegador de preguntas para moverte entre ellas",
+      "Trabaja de manera rápida pero cuidadosa",
     ],
   },
   [TEST_ID_INDUCTIVE_REASONING]: {

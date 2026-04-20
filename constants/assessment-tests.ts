@@ -3,14 +3,6 @@ export const TEST_ID_INDUCTIVE_REASONING = "inductive-reasoning";
 export const TEST_ID_DEDUCTIVE_REASONING = "deductive-reasoning";
 export const TEST_ID_SELECTIVE_ATTENTION = "selective-attention";
 
-export const SPATIAL_REASONING_ASSETS = {
-  questionImage: "/assets/Razonamiento_espacial/1.png",
-  optionA: "/assets/Razonamiento_espacial/A.png",
-  optionB: "/assets/Razonamiento_espacial/B.png",
-  optionC: "/assets/Razonamiento_espacial/C.png",
-  optionD: "/assets/Razonamiento_espacial/D.png",
-} as const;
-
 export const DEDUCTIVE_REASONING_ASSETS = {
   questionImage1: "/assets/Razonamiento_deductivo/1.png",
   questionImage2: "/assets/Razonamiento_deductivo/2.png",
