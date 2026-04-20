@@ -29,6 +29,7 @@ export interface SkillQuestion {
   key: string;
   prompt: string;
   promptImageSrc?: string;
+  matrixCells?: string[][];
   options: AnswerOption[];
   correctOptionId: string;
   points?: number;

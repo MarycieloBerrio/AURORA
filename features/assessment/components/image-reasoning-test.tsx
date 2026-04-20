@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
 import { ImageGridOption } from "@/components/atoms/image-grid-option";
+import { MatrixGrid } from "@/components/atoms/matrix-grid";
+import { TextGridOption } from "@/components/atoms/text-grid-option";
 import { TestTimerBar } from "@/features/assessment/components/test-timer-bar";
 import { SkillTestIntro } from "@/features/assessment/components/skill-test-intro";
-import type { SkillQuestion } from "@/features/assessment/types";
+import type { AnswerOption, SkillQuestion } from "@/features/assessment/types";
 
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
@@ -20,6 +22,10 @@ interface ImageReasoningTestProps {
 }
 
 type QuestionStatus = "unanswered" | "answered" | "pending";
+
+function sumPoints(qs: SkillQuestion[]): number {
+  return qs.reduce((sum, q) => sum + (q.points ?? 1), 0);
+}
 
 export function ImageReasoningTest({
   questions,
@@ -37,7 +43,16 @@ export function ImageReasoningTest({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittedRef = useRef(false);
 
+  const shuffledOptionsMap = useMemo<Record<string, AnswerOption[]>>(
+    () =>
+      Object.fromEntries(
+        questions.map((q) => [q.key, [...q.options].sort(() => Math.random() - 0.5)]),
+      ),
+    [questions],
+  );
+
   const currentQuestion = questions[currentIndex];
+  const currentOptions = shuffledOptionsMap[currentQuestion.key] ?? currentQuestion.options;
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === questions.length - 1;
   const answeredCount = Object.keys(answers).length;
@@ -86,15 +101,15 @@ export function ImageReasoningTest({
       setIsSubmitting(true);
       setErrorMessage("");
 
-      const currentPoints = questions.filter(
-        (q) => answers[q.key] === q.correctOptionId,
-      ).length;
+      const correctQuestions = questions.filter((q) => answers[q.key] === q.correctOptionId);
+      const points = correctQuestions.reduce((sum, q) => sum + (q.points ?? 1), 0);
+      const max = sumPoints(questions);
 
       try {
         const response = await fetch(`/api/assessment/${testId}/submit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ max: questions.length, points: currentPoints }),
+          body: JSON.stringify({ max, points }),
         });
 
         if (!response.ok) {
@@ -140,7 +155,7 @@ export function ImageReasoningTest({
       />
 
       <div className="flex flex-col gap-4 lg:flex-row">
-        {/* Mobile navigator — horizontal strip */}
+        {/* Mobile navigator */}
         <div className="flex gap-1.5 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 lg:hidden">
           {questions.map((q, idx) => {
             const status = getStatus(q.key);
@@ -177,9 +192,11 @@ export function ImageReasoningTest({
           </div>
 
           <div className="flex flex-col gap-6 lg:flex-row">
-            {/* Left panel — main image + prompt */}
+            {/* Left panel — matrix or image + prompt */}
             <div className="flex flex-col gap-4 lg:w-[55%]">
-              {currentQuestion.promptImageSrc ? (
+              {currentQuestion.matrixCells ? (
+                <MatrixGrid cells={currentQuestion.matrixCells} />
+              ) : currentQuestion.promptImageSrc ? (
                 <img
                   src={currentQuestion.promptImageSrc}
                   alt={`Imagen de la pregunta ${currentIndex + 1}`}
@@ -191,18 +208,30 @@ export function ImageReasoningTest({
               </p>
             </div>
 
-            {/* Right panel — 2x2 image grid */}
+            {/* Right panel — 2×2 options grid */}
             <div className="flex flex-col gap-4 lg:w-[45%]">
               <div className="grid grid-cols-2 gap-3">
-                {currentQuestion.options.map((option, oIdx) => (
-                  <ImageGridOption
-                    key={option.id}
-                    imageSrc={option.imageSrc ?? ""}
-                    label={OPTION_LABELS[oIdx] ?? option.id}
-                    isSelected={answers[currentQuestion.key] === option.id}
-                    onClick={() => handleSelect(option.id)}
-                  />
-                ))}
+                {currentOptions.map((option, oIdx) => {
+                  const label = OPTION_LABELS[oIdx] ?? option.id;
+                  const isSelected = answers[currentQuestion.key] === option.id;
+                  return option.imageSrc ? (
+                    <ImageGridOption
+                      key={option.id}
+                      imageSrc={option.imageSrc}
+                      label={label}
+                      isSelected={isSelected}
+                      onClick={() => handleSelect(option.id)}
+                    />
+                  ) : (
+                    <TextGridOption
+                      key={option.id}
+                      text={option.text}
+                      label={label}
+                      isSelected={isSelected}
+                      onClick={() => handleSelect(option.id)}
+                    />
+                  );
+                })}
               </div>
 
               {/* Mark as pending */}
@@ -286,7 +315,6 @@ export function ImageReasoningTest({
             })}
           </div>
 
-          {/* Legend */}
           <div className="mt-4 space-y-1.5">
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <span className="inline-block h-3 w-3 rounded bg-slate-200" />
@@ -302,7 +330,6 @@ export function ImageReasoningTest({
             </div>
           </div>
 
-          {/* Summary */}
           <div className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-center">
             <p className="text-xs text-slate-500">
               Respondidas: <span className="font-semibold text-slate-700">{answeredCount}</span> /{" "}

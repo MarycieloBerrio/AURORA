@@ -11,14 +11,6 @@ export const SPATIAL_REASONING_ASSETS = {
   optionD: "/assets/Razonamiento_espacial/D.png",
 } as const;
 
-export const INDUCTIVE_REASONING_ASSETS = {
-  questionImage: "/assets/Matrices_Raven/1.png",
-  optionA: "/assets/Matrices_Raven/A.png",
-  optionB: "/assets/Matrices_Raven/B.png",
-  optionC: "/assets/Matrices_Raven/C.png",
-  optionD: "/assets/Matrices_Raven/D.png",
-} as const;
-
 export const DEDUCTIVE_REASONING_ASSETS = {
   questionImage1: "/assets/Razonamiento_deductivo/1.png",
   questionImage2: "/assets/Razonamiento_deductivo/2.png",
