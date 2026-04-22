@@ -7,7 +7,7 @@ import { FloorCarousel } from "@/components/organisms/floor-carousel";
 import { FloorMobileCarousel } from "@/components/organisms/floor-mobile-carousel";
 import { FloorTestBubble } from "@/components/molecules/floor-test-bubble";
 import { TestTypeProgress } from "@/components/molecules/test-type-progress";
-import { LogoutButton } from "@/components/organisms/logout-button";
+import { HeaderMenu } from "@/components/organisms/header-menu";
 import { authOptions } from "@/lib/auth";
 import { FLOORS } from "@/constants/floors";
 import { testService } from "@/services/test-service";
@@ -34,22 +34,27 @@ export default async function FloorPage() {
 
   return (
     <main className="flex h-screen flex-col overflow-hidden">
-      <header className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 py-2 shadow-sm md:px-6">
-        <div className="flex items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-indigo-200 bg-indigo-50">
-            <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain p-0.5" sizes="40px" />
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2 shadow-sm md:px-6">
+        {/* Left: avatar + title */}
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border-2 border-indigo-200 bg-indigo-50">
+            <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain p-0.5" sizes="36px" />
           </div>
-          <h1 className="text-sm font-semibold text-slate-900">{floor.subtitleEs}</h1>
+          <h1 className="truncate text-sm font-semibold text-slate-900">{floor.subtitleEs}</h1>
         </div>
-        {canViewResults && (
-          <Link
-            href="/app/results"
-            className="rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-500"
-          >
-            Ver resultados
-          </Link>
-        )}
-        <LogoutButton />
+
+        {/* Right: results button + hamburger menu */}
+        <div className="flex shrink-0 items-center gap-2">
+          {canViewResults && (
+            <Link
+              href="/app/results"
+              className="rounded-xl bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500"
+            >
+              Ver resultados
+            </Link>
+          )}
+          <HeaderMenu />
+        </div>
       </header>
 
       <section className="relative min-h-0 flex-1">
