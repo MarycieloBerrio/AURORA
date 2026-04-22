@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { SpeechBubble } from "@/components/atoms/speech-bubble";
 import { FloorCarousel } from "@/components/organisms/floor-carousel";
+import { FloorMobileCarousel } from "@/components/organisms/floor-mobile-carousel";
 import { FloorTestBubble } from "@/components/molecules/floor-test-bubble";
 import { TestTypeProgress } from "@/components/molecules/test-type-progress";
 import { LogoutButton } from "@/components/organisms/logout-button";
@@ -52,19 +53,33 @@ export default async function FloorPage() {
       </header>
 
       <section className="relative min-h-0 flex-1">
-        <FloorCarousel />
-
-        <TestTypeProgress progress={globalProgress} />
-
-        {floor.tests.map((test) => (
-          <FloorTestBubble
-            key={test.id}
-            test={test}
-            completed={completionStatus.get(test.id) ?? false}
+        {/* ── Mobile: 3-panel swipe carousel (hidden on md+) ── */}
+        <div className="absolute inset-0 z-10 md:hidden">
+          <FloorMobileCarousel
+            floor={floor}
+            completionMap={Object.fromEntries(completionStatus)}
           />
-        ))}
+        </div>
 
-        <div className="pointer-events-none absolute bottom-0 left-2 z-10 flex items-end gap-1 sm:left-3 md:left-4">
+        {/* ── Desktop: full floor image (hidden on mobile) ── */}
+        <div className="hidden h-full w-full md:block">
+          <FloorCarousel />
+        </div>
+
+        {/* Desktop overlays: progress bars + test bubbles */}
+        <div className="hidden md:contents">
+          <TestTypeProgress progress={globalProgress} />
+          {floor.tests.map((test) => (
+            <FloorTestBubble
+              key={test.id}
+              test={test}
+              completed={completionStatus.get(test.id) ?? false}
+            />
+          ))}
+        </div>
+
+        {/* Aurora guide (desktop only) */}
+        <div className="pointer-events-none absolute bottom-0 left-2 z-10 hidden items-end gap-1 sm:left-3 md:left-4 md:flex">
           <div className="relative h-[180px] w-[90px] shrink-0 sm:h-[260px] sm:w-[130px] md:h-[380px] md:w-[190px] lg:h-[480px] lg:w-[240px]">
             <Image
               src="/assets/aurora-guide.png"

@@ -7,6 +7,7 @@ import type { FloorTest } from "@/constants/floors";
 interface FloorTestBubbleProps {
   test: FloorTest;
   completed: boolean;
+  overrideX?: number;
 }
 
 const colorStyles = {
@@ -36,14 +37,15 @@ const colorStyles = {
   },
 } as const;
 
-export function FloorTestBubble({ test, completed }: FloorTestBubbleProps) {
+export function FloorTestBubble({ test, completed, overrideX }: FloorTestBubbleProps) {
   const styles = colorStyles[test.color];
+  const xPos = overrideX ?? test.position.x;
 
   if (completed) {
     return (
       <div
         className="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5"
-        style={{ left: `${test.position.x}%`, top: `${test.position.y}%` }}
+        style={{ left: `${xPos}%`, top: `${test.position.y}%` }}
       >
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/60 ${styles.bgCompleted} text-lg font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} md:h-12 md:w-12 md:text-xl`}
@@ -61,7 +63,7 @@ export function FloorTestBubble({ test, completed }: FloorTestBubbleProps) {
     <Link
       href={getTestPath(test.id)}
       className="group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5"
-      style={{ left: `${test.position.x}%`, top: `${test.position.y}%` }}
+      style={{ left: `${xPos}%`, top: `${test.position.y}%` }}
     >
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/60 ${styles.bg} text-lg font-bold text-white shadow-lg ${styles.shadow} ring-4 ${styles.ring} transition-all ${styles.hover} group-hover:scale-110 md:h-12 md:w-12 md:text-xl`}
