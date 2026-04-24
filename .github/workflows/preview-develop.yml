@@ -22,29 +22,30 @@ jobs:
 
       - name: Deploy to Preview
         id: deploy
-        run: |
-          DEPLOY_URL=$(vercel deploy \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --yes \
-            2>&1 | tail -1)
-          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          OUTPUT=$(vercel deploy --token="$VERCEL_TOKEN" --yes 2>&1)
+          echo "$OUTPUT"
+          DEPLOY_URL=$(echo "$OUTPUT" | grep -Eo 'https://[a-zA-Z0-9._-]+\.vercel\.app' | tail -1)
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
 
       - name: Assign stable alias
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           vercel alias set \
             "${{ steps.deploy.outputs.deploy_url }}" \
             aurora-develop.vercel.app \
-            --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+            --token="$VERCEL_TOKEN"
 
       - name: Summary
         run: |
-          echo "### ✅ Preview desplegado" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Preview desplegado" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| | |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
