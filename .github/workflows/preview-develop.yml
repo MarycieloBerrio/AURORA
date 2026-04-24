@@ -1,0 +1,52 @@
+name: Deploy develop → Preview
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-preview:
+    name: Deploy to Vercel Preview
+    runs-on: ubuntu-latest
+    environment:
+      name: preview
+      url: https://aurora-develop.vercel.app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Preview
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy \
+            --token=${{ secrets.VERCEL_TOKEN }} \
+            --yes \
+            2>&1 | tail -1)
+          echo "deploy_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Assign stable alias
+        run: |
+          vercel alias set \
+            "${{ steps.deploy.outputs.deploy_url }}" \
+            aurora-develop.vercel.app \
+            --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Summary
+        run: |
+          echo "### ✅ Preview desplegado" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **URL estable** | https://aurora-develop.vercel.app |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Deploy** | ${{ steps.deploy.outputs.deploy_url }} |" >> "$GITHUB_STEP_SUMMARY"
