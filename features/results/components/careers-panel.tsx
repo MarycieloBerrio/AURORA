@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CareerCard } from "@/features/results/components/career-card";
+import { ProgramOfferingsModal } from "@/features/results/components/program-offerings-modal";
 import type { CareerWithAffinity } from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
@@ -48,14 +49,16 @@ interface CareersPanelProps {
 }
 
 export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps) {
-  const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
-  const [sortBy,  setSortBy]  = useState<SortBy>("affinity");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [levelFilter,    setLevelFilter]    = useState<LevelFilter>("all");
+  const [sortBy,         setSortBy]         = useState<SortBy>("affinity");
+  const [sortDir,        setSortDir]        = useState<SortDir>("desc");
+  const [offeringsCareer, setOfferingsCareer] = useState<CareerWithAffinity | null>(null);
 
   const filtered = careers.filter((c) => levelFilter === "all" || c.academic_level === levelFilter);
   const sorted   = sortCareers(filtered, sortBy, sortDir);
 
   return (
+    <>
     <div className="space-y-4">
       <div>
         <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
@@ -142,11 +145,20 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
                 rank={i + 1}
                 overlay={overlay}
                 onClick={() => onSelect(career)}
+                onViewOfferings={() => setOfferingsCareer(career)}
               />
             );
           })
         )}
       </div>
     </div>
+
+      {offeringsCareer && (
+        <ProgramOfferingsModal
+          career={offeringsCareer}
+          onClose={() => setOfferingsCareer(null)}
+        />
+      )}
+    </>
   );
 }

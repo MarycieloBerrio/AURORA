@@ -206,3 +206,34 @@ model Ability {
   @@id([onetsocCode, elementId, scaleId])
   @@map("abilities")
 }
+
+model ProgramOffering {
+  id              Int       @id @default(autoincrement())
+  programKey      String
+  institutionName String
+  municipality    String
+  department      String
+  character       String
+  methodology     String
+  academicLevel   String
+  lat             Float?
+  lng             Float?
+  geocodedAt      DateTime?
+  fetchedAt       DateTime  @default(now())
+
+  @@unique([programKey, institutionName, municipality, methodology])
+  @@index([programKey])
+  @@map("program_offerings")
+}
+
+model GeocodedInstitution {
+  id              Int      @id @default(autoincrement())
+  institutionName String
+  municipality    String
+  lat             Float
+  lng             Float
+  geocodedAt      DateTime @default(now())
+
+  @@unique([institutionName, municipality])
+  @@map("geocoded_institutions")
+}
