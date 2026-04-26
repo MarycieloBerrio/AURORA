@@ -27,15 +27,19 @@ export const authOptions: NextAuthOptions = {
         token.userId = user.id;
       }
 
-      if (token.userId && !token.profileCompleted) {
-        const currentUser = await prisma.user.findUnique({
-          where: { id: token.userId },
-          select: { name: true, birthdate: true, educationalLevel: true },
-        });
+      if (token.userId) {
+        const needsQuery = !token.profileCompleted || token.isAdmin === undefined;
+        if (needsQuery) {
+          const currentUser = await prisma.user.findUnique({
+            where: { id: token.userId },
+            select: { name: true, birthdate: true, educationalLevel: true, isAdmin: true },
+          });
 
-        token.profileCompleted = Boolean(
-          currentUser?.name && currentUser.birthdate && currentUser.educationalLevel
-        );
+          token.profileCompleted = Boolean(
+            currentUser?.name && currentUser.birthdate && currentUser.educationalLevel
+          );
+          token.isAdmin = currentUser?.isAdmin ?? false;
+        }
       }
 
       return token;
@@ -44,6 +48,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.userId) {
         session.user.id = token.userId;
         session.user.profileCompleted = token.profileCompleted ?? false;
+        session.user.isAdmin = token.isAdmin ?? false;
       }
       return session;
     },

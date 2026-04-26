@@ -18,6 +18,7 @@ model User {
   birthdate           DateTime? @db.Date
   educationalLevel    String?
   educationalStatus   String?
+  isAdmin             Boolean  @default(false)
 
   testRiasec1 Json?
   testRiasec2 Json?

@@ -53,7 +53,7 @@ export default async function FloorPage() {
               Ver resultados
             </Link>
           )}
-          <HeaderMenu />
+          <HeaderMenu isAdmin={session.user.isAdmin} />
         </div>
       </header>
 
