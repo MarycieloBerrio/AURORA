@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { educationalLevelValues } from "@/features/profile/constants";
+import { educationalLevelValues, educationalStatusValues } from "@/features/profile/constants";
 
 const genderSchema = z
   .union([z.string().trim().min(1), z.literal("")])
@@ -18,10 +18,15 @@ const educationalLevelSchema = z.enum(educationalLevelValues, {
   message: "Selecciona tu nivel educativo.",
 });
 
+const educationalStatusSchema = z.enum(educationalStatusValues, {
+  message: "Indica si estás cursando o completaste este nivel.",
+});
+
 export const completeProfileSchema = z.object({
-  gender: genderSchema,
-  birthdate: birthdateSchema,
-  educationalLevel: educationalLevelSchema,
+  gender:             genderSchema,
+  birthdate:          birthdateSchema,
+  educationalLevel:   educationalLevelSchema,
+  educationalStatus:  educationalStatusSchema,
 });
 
 export const registerSchema = z.object({

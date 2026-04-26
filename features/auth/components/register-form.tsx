@@ -18,11 +18,15 @@ export function RegisterForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormInput>({
     resolver: zodResolver(registerSchema),
     mode: "onSubmit",
+    defaultValues: {
+      educationalStatus: "ONGOING",
+    },
   });
 
   const onSubmit = async (values: RegisterFormInput) => {
@@ -76,7 +80,7 @@ export function RegisterForm() {
         <Input id="name" type="text" placeholder="Tu nombre" autoComplete="name" {...register("name")} />
       </FormField>
 
-      <ProfileFormFields register={register} errors={errors} disabled={isSubmitting} />
+      <ProfileFormFields register={register} control={control} errors={errors} disabled={isSubmitting} />
 
       {serverError ? <p className="text-sm text-rose-600">{serverError}</p> : null}
 

@@ -17,18 +17,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Revisa los campos del formulario." }, { status: 400 });
   }
 
-  const { gender, birthdate, educationalLevel } = parsedPayload.data;
+  const { gender, birthdate, educationalLevel, educationalStatus } = parsedPayload.data;
 
   try {
     await prisma.user.upsert({
       where: { id: session.user.id },
-      update: { gender, birthdate, educationalLevel },
+      update: { gender, birthdate, educationalLevel, educationalStatus },
       create: {
         id: session.user.id,
         email: session.user.email!,
         gender,
         birthdate,
         educationalLevel,
+        educationalStatus,
       },
     });
   } catch (error) {

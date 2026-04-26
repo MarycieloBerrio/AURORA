@@ -18,13 +18,15 @@ export function CompleteProfileForm() {
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CompleteProfileFormInput>({
     resolver: zodResolver(completeProfileSchema),
     mode: "onSubmit",
     defaultValues: {
-      gender: "",
+      gender:            "",
+      educationalStatus: "ONGOING",
     },
   });
 
@@ -49,7 +51,7 @@ export function CompleteProfileForm() {
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-      <ProfileFormFields register={register} errors={errors} disabled={isSubmitting} />
+      <ProfileFormFields register={register} control={control} errors={errors} disabled={isSubmitting} />
 
       {serverError ? <p className="text-sm text-rose-600">{serverError}</p> : null}
 

@@ -14,9 +14,10 @@ model User {
   email            String    @unique
   name             String?
   passwordHash     String?
-  gender           String?
-  birthdate        DateTime? @db.Date
-  educationalLevel String?
+  gender              String?
+  birthdate           DateTime? @db.Date
+  educationalLevel    String?
+  educationalStatus   String?
 
   testRiasec1 Json?
   testRiasec2 Json?
