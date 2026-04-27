@@ -11,16 +11,16 @@ const SCALE_POINTS = [
 ] as const;
 
 const accentThemes = {
-  indigo: {
+  blue: {
     positive: {
-      idle: "border-indigo-400 hover:bg-indigo-50",
-      selected: "border-indigo-600 bg-indigo-600",
+      idle: "border-blue-400 hover:bg-blue-50",
+      selected: "border-blue-600 bg-blue-600",
     },
     negative: {
       idle: "border-rose-300 hover:bg-rose-50",
       selected: "border-rose-500 bg-rose-500",
     },
-    positiveLabelColor: "text-indigo-700",
+    positiveLabelColor: "text-blue-700",
     negativeLabelColor: "text-rose-600",
   },
   amber: {
@@ -57,7 +57,7 @@ const neutralStyles = {
 interface LikertCardRowProps {
   value?: LikertValue;
   onChange: (value: LikertValue) => void;
-  accentColor: "indigo" | "amber" | "emerald";
+  accentColor: "blue" | "amber" | "emerald";
   scaleLabels: LikertScaleLabels;
 }
 

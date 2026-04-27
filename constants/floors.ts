@@ -7,7 +7,7 @@ export interface FloorTest {
   testField: string;
   testType: TestType;
   labelEs: string;
-  color: "indigo" | "amber" | "emerald";
+  color: "blue" | "amber" | "emerald";
   position: { x: number; y: number };
   block?: RiasecBlock | HexacoBlock;
   timeLimitMinutes?: number;
@@ -67,7 +67,7 @@ export const FLOORS: FloorConfig[] = [
         testField: "testRiasec1",
         testType: "riasec",
         labelEs: "Intereses I",
-        color: "indigo",
+        color: "blue",
         position: { x: 42, y: 27 },
         block: "A",
       },
@@ -85,7 +85,7 @@ export const FLOORS: FloorConfig[] = [
         testField: "testRiasec3",
         testType: "riasec",
         labelEs: "Intereses III",
-        color: "indigo",
+        color: "blue",
         position: { x: 78, y: 27 },
         block: "C",
       },
@@ -112,7 +112,7 @@ export const FLOORS: FloorConfig[] = [
         testField: "testRiasec4",
         testType: "riasec",
         labelEs: "Intereses IV",
-        color: "indigo",
+        color: "blue",
         position: { x: 75, y: 43 },
         block: "D",
       },
@@ -122,7 +122,7 @@ export const FLOORS: FloorConfig[] = [
         testField: "testRiasec2",
         testType: "riasec",
         labelEs: "Intereses II",
-        color: "indigo",
+        color: "blue",
         position: { x: 20, y: 59 },
         block: "B",
       },

@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 
 interface AuthTemplateProps {
-  title: string;
-  subtitle: string;
+  title: ReactNode;
+  subtitle: ReactNode;
   children: ReactNode;
 }
 

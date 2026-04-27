@@ -11,13 +11,13 @@ interface FloorTestBubbleProps {
 }
 
 const colorStyles = {
-  indigo: {
-    bg: "bg-indigo-600",
-    bgCompleted: "bg-indigo-400",
-    ring: "ring-indigo-400/40",
-    shadow: "shadow-indigo-600/50",
-    hover: "group-hover:bg-indigo-500",
-    label: "bg-indigo-900/80 text-indigo-100",
+  blue: {
+    bg: "bg-blue-600",
+    bgCompleted: "bg-blue-400",
+    ring: "ring-blue-400/40",
+    shadow: "shadow-blue-600/50",
+    hover: "group-hover:bg-blue-500",
+    label: "bg-blue-900/80 text-blue-100",
   },
   amber: {
     bg: "bg-amber-500",

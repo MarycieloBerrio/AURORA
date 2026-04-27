@@ -5,7 +5,7 @@ interface TestTypeProgressProps {
 }
 
 const categories: { type: TestType; label: string; bar: string; text: string; bg: string }[] = [
-  { type: "riasec", label: "Intereses", bar: "bg-indigo-500", text: "text-indigo-700", bg: "bg-indigo-100" },
+  { type: "riasec", label: "Intereses", bar: "bg-blue-500", text: "text-blue-700", bg: "bg-blue-100" },
   { type: "hexaco", label: "Personalidad", bar: "bg-amber-500", text: "text-amber-700", bg: "bg-amber-100" },
   { type: "skill", label: "Aptitudes", bar: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-100" },
 ];

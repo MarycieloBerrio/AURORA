@@ -2,10 +2,10 @@
 
 import type { LikertValue } from "@/types/test-results";
 
-type AccentColor = "indigo" | "amber" | "emerald";
+type AccentColor = "blue" | "amber" | "emerald";
 
 const FILL_PALETTE: Record<AccentColor, { negative: string; neutral: string; positive: string }> = {
-  indigo:  { negative: "#f43f5e", neutral: "#94a3b8", positive: "#6366f1" },
+  blue:    { negative: "#f43f5e", neutral: "#94a3b8", positive: "#2563eb" },
   amber:   { negative: "#38bdf8", neutral: "#94a3b8", positive: "#f59e0b" },
   emerald: { negative: "#f43f5e", neutral: "#94a3b8", positive: "#10b981" },
 };

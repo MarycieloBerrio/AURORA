@@ -12,7 +12,7 @@ const QUESTIONS_PER_PAGE = 6;
 interface PaginatedQuestionnaireProps {
   questions: QuestionView[];
   testId: string;
-  accentColor: "indigo" | "amber" | "emerald";
+  accentColor: "blue" | "amber" | "emerald";
   testLabel: string;
 }
 
@@ -111,8 +111,8 @@ export function PaginatedQuestionnaire({
         </span>
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            accentColor === "indigo"
-              ? "bg-indigo-100 text-indigo-700"
+            accentColor === "blue"
+              ? "bg-blue-100 text-blue-700"
               : accentColor === "amber"
                 ? "bg-amber-100 text-amber-700"
                 : "bg-emerald-100 text-emerald-700"
