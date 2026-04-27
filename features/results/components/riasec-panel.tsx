@@ -43,7 +43,7 @@ export function RiasecPanel({ interests, overlays }: RiasecPanelProps) {
           href="https://www.onetcenter.org/IP.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[11px] font-medium text-indigo-600 hover:underline"
+          className="text-[11px] font-medium text-violet-600 hover:underline"
         >
           Documentacion oficial
         </a>
@@ -76,7 +76,7 @@ export function RiasecPanel({ interests, overlays }: RiasecPanelProps) {
               <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                 Codigo Holland
               </p>
-              <p className="text-2xl font-black tracking-widest text-indigo-600">{code}</p>
+              <p className="text-2xl font-black tracking-widest text-violet-600">{code}</p>
               <p className="text-[10px] text-slate-400">Tus 3 dimensiones dominantes</p>
             </div>
           </div>
@@ -86,18 +86,18 @@ export function RiasecPanel({ interests, overlays }: RiasecPanelProps) {
               <div key={dim} className="space-y-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-[10px] font-black text-indigo-700">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet-100 text-[10px] font-black text-violet-700">
                       {dim}
                     </span>
                     <span className="text-[11px] font-semibold text-slate-700">
                       {DIMENSION_INFO[dim].name}
                     </span>
                   </div>
-                  <span className="text-[11px] font-bold text-indigo-600">{pct}</span>
+                  <span className="text-[11px] font-bold text-violet-600">{pct}</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
                   <div
-                    className="h-full rounded-full bg-indigo-400"
+                    className="h-full rounded-full bg-violet-400"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
