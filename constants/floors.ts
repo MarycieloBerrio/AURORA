@@ -60,7 +60,7 @@ export const FLOORS: FloorConfig[] = [
         labelEs: "Atención Selectiva",
         color: "emerald",
         position: { x: 30, y: 30 },
-        timeLimitMinutes: 12,
+        timeLimitMinutes: 6,
       },
       {
         id: "riasec-1",

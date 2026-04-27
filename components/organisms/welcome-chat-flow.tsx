@@ -7,17 +7,20 @@ import { Button } from "@/components/atoms/button";
 
 const MESSAGES = [
   <>
-    <span className="font-semibold text-indigo-700">¡Hola!</span> Soy Aurora, tu asistente en este
-    recorrido. Desde hoy eres un nuevo intern dentro de una startup tecnológica.
+    <span className="font-semibold text-indigo-700">Hola, soy Aurora</span>, te acompañaré en este
+    emocionante recorrido. Te propongo un juego de rol: te acaban de contratar como practicante en
+    una empresa tecnológica y debes realizar una serie de pruebas para determinar tu perfil.
   </>,
   <>
-    Visitarás distintos sectores, representados como{" "}
-    <span className="font-semibold text-indigo-700">pisos</span>. En cada piso encontrarás elementos
-    interactivos que nos ayudarán a conocer mejor tus preferencias.
+    Para ello, debes acceder a los{" "}
+    <span className="font-semibold text-indigo-700">elementos interactivos</span> que encontrarás
+    repartidos por la sede de la empresa. No debes hacer todas las pruebas, pero entre más hagas,
+    más detallado será tu perfil.
   </>,
   <>
-    ¡Comencemos con el primer sector para{" "}
-    <span className="font-semibold text-indigo-700">registrar tus primeras respuestas</span>!
+    Lo más importante es que las resuelvas con{" "}
+    <span className="font-semibold text-indigo-700">total honestidad</span> y que no uses ayudas
+    externas, ni personas ni dispositivos, a lo sumo papel y lápiz.
   </>,
 ] as const;
 
