@@ -139,9 +139,9 @@ export function ReadingComprehensionTest({
               onClick={() => setCurrentPassageIndex(idx)}
               className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 idx === currentPassageIndex
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-sky-500 text-white"
                   : allDone
-                    ? "bg-emerald-100 text-emerald-700"
+                    ? "bg-sky-100 text-sky-700"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -159,7 +159,7 @@ export function ReadingComprehensionTest({
         {/* Left panel — passage text */}
         <Card className="flex flex-col overflow-hidden md:w-1/2">
           <div className="border-b border-slate-100 px-6 py-4">
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+            <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">
               Texto {currentPassageIndex + 1} de {passages.length}
             </span>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">{currentPassage.title}</h2>
@@ -177,7 +177,7 @@ export function ReadingComprehensionTest({
         <Card className="flex flex-col overflow-hidden md:w-1/2">
           <div className="border-b border-slate-100 px-6 py-4">
             <div className="flex items-center justify-between">
-              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+              <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">
                 Preguntas
               </span>
               <span className="text-xs text-slate-500">

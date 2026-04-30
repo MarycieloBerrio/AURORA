@@ -165,10 +165,10 @@ export function ImageReasoningTest({
                 type="button"
                 onClick={() => goTo(idx)}
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition ${
-                  idx === currentIndex ? "ring-2 ring-emerald-600 ring-offset-1" : ""
+                  idx === currentIndex ? "ring-2 ring-sky-500 ring-offset-1" : ""
                 } ${
                   status === "answered"
-                    ? "bg-emerald-500 text-white"
+                    ? "bg-sky-400 text-white"
                     : status === "pending"
                       ? "bg-amber-400 text-white"
                       : "bg-slate-200 text-slate-500"
@@ -186,7 +186,7 @@ export function ImageReasoningTest({
             <span className="text-xs text-slate-500">
               Pregunta {currentIndex + 1} de {questions.length}
             </span>
-            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+            <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700">
               {testLabel}
             </span>
           </div>
@@ -300,10 +300,10 @@ export function ImageReasoningTest({
                   type="button"
                   onClick={() => goTo(idx)}
                   className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold transition ${
-                    idx === currentIndex ? "ring-2 ring-emerald-600 ring-offset-1" : ""
+                    idx === currentIndex ? "ring-2 ring-sky-500 ring-offset-1" : ""
                   } ${
                     status === "answered"
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-sky-400 text-white"
                       : status === "pending"
                         ? "bg-amber-400 text-white"
                         : "bg-slate-200 text-slate-500"
@@ -321,7 +321,7 @@ export function ImageReasoningTest({
               Sin responder
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="inline-block h-3 w-3 rounded bg-emerald-500" />
+              <span className="inline-block h-3 w-3 rounded bg-sky-400" />
               Respondida
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500">
