@@ -28,6 +28,31 @@ interface ProgramOfferingsModalProps {
 
 const DEFAULT_FILTERS: OfferingFilters = { department: "", municipality: "", character: "" };
 
+/** Clave normalizada: sin acentos, minúsculas, sin espacios extra. */
+function toKey(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Deduplica un array de strings usando `toKey` para comparar.
+ * Cuando hay variantes ("Atlántico" / "Atlantico") conserva la primera
+ * aparición (que en datasets colombianos suele ser la acentuada).
+ */
+function uniqueNames(names: (string | null)[]): string[] {
+  const seen = new Map<string, string>(); // key → display
+  for (const name of names) {
+    if (!name) continue;
+    const k = toKey(name);
+    if (!seen.has(k)) seen.set(k, name);
+  }
+  return [...seen.values()].sort((a, b) => toKey(a).localeCompare(toKey(b), "es"));
+}
+
 export function ProgramOfferingsModal({ career, onClose }: ProgramOfferingsModalProps) {
   const [offerings,       setOfferings]       = useState<EnrichedSniesProgram[]>([]);
   const [loading,         setLoading]         = useState(true);
@@ -52,35 +77,22 @@ export function ProgramOfferingsModal({ career, onClose }: ProgramOfferingsModal
   }, [career.title]);
 
   const departments = useMemo(
-    () =>
-      [
-        ...new Set(
-          offerings
-            .map((o) => o.nombredepartprograma)
-            .filter((d): d is string => d !== null),
-        ),
-      ].sort(),
+    () => uniqueNames(offerings.map((o) => o.nombredepartprograma)),
     [offerings],
   );
 
   const municipalities = useMemo(() => {
     const base = filters.department
-      ? offerings.filter((o) => o.nombredepartprograma === filters.department)
+      ? offerings.filter((o) => toKey(o.nombredepartprograma ?? "") === toKey(filters.department))
       : offerings;
-    return [
-      ...new Set(
-        base
-          .map((o) => o.nombremunicipioprograma)
-          .filter((m): m is string => m !== null),
-      ),
-    ].sort();
+    return uniqueNames(base.map((o) => o.nombremunicipioprograma));
   }, [offerings, filters.department]);
 
   const filtered = useMemo(
     () =>
       offerings.filter((o) => {
-        if (filters.department   && o.nombredepartprograma    !== filters.department)   return false;
-        if (filters.municipality && o.nombremunicipioprograma !== filters.municipality) return false;
+        if (filters.department   && toKey(o.nombredepartprograma    ?? "") !== toKey(filters.department))   return false;
+        if (filters.municipality && toKey(o.nombremunicipioprograma ?? "") !== toKey(filters.municipality)) return false;
         if (filters.character    && o.nombrecaracteracademico !== filters.character)    return false;
         return true;
       }),
