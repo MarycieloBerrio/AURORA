@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { ofertaService } from "@/services/oferta-service";
-import { normalizeProgram } from "@/lib/socrata-client";
 
 const querySchema = z.object({
   programa: z.string().min(1).max(200),
@@ -24,16 +23,15 @@ export async function GET(request: Request) {
   }
 
   const { programa } = parsed.data;
-  const programKey   = normalizeProgram(programa);
 
   try {
     const offerings = await ofertaService.getOfferingsForProgram(programa);
 
     after(() => {
-      ofertaService.geocodePendingOfferings(programKey).catch(console.error);
+      ofertaService.geocodePendingMunicipalities(offerings).catch(console.error);
     });
 
-    return NextResponse.json({ offerings, programKey });
+    return NextResponse.json({ offerings, programKey: programa });
   } catch {
     return NextResponse.json(
       { message: "Error al consultar la oferta académica." },

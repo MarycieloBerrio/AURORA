@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
-import type { ProgramOffering } from "@prisma/client";
+import type { EnrichedSniesProgram } from "@/services/snies-service";
 import type { CareerWithAffinity } from "@/constants/careers";
 import {
   OfferingFiltersPanel,
@@ -29,11 +29,11 @@ interface ProgramOfferingsModalProps {
 const DEFAULT_FILTERS: OfferingFilters = { department: "", municipality: "", character: "" };
 
 export function ProgramOfferingsModal({ career, onClose }: ProgramOfferingsModalProps) {
-  const [offerings,       setOfferings]       = useState<ProgramOffering[]>([]);
+  const [offerings,       setOfferings]       = useState<EnrichedSniesProgram[]>([]);
   const [loading,         setLoading]         = useState(true);
   const [error,           setError]           = useState<string | null>(null);
   const [filters,         setFilters]         = useState<OfferingFilters>(DEFAULT_FILTERS);
-  const [focusedOffering, setFocusedOffering] = useState<ProgramOffering | null>(null);
+  const [focusedOffering, setFocusedOffering] = useState<EnrichedSniesProgram | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -44,7 +44,7 @@ export function ProgramOfferingsModal({ career, onClose }: ProgramOfferingsModal
     fetch(`/api/programs/oferta?programa=${encodeURIComponent(career.title)}`)
       .then((r) => {
         if (!r.ok) throw new Error("Error al cargar la oferta");
-        return r.json() as Promise<{ offerings: ProgramOffering[] }>;
+        return r.json() as Promise<{ offerings: EnrichedSniesProgram[] }>;
       })
       .then((data) => setOfferings(data.offerings))
       .catch(() => setError("No se pudo cargar la oferta académica."))
@@ -52,23 +52,36 @@ export function ProgramOfferingsModal({ career, onClose }: ProgramOfferingsModal
   }, [career.title]);
 
   const departments = useMemo(
-    () => [...new Set(offerings.map((o) => o.department).filter(Boolean))].sort(),
+    () =>
+      [
+        ...new Set(
+          offerings
+            .map((o) => o.nombredepartprograma)
+            .filter((d): d is string => d !== null),
+        ),
+      ].sort(),
     [offerings],
   );
 
   const municipalities = useMemo(() => {
     const base = filters.department
-      ? offerings.filter((o) => o.department === filters.department)
+      ? offerings.filter((o) => o.nombredepartprograma === filters.department)
       : offerings;
-    return [...new Set(base.map((o) => o.municipality).filter(Boolean))].sort();
+    return [
+      ...new Set(
+        base
+          .map((o) => o.nombremunicipioprograma)
+          .filter((m): m is string => m !== null),
+      ),
+    ].sort();
   }, [offerings, filters.department]);
 
   const filtered = useMemo(
     () =>
       offerings.filter((o) => {
-        if (filters.department   && o.department   !== filters.department)   return false;
-        if (filters.municipality && o.municipality !== filters.municipality) return false;
-        if (filters.character    && o.character    !== filters.character)    return false;
+        if (filters.department   && o.nombredepartprograma    !== filters.department)   return false;
+        if (filters.municipality && o.nombremunicipioprograma !== filters.municipality) return false;
+        if (filters.character    && o.nombrecaracteracademico !== filters.character)    return false;
         return true;
       }),
     [offerings, filters],

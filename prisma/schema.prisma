@@ -39,6 +39,8 @@ model User {
   testSpatialReasoning      Json?
   testSelectiveAttention    Json?
 
+  profile Json?   // [R,I,A,S,E,C, H,E,X,A,C,O, RC,DR,IR,MR,SR,SA] — null por dimensión si test incompleto
+
   emailVerified DateTime?
   image         String?
   accounts      Account[]
@@ -210,33 +212,59 @@ model Ability {
   @@map("abilities")
 }
 
-model ProgramOffering {
-  id              Int       @id @default(autoincrement())
-  programKey      String
-  institutionName String
-  municipality    String
-  department      String
-  character       String
-  methodology     String
-  academicLevel   String
-  lat             Float?
-  lng             Float?
-  geocodedAt      DateTime?
-  fetchedAt       DateTime  @default(now())
+model SniesProgram {
+  codigoprograma               String   @id
+  codigoinstitucion            Int?
+  nombreinstitucion            String?
+  codigodepartinstitucion      Int?
+  nombredepartinstitucion      String?
+  codigomunicipioinstitucion   Int?
+  nombremunicipioinstitucion   String?
+  codigoorigeninstitucional    Int?
+  nombreorigeninstitucional    String?
+  codigocaracteracademico      Int?
+  nombrecaracteracademico      String?
+  nombreprograma               String?
+  codigodepartprograma         String?
+  nombredepartprograma         String?
+  codigomunicipioprograma      String?
+  nombremunicipioprograma      String?
+  codigoestadoprograma         Int?
+  nombreestadoprograma         String?
+  cantidadcreditos             String?
+  fechaacreditacion            String?
+  codigoareaconocimiento       String?
+  nombreareaconocimiento       String?
+  codigometodologia            Int?
+  nombremetodologia            String?
+  codigonbc                    String?
+  nombrenbc                    String?
+  codigonivelformacion         Int?
+  nombrenivelformacion         String?
+  codigonivelacademico         Int?
+  nombrenivelacademico         String?
+  codigoperiodicidad           Int?
+  nombreperiodicidad           String?
+  cantidadperiodos             String?
+  numeroresolucionacreditacion String?
+  codigotipoacreditacion       Int?
+  nombretipoacreditacion       String?
+  aniosacreditados             String?
+  nombretituloobtenido         String?
+  fechacreacion                String?
+  fetchedAt                    DateTime @default(now())
 
-  @@unique([programKey, institutionName, municipality, methodology])
-  @@index([programKey])
-  @@map("program_offerings")
+  @@index([nombreprograma])
+  @@index([codigomunicipioprograma])
+  @@map("snies_programs")
 }
 
-model GeocodedInstitution {
-  id              Int      @id @default(autoincrement())
-  institutionName String
-  municipality    String
-  lat             Float
-  lng             Float
-  geocodedAt      DateTime @default(now())
+model Location {
+  codeLocation   String  @id @map("code_location")
+  name           String
+  codeDepartment String  @map("code_department")
+  lat            Float?
+  lng            Float?
 
-  @@unique([institutionName, municipality])
-  @@map("geocoded_institutions")
+  @@map("locations")
 }

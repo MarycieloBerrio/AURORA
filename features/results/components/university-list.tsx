@@ -1,9 +1,9 @@
-import type { ProgramOffering } from "@prisma/client";
+import type { EnrichedSniesProgram } from "@/services/snies-service";
 import { UniversityCard } from "@/features/results/components/university-card";
 
 interface UniversityListProps {
-  offerings: ProgramOffering[];
-  onFocusOffering: (offering: ProgramOffering) => void;
+  offerings: EnrichedSniesProgram[];
+  onFocusOffering: (offering: EnrichedSniesProgram) => void;
 }
 
 export function UniversityList({ offerings, onFocusOffering }: UniversityListProps) {
@@ -23,7 +23,7 @@ export function UniversityList({ offerings, onFocusOffering }: UniversityListPro
         <div className="space-y-2">
           {offerings.map((offering) => (
             <UniversityCard
-              key={offering.id}
+              key={offering.codigoprograma}
               offering={offering}
               onFocus={
                 offering.lat !== null

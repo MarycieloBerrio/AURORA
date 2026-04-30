@@ -7,6 +7,7 @@ import { AppShellTemplate } from "@/components/templates/app-shell-template";
 import { Card } from "@/components/atoms/card";
 import { AdminStatCards } from "./_components/admin-stat-cards";
 import { AdminUserTable } from "./_components/admin-user-table";
+import { AdminSniesButton } from "./_components/admin-snies-button";
 import type { AdminUserRow } from "./_components/admin-user-table";
 
 export default async function AdminPage() {
@@ -96,6 +97,17 @@ export default async function AdminPage() {
       }
     >
       <AdminStatCards stats={stats} totalUsers={stats.totalUsers} />
+      <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Datos SNIES
+          </p>
+          <p className="text-sm text-slate-500">
+            Programas de educación superior — MEN Colombia
+          </p>
+        </div>
+        <AdminSniesButton />
+      </div>
       <Card className="p-0 overflow-hidden">
         <AdminUserTable initialRows={userData} />
       </Card>

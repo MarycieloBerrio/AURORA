@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import type { ProgramOffering } from "@prisma/client";
+import type { EnrichedSniesProgram } from "@/services/snies-service";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
@@ -11,6 +11,7 @@ const COLOMBIA_CENTER: [number, number] = [4.5709, -74.2973];
 const DEFAULT_ZOOM = 5;
 const FOCUS_ZOOM   = 13;
 
+// Oficial = indigo hex, Privada = amber hex
 const CHARACTER_COLOR: Record<string, string> = {
   Oficial: "#6366f1",
   Privada: "#f59e0b",
@@ -19,8 +20,8 @@ const CHARACTER_COLOR: Record<string, string> = {
 const DEFAULT_MARKER_COLOR = "#64748b";
 
 interface MarkersLayerProps {
-  offerings:       ProgramOffering[];
-  focusedOffering: ProgramOffering | null;
+  offerings:       EnrichedSniesProgram[];
+  focusedOffering: EnrichedSniesProgram | null;
 }
 
 function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
@@ -47,7 +48,8 @@ function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
       const geocoded = offerings.filter((o) => o.lat !== null && o.lng !== null);
 
       for (const offering of geocoded) {
-        const color = CHARACTER_COLOR[offering.character] ?? DEFAULT_MARKER_COLOR;
+        const character = offering.nombrecaracteracademico ?? "";
+        const color = CHARACTER_COLOR[character] ?? DEFAULT_MARKER_COLOR;
 
         const icon = L.divIcon({
           className: "",
@@ -58,8 +60,8 @@ function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
 
         const marker = L.marker([offering.lat!, offering.lng!], { icon });
         marker.bindPopup(
-          `<strong style="font-size:12px;line-height:1.4">${offering.institutionName}</strong>` +
-          `<br><span style="font-size:11px;color:#64748b">${offering.municipality}, ${offering.department}</span>`,
+          `<strong style="font-size:12px;line-height:1.4">${offering.nombreinstitucion ?? "—"}</strong>` +
+          `<br><span style="font-size:11px;color:#64748b">${offering.nombremunicipioprograma ?? ""}, ${offering.nombredepartprograma ?? ""}</span>`,
         );
         cluster.addLayer(marker);
       }
@@ -85,8 +87,8 @@ function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
 }
 
 interface UniversityMapProps {
-  offerings:       ProgramOffering[];
-  focusedOffering: ProgramOffering | null;
+  offerings:       EnrichedSniesProgram[];
+  focusedOffering: EnrichedSniesProgram | null;
 }
 
 export function UniversityMap({ offerings, focusedOffering }: UniversityMapProps) {

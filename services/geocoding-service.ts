@@ -6,12 +6,9 @@ export interface GeoCoords {
   lng: number;
 }
 
-async function fetchFromNominatim(
-  institutionName: string,
-  municipality: string,
-): Promise<GeoCoords | null> {
+async function fetchFromNominatim(query: string): Promise<GeoCoords | null> {
   const url = new URL(NOMINATIM_BASE_URL);
-  url.searchParams.set("q", `${institutionName} ${municipality} Colombia`);
+  url.searchParams.set("q", query);
   url.searchParams.set("format", "json");
   url.searchParams.set("limit", "1");
 
@@ -32,31 +29,46 @@ async function fetchFromNominatim(
 }
 
 export const geocodingService = {
-  async geocodeInstitution(
-    institutionName: string,
-    municipality: string,
+  async geocodeLocation(
+    codeLocation: string,
+    municipalityName: string,
+    departmentName: string,
   ): Promise<GeoCoords | null> {
-    const cached = await prisma.geocodedInstitution.findUnique({
-      where: {
-        institutionName_municipality: { institutionName, municipality },
-      },
+    const cached = await prisma.location.findUnique({
+      where: { codeLocation },
     });
 
-    if (cached) {
-      return { lat: cached.lat, lng: cached.lng };
+    if (cached?.lat !== null && cached?.lat !== undefined) {
+      return { lat: cached.lat, lng: cached.lng! };
     }
 
     await new Promise((resolve) => setTimeout(resolve, NOMINATIM_DELAY_MS));
 
-    const coords = await fetchFromNominatim(institutionName, municipality);
-    if (!coords) return null;
+    const coords = await fetchFromNominatim(
+      `${municipalityName} ${departmentName} Colombia`,
+    );
 
-    await prisma.geocodedInstitution.upsert({
-      where: {
-        institutionName_municipality: { institutionName, municipality },
+    if (!coords) {
+      if (!cached) {
+        await prisma.location.upsert({
+          where:  { codeLocation },
+          update: {},
+          create: { codeLocation, name: municipalityName, codeDepartment: departmentName },
+        });
+      }
+      return null;
+    }
+
+    await prisma.location.upsert({
+      where:  { codeLocation },
+      update: { lat: coords.lat, lng: coords.lng },
+      create: {
+        codeLocation,
+        name:           municipalityName,
+        codeDepartment: departmentName,
+        lat:            coords.lat,
+        lng:            coords.lng,
       },
-      update: { lat: coords.lat, lng: coords.lng, geocodedAt: new Date() },
-      create: { institutionName, municipality, lat: coords.lat, lng: coords.lng },
     });
 
     return coords;
