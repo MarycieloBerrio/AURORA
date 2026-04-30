@@ -6,9 +6,9 @@ interface UniversityCardProps {
   onFocus?: () => void;
 }
 
-const CHARACTER_VARIANT: Record<string, "indigo" | "amber"> = {
+const CHARACTER_VARIANT: Record<string, "indigo" | "violet"> = {
   Oficial:  "indigo",
-  Privada:  "amber",
+  Privada:  "violet",
 };
 
 const METHODOLOGY_VARIANT: Record<string, "emerald" | "sky" | "slate"> = {
