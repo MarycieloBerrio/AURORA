@@ -8,6 +8,19 @@ import type { Prisma } from "@prisma/client";
 
 export type RawSniesRow = Record<string, string | number | null>;
 
+/**
+ * Elimina acentos y convierte a mayúsculas para normalizar texto antes de
+ * almacenarlo o compararlo. Garantiza que búsquedas con `ILIKE` funcionen
+ * independientemente de si el texto fuente tiene o no acentos.
+ */
+export function stripAccents(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toUpperCase()
+    .trim();
+}
+
 export async function fetchSniesPage(offset: number): Promise<RawSniesRow[]> {
   const url = new URL(`${SOCRATA_BASE_URL}/${SOCRATA_RESOURCE_ID}.json`);
   url.searchParams.set("$limit", String(SNIES_PAGE_LIMIT));
@@ -35,6 +48,12 @@ function toStr(v: string | number | null | undefined): string | null {
   return s === "" ? null : s;
 }
 
+/** Igual que toStr pero aplica stripAccents al resultado (para campos de búsqueda). */
+function toStrNorm(v: string | number | null | undefined): string | null {
+  const s = toStr(v);
+  return s !== null ? stripAccents(s) : null;
+}
+
 export function normalizeSniesRow(
   row: RawSniesRow,
 ): Prisma.SniesProgramUncheckedCreateInput {
@@ -50,7 +69,9 @@ export function normalizeSniesRow(
     nombreorigeninstitucional:    toStr(row["nombreorigeninstitucional"]),
     codigocaracteracademico:      toInt(row["codigocaracteracademico"]),
     nombrecaracteracademico:      toStr(row["nombrecaracteracademico"]),
-    nombreprograma:               toStr(row["nombreprograma"]),
+    // Normalizado (sin acentos, mayúsculas) para que la búsqueda ILIKE funcione
+    // independientemente de cómo viene el dato desde la API del SNIES.
+    nombreprograma:               toStrNorm(row["nombreprograma"]),
     codigodepartprograma:         toStr(row["codigodepartprograma"]),
     nombredepartprograma:         toStr(row["nombredepartprograma"]),
     codigomunicipioprograma:      toStr(row["codigomunicipioprograma"]),
