@@ -8,6 +8,28 @@ export interface EnrichedSniesProgram extends SniesProgram {
   lng: number | null;
 }
 
+// Spanish stop words common in university program names
+const STOP_WORDS = new Set([
+  "de", "del", "la", "el", "los", "las", "en", "y", "e", "con",
+  "para", "a", "o", "u", "i", "al", "lo", "un", "una", "por",
+  "sin", "sobre", "entre",
+]);
+
+/**
+ * Extract meaningful search keywords from a career/program name.
+ * Removes stop words and very short tokens so we can do AND-match
+ * across related program variants.
+ *
+ * "Ingeniería en sistemas" → ["Ingeniería", "sistemas"]
+ * Matches "INGENIERÍA DE SISTEMAS", "INGENIERÍA EN SISTEMAS Y COMPUTACIÓN", etc.
+ */
+function extractKeywords(name: string): string[] {
+  return name
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w.toLowerCase()));
+}
+
 export const sniesService = {
   async refresh(): Promise<{ inserted: number }> {
     await prisma.sniesProgram.deleteMany();
@@ -37,10 +59,20 @@ export const sniesService = {
   },
 
   async searchByName(programName: string): Promise<EnrichedSniesProgram[]> {
+    const keywords = extractKeywords(programName);
+
+    // If no meaningful keywords, fall back to simple contains
+    const whereClause =
+      keywords.length > 0
+        ? {
+            AND: keywords.map((kw) => ({
+              nombreprograma: { contains: kw, mode: "insensitive" as const },
+            })),
+          }
+        : { nombreprograma: { contains: programName, mode: "insensitive" as const } };
+
     const programs = await prisma.sniesProgram.findMany({
-      where: {
-        nombreprograma: { contains: programName, mode: "insensitive" },
-      },
+      where: whereClause,
       take: 200,
       orderBy: [{ nombredepartprograma: "asc" }, { nombreinstitucion: "asc" }],
     });
