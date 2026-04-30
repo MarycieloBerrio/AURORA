@@ -58,7 +58,7 @@ export function normalizeSniesRow(
   row: RawSniesRow,
 ): Prisma.SniesProgramUncheckedCreateInput {
   return {
-    codigoprograma:               toStr(row["codigoprograma"]) ?? "",
+    codigoprograma:               toStr(row["codigoprograma"]),
     codigoinstitucion:            toInt(row["codigoinstitucion"]),
     nombreinstitucion:            toStr(row["nombreinstitucion"]),
     codigodepartinstitucion:      toInt(row["codigodepartinstitucion"]),

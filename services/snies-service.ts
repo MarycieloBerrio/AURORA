@@ -46,12 +46,14 @@ export const sniesService = {
       const page = await fetchSniesPage(offset);
       if (page.length === 0) break;
 
+      // Solo descartamos filas que no tengan nombre de programa (datos inutilizables).
+      // codigoprograma ya no es PK: no filtramos por el ni usamos skipDuplicates.
       const data = page
         .map(normalizeSniesRow)
-        .filter((r) => r.codigoprograma && r.codigoprograma !== "");
+        .filter((r) => r.nombreprograma);
 
       if (data.length > 0) {
-        await prisma.sniesProgram.createMany({ data, skipDuplicates: true });
+        await prisma.sniesProgram.createMany({ data });
         inserted += data.length;
       }
 

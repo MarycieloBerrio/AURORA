@@ -23,7 +23,7 @@ export function UniversityList({ offerings, onFocusOffering }: UniversityListPro
         <div className="space-y-2">
           {offerings.map((offering) => (
             <UniversityCard
-              key={offering.codigoprograma}
+              key={offering.id}
               offering={offering}
               onFocus={
                 offering.lat !== null

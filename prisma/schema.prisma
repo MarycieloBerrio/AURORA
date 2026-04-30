@@ -213,7 +213,8 @@ model Ability {
 }
 
 model SniesProgram {
-  codigoprograma               String   @id
+  id                           Int      @id @default(autoincrement())
+  codigoprograma               String?
   codigoinstitucion            Int?
   nombreinstitucion            String?
   codigodepartinstitucion      Int?
