@@ -25,7 +25,7 @@ export async function fetchSniesPage(offset: number): Promise<RawSniesRow[]> {
   const url = new URL(`${SOCRATA_BASE_URL}/${SOCRATA_RESOURCE_ID}.json`);
   url.searchParams.set("$limit", String(SNIES_PAGE_LIMIT));
   url.searchParams.set("$offset", String(offset));
-  url.searchParams.set("$where", `${SNIES_FIELD_ESTADO} = 2`);
+  url.searchParams.set("$where", `${SNIES_FIELD_ESTADO} = 1`); // 1 = Activo
 
   const res = await fetch(url.toString(), {
     headers: { Accept: "application/json" },

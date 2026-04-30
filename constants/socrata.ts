@@ -9,7 +9,7 @@ export const SNIES_FIELD_MUNICIPIO  = "codigomunicipioprograma";
 export const SNIES_FIELD_NMUNICIPIO = "nombremunicipioprograma";
 export const SNIES_FIELD_DEPTO      = "codigodepartprograma";
 export const SNIES_FIELD_NDEPTO     = "nombredepartprograma";
-export const SNIES_FIELD_ESTADO     = "codigoestadoprograma"; // 2 = activo
+export const SNIES_FIELD_ESTADO     = "codigoestadoprograma"; // 1 = activo, 2 = inactivo
 
 export const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search";
 export const NOMINATIM_DELAY_MS = 250;
