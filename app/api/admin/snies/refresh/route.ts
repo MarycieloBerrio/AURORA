@@ -15,9 +15,10 @@ export async function POST() {
     const result = await sniesService.refresh();
     return NextResponse.json({ success: true, inserted: result.inserted });
   } catch (err) {
-    console.error("[snies/refresh]", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[snies/refresh] ERROR:", msg, err);
     return NextResponse.json(
-      { message: "Error al actualizar SNIES." },
+      { message: msg || "Error al actualizar SNIES." },
       { status: 500 },
     );
   }

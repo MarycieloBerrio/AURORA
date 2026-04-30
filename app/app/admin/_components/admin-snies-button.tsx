@@ -28,7 +28,7 @@ function appendLog(entry: SniesLogEntry): SniesLogEntry[] {
 }
 
 function formatRelative(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const diff  = Date.now() - new Date(iso).getTime();
   const mins  = Math.floor(diff / 60_000);
   const hours = Math.floor(diff / 3_600_000);
   const days  = Math.floor(diff / 86_400_000);
@@ -37,7 +37,9 @@ function formatRelative(iso: string): string {
   if (hours < 24) return `hace ${hours} h`;
   if (days  <  2) return "ayer";
   if (days  <  7) return `hace ${days} días`;
-  return new Date(iso).toLocaleDateString("es-CO", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("es-CO", {
+    day: "numeric", month: "short", year: "numeric",
+  });
 }
 
 function formatFull(iso: string): string {
@@ -48,22 +50,20 @@ function formatFull(iso: string): string {
 }
 
 export function AdminSniesButton() {
-  const [status,  setStatus]  = useState<Status>("idle");
-  const [count,   setCount]   = useState<number | null>(null);
-  const [log,     setLog]     = useState<SniesLogEntry[]>([]);
-  const [open,    setOpen]    = useState(false);
+  const [status,   setStatus]   = useState<Status>("idle");
+  const [count,    setCount]    = useState<number | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [log,      setLog]      = useState<SniesLogEntry[]>([]);
+  const [open,     setOpen]     = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Hydrate from localStorage after mount
   useEffect(() => { setLog(readLog()); }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setOpen(false);
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -72,18 +72,23 @@ export function AdminSniesButton() {
   async function handleRefresh() {
     setStatus("loading");
     setCount(null);
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/admin/snies/refresh", { method: "POST" });
-      if (res.ok) {
-        const data = (await res.json()) as { inserted: number };
-        const newLog = appendLog({ date: new Date().toISOString(), count: data.inserted });
+      let body: { inserted?: number; message?: string } = {};
+      try { body = (await res.json()) as typeof body; } catch { /* non-json */ }
+
+      if (res.ok && body.inserted !== undefined) {
+        const newLog = appendLog({ date: new Date().toISOString(), count: body.inserted });
         setLog(newLog);
-        setCount(data.inserted);
+        setCount(body.inserted);
         setStatus("done");
       } else {
+        setErrorMsg(body.message ?? `HTTP ${res.status}`);
         setStatus("error");
       }
-    } catch {
+    } catch (e) {
+      setErrorMsg(e instanceof Error ? e.message : "Error de red");
       setStatus("error");
     }
   }
@@ -91,21 +96,21 @@ export function AdminSniesButton() {
   const last = log[0] ?? null;
 
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="flex flex-col items-end gap-1">
+
+      {/* Button row */}
       <div className="flex items-center gap-3">
-        {/* Status feedback */}
         {status === "done" && count !== null && (
           <span className="text-sm font-medium text-emerald-600">
             ✓ {count.toLocaleString("es-CO")} programas
           </span>
         )}
         {status === "error" && (
-          <span className="text-sm font-medium text-rose-600">
-            Error al actualizar.
+          <span className="max-w-[220px] truncate text-xs font-medium text-rose-600" title={errorMsg ?? undefined}>
+            ✗ {errorMsg ?? "Error al actualizar"}
           </span>
         )}
 
-        {/* Main button */}
         <button
           type="button"
           onClick={handleRefresh}
@@ -131,39 +136,41 @@ export function AdminSniesButton() {
         </button>
       </div>
 
-      {/* Last update + history toggle */}
-      {last && (
-        <div ref={dropdownRef} className="relative">
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-1 text-[11px] text-slate-400 transition hover:text-slate-600"
+      {/* Log row — always visible */}
+      <div ref={dropdownRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-1 text-[11px] text-slate-400 transition hover:text-slate-600"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3 shrink-0">
+            <path fillRule="evenodd" d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5h-2.5V3.75Z" clipRule="evenodd" />
+          </svg>
+          {last
+            ? <>Últ. actualización: {formatRelative(last.date)}</>
+            : <>Sin actualizaciones registradas</>
+          }
+          <svg
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+            className={`h-3 w-3 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3 shrink-0">
-              <path fillRule="evenodd" d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5h-2.5V3.75Z" clipRule="evenodd" />
-            </svg>
-            Última actualización: {formatRelative(last.date)}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className={`h-3 w-3 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
-            >
-              <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-            </svg>
-          </button>
+            <path fillRule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+          </svg>
+        </button>
 
-          {open && (
-            <div className="absolute right-0 top-full z-20 mt-1.5 w-64 rounded-xl border border-slate-100 bg-white py-1.5 shadow-lg">
-              <p className="px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                Historial de actualizaciones
+        {open && (
+          <div className="absolute right-0 top-full z-20 mt-1.5 w-64 rounded-xl border border-slate-100 bg-white py-1.5 shadow-lg">
+            <p className="px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              Historial
+            </p>
+            {log.length === 0 ? (
+              <p className="px-3 py-2 text-xs text-slate-400">
+                Aún no hay actualizaciones registradas.
               </p>
+            ) : (
               <ul>
                 {log.map((entry, i) => (
-                  <li
-                    key={entry.date}
-                    className="flex items-center justify-between gap-4 px-3 py-1.5 hover:bg-slate-50"
-                  >
+                  <li key={entry.date} className="flex items-center justify-between gap-4 px-3 py-1.5 hover:bg-slate-50">
                     <span className={`text-xs ${i === 0 ? "font-medium text-slate-700" : "text-slate-500"}`}>
                       {formatFull(entry.date)}
                     </span>
@@ -173,10 +180,10 @@ export function AdminSniesButton() {
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
