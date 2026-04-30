@@ -2,15 +2,15 @@ import {
   SOCRATA_BASE_URL,
   SOCRATA_RESOURCE_ID,
   SNIES_PAGE_LIMIT,
-  SNIES_FIELD_ESTADO,
+  SNIES_SELECT_COLS,
 } from "@/constants/socrata";
 import type { Prisma } from "@prisma/client";
 
 export type RawSniesRow = Record<string, string | number | null>;
 
 /**
- * Elimina acentos y convierte a mayúsculas para normalizar texto antes de
- * almacenarlo o compararlo. Garantiza que búsquedas con `ILIKE` funcionen
+ * Elimina acentos y convierte a mayusculas para normalizar texto antes de
+ * almacenarlo o compararlo. Garantiza que busquedas con `ILIKE` funcionen
  * independientemente de si el texto fuente tiene o no acentos.
  */
 export function stripAccents(text: string): string {
@@ -21,11 +21,31 @@ export function stripAccents(text: string): string {
     .trim();
 }
 
+// Sector (id_sector): 1 = Oficial, 2 = Privada
+const SECTOR_LABEL: Record<number, string> = {
+  1: "Oficial",
+  2: "Privada",
+};
+
+// Metodologia (id_metodologia): 1 = Presencial, 2 = A Distancia, 3 = Virtual
+const METODOLOGIA_LABEL: Record<number, string> = {
+  1: "Presencial",
+  2: "A Distancia",
+  3: "Virtual",
+};
+
+/**
+ * Obtiene una pagina de programas SNIES desde la API de datos.gov.co.
+ * Usa $select + $group para deduplicar en la API, excluyendo las columnas
+ * id_genero, anio, semestre y matriculados antes de traer los datos.
+ * Esto reduce ~390 k registros a ~16 k programas unicos por request.
+ */
 export async function fetchSniesPage(offset: number): Promise<RawSniesRow[]> {
   const url = new URL(`${SOCRATA_BASE_URL}/${SOCRATA_RESOURCE_ID}.json`);
-  url.searchParams.set("$limit", String(SNIES_PAGE_LIMIT));
+  url.searchParams.set("$select", SNIES_SELECT_COLS);
+  url.searchParams.set("$group",  SNIES_SELECT_COLS);
+  url.searchParams.set("$limit",  String(SNIES_PAGE_LIMIT));
   url.searchParams.set("$offset", String(offset));
-  url.searchParams.set("$where", `${SNIES_FIELD_ESTADO} = 1`); // 1 = Activo
 
   const res = await fetch(url.toString(), {
     headers: { Accept: "application/json" },
@@ -48,7 +68,7 @@ function toStr(v: string | number | null | undefined): string | null {
   return s === "" ? null : s;
 }
 
-/** Igual que toStr pero aplica stripAccents al resultado (para campos de búsqueda). */
+/** Igual que toStr pero aplica stripAccents al resultado (para campos de busqueda). */
 function toStrNorm(v: string | number | null | undefined): string | null {
   const s = toStr(v);
   return s !== null ? stripAccents(s) : null;
@@ -57,47 +77,34 @@ function toStrNorm(v: string | number | null | undefined): string | null {
 export function normalizeSniesRow(
   row: RawSniesRow,
 ): Prisma.SniesProgramUncheckedCreateInput {
+  const idsector      = toInt(row["id_sector"]);
+  const codigometod   = toInt(row["id_metodologia"]);
+
   return {
-    codigoprograma:               toStr(row["codigoprograma"]),
-    codigoinstitucion:            toInt(row["codigoinstitucion"]),
-    nombreinstitucion:            toStr(row["nombreinstitucion"]),
-    codigodepartinstitucion:      toInt(row["codigodepartinstitucion"]),
-    nombredepartinstitucion:      toStr(row["nombredepartinstitucion"]),
-    codigomunicipioinstitucion:   toInt(row["codigomunicipioinstitucion"]),
-    nombremunicipioinstitucion:   toStr(row["nombremunicipioinstitucion"]),
-    codigoorigeninstitucional:    toInt(row["codigoorigeninstitucional"]),
-    nombreorigeninstitucional:    toStr(row["nombreorigeninstitucional"]),
-    codigocaracteracademico:      toInt(row["codigocaracteracademico"]),
-    nombrecaracteracademico:      toStr(row["nombrecaracteracademico"]),
-    // Normalizado (sin acentos, mayúsculas) para que la búsqueda ILIKE funcione
-    // independientemente de cómo viene el dato desde la API del SNIES.
-    nombreprograma:               toStrNorm(row["nombreprograma"]),
-    codigodepartprograma:         toStr(row["codigodepartprograma"]),
-    nombredepartprograma:         toStr(row["nombredepartprograma"]),
-    codigomunicipioprograma:      toStr(row["codigomunicipioprograma"]),
-    nombremunicipioprograma:      toStr(row["nombremunicipioprograma"]),
-    codigoestadoprograma:         toInt(row["codigoestadoprograma"]),
-    nombreestadoprograma:         toStr(row["nombreestadoprograma"]),
-    cantidadcreditos:             toStr(row["cantidadcreditos"]),
-    fechaacreditacion:            toStr(row["fechaacreditacion"]),
-    codigoareaconocimiento:       toStr(row["codigoareaconocimiento"]),
-    nombreareaconocimiento:       toStr(row["nombreareaconocimiento"]),
-    codigometodologia:            toInt(row["codigometodologia"]),
-    nombremetodologia:            toStr(row["nombremetodologia"]),
-    codigonbc:                    toStr(row["codigonbc"]),
-    nombrenbc:                    toStr(row["nombrenbc"]),
-    codigonivelformacion:         toInt(row["codigonivelformacion"]),
-    nombrenivelformacion:         toStr(row["nombrenivelformacion"]),
-    codigonivelacademico:         toInt(row["codigonivelacademico"]),
-    nombrenivelacademico:         toStr(row["nombrenivelacademico"]),
-    codigoperiodicidad:           toInt(row["codigoperiodicidad"]),
-    nombreperiodicidad:           toStr(row["nombreperiodicidad"]),
-    cantidadperiodos:             toStr(row["cantidadperiodos"]),
-    numeroresolucionacreditacion: toStr(row["numeroresolucionacreditacion"]),
-    codigotipoacreditacion:       toInt(row["codigotipoacreditacion"]),
-    nombretipoacreditacion:       toStr(row["nombretipoacreditacion"]),
-    aniosacreditados:             toStr(row["aniosacreditados"]),
-    nombretituloobtenido:         toStr(row["nombretituloobtenido"]),
-    fechacreacion:                toStr(row["fechacreacion"]),
+    codigoprograma:             toStr(row["c_digo_snies_delprograma"]),
+    codigoinstitucion:          toInt(row["c_digo_de_la_instituci_n"]),
+    iespadre:                   toStr(row["ies_padre"]),
+    nombreinstitucion:          toStr(row["instituci_n_de_educaci_n_superior_ies"]),
+    principaloseccional:        toStr(row["principal_oseccional"]),
+    idsector,
+    idcaracter:                 toInt(row["id_caracter"]),
+    codigodepartinstitucion:    toInt(row["c_digo_del_departamento_ies"]),
+    nombredepartinstitucion:    toStr(row["departamento_de_domicilio_de_la_ies"]),
+    codigomunicipioinstitucion: toStr(row["c_digo_del_municipio_ies"]),
+    nombremunicipioinstitucion: toStr(row["municipio_dedomicilio_de_la_ies"]),
+    // Normalizado (sin acentos, mayusculas) para que la busqueda ILIKE funcione
+    nombreprograma:             toStrNorm(row["programa_acad_mico"]),
+    idnivel:                    toInt(row["id_nivel"]),
+    idnivelformacion:           toInt(row["id_nivel_formacion"]),
+    codigometodologia:          codigometod,
+    nombremetodologia:          codigometod !== null ? (METODOLOGIA_LABEL[codigometod] ?? null) : null,
+    nombrecaracteracademico:    idsector    !== null ? (SECTOR_LABEL[idsector]         ?? null) : null,
+    idarea:                     toInt(row["id_area"]),
+    idnucleo:                   toInt(row["id_nucleo"]),
+    nombrenbc:                  toStr(row["n_cleo_b_sico_del_conocimiento_nbc"]),
+    codigodepartprograma:       toStr(row["c_digo_del_departamento_programa"]),
+    nombredepartprograma:       toStr(row["departamento_de_oferta_del_programa"]),
+    codigomunicipioprograma:    toStr(row["c_digo_del_municipio_programa"]),
+    nombremunicipioprograma:    toStr(row["municipio_de_oferta_del_programa"]),
   };
 }

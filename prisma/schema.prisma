@@ -213,47 +213,37 @@ model Ability {
 }
 
 model SniesProgram {
-  id                           Int      @id @default(autoincrement())
-  codigoprograma               String?
-  codigoinstitucion            Int?
-  nombreinstitucion            String?
-  codigodepartinstitucion      Int?
-  nombredepartinstitucion      String?
-  codigomunicipioinstitucion   Int?
-  nombremunicipioinstitucion   String?
-  codigoorigeninstitucional    Int?
-  nombreorigeninstitucional    String?
-  codigocaracteracademico      Int?
-  nombrecaracteracademico      String?
-  nombreprograma               String?
-  codigodepartprograma         String?
-  nombredepartprograma         String?
-  codigomunicipioprograma      String?
-  nombremunicipioprograma      String?
-  codigoestadoprograma         Int?
-  nombreestadoprograma         String?
-  cantidadcreditos             String?
-  fechaacreditacion            String?
-  codigoareaconocimiento       String?
-  nombreareaconocimiento       String?
-  codigometodologia            Int?
-  nombremetodologia            String?
-  codigonbc                    String?
-  nombrenbc                    String?
-  codigonivelformacion         Int?
-  nombrenivelformacion         String?
-  codigonivelacademico         Int?
-  nombrenivelacademico         String?
-  codigoperiodicidad           Int?
-  nombreperiodicidad           String?
-  cantidadperiodos             String?
-  numeroresolucionacreditacion String?
-  codigotipoacreditacion       Int?
-  nombretipoacreditacion       String?
-  aniosacreditados             String?
-  nombretituloobtenido         String?
-  fechacreacion                String?
-  fetchedAt                    DateTime @default(now())
+  id                         Int      @id @default(autoincrement())
+  // Codigo SNIES del programa — unico por oferta academica, usado para deduplicar
+  codigoprograma             String?  @unique
+  codigoinstitucion          Int?
+  iespadre                   String?
+  nombreinstitucion          String?
+  principaloseccional        String?
+  idsector                   Int?
+  idcaracter                 Int?
+  codigodepartinstitucion    Int?
+  nombredepartinstitucion    String?
+  codigomunicipioinstitucion String?
+  nombremunicipioinstitucion String?
+  // Normalizado (sin acentos, mayusculas) para busqueda ILIKE
+  nombreprograma             String?
+  idnivel                    Int?
+  idnivelformacion           Int?
+  codigometodologia          Int?
+  // Derivado de codigometodologia: "Presencial" | "A Distancia" | "Virtual"
+  nombremetodologia          String?
+  // Derivado de idsector: "Oficial" | "Privada"
+  nombrecaracteracademico    String?
+  idarea                     Int?
+  idnucleo                   Int?
+  nombrenbc                  String?
+  codigodepartprograma       String?
+  nombredepartprograma       String?
+  // Usado para join con Location (lat/lng)
+  codigomunicipioprograma    String?
+  nombremunicipioprograma    String?
+  fetchedAt                  DateTime @default(now())
 
   @@index([nombreprograma])
   @@index([codigomunicipioprograma])
