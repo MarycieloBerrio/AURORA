@@ -97,7 +97,7 @@ export default async function AdminPage() {
       }
     >
       <AdminStatCards stats={stats} totalUsers={stats.totalUsers} />
-      <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+      <div className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             Datos SNIES
