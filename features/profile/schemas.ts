@@ -43,3 +43,16 @@ export type RegisterInput = z.output<typeof registerSchema>;
 export type RegisterFormInput = z.input<typeof registerSchema>;
 export type CompleteProfileInput = z.output<typeof completeProfileSchema>;
 export type CompleteProfileFormInput = z.input<typeof completeProfileSchema>;
+
+// Schema del formulario de perfil en el cliente: incluye el consentimiento de
+// datos personales. Este campo NO se envía a la API — solo bloquea el submit
+// si el usuario no acepta.
+export const completeProfileClientSchema = completeProfileSchema.extend({
+  dataConsent: z
+    .boolean()
+    .refine((v) => v === true, {
+      message: "Debes aceptar la política de tratamiento de datos para continuar.",
+    }),
+});
+
+export type CompleteProfileClientFormInput = z.input<typeof completeProfileClientSchema>;
