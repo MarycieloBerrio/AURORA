@@ -3,7 +3,7 @@ import { after } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { ofertaService } from "@/services/oferta-service";
+import { ofertaService, SYNC_GEOCODE_LIMIT } from "@/services/oferta-service";
 
 const querySchema = z.object({
   programa: z.string().min(1).max(200),
@@ -25,11 +25,27 @@ export async function GET(request: Request) {
   const { programa } = parsed.data;
 
   try {
-    const offerings = await ofertaService.getOfferingsForProgram(programa);
+    let offerings = await ofertaService.getOfferingsForProgram(programa);
 
-    after(() => {
-      ofertaService.geocodePendingMunicipalities(offerings).catch(console.error);
-    });
+    const needsGeocoding = offerings.some(
+      (o) => o.lat === null && o.codigomunicipioprograma,
+    );
+
+    if (needsGeocoding) {
+      // Geocode up to SYNC_GEOCODE_LIMIT municipalities synchronously so pins
+      // appear on the very first load (≈ 15 × 250 ms ≈ 3.75 s max overhead).
+      await ofertaService.geocodePendingMunicipalities(offerings, SYNC_GEOCODE_LIMIT);
+
+      // Re-fetch: Location table now has coordinates for the geocoded codes.
+      offerings = await ofertaService.getOfferingsForProgram(programa);
+
+      // Geocode any remaining municipalities in the background.
+      after(() => {
+        ofertaService
+          .geocodePendingMunicipalities(offerings)
+          .catch(console.error);
+      });
+    }
 
     return NextResponse.json({ offerings, programKey: programa });
   } catch {
