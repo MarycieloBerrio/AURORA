@@ -153,19 +153,7 @@ export default function PoliticaTratamientoDatosPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-bold text-slate-800">7. Medidas de seguridad</h2>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Aurora implementa medidas técnicas y organizativas razonables para proteger sus datos
-              personales contra acceso no autorizado, pérdida, alteración o divulgación. Las contraseñas
-              se almacenan con función de hash criptográfico (bcrypt) y las comunicaciones se realizan
-              mediante protocolos cifrados (HTTPS/TLS). No obstante, ningún sistema de seguridad es
-              absolutamente infalible, por lo que Aurora no puede garantizar la seguridad absoluta de
-              la información transmitida por internet.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-2 text-base font-bold text-slate-800">8. Conservación de datos</h2>
+            <h2 className="mb-2 text-base font-bold text-slate-800">7. Conservación de datos</h2>
             <p className="text-sm leading-relaxed text-slate-600">
               Sus datos personales serán conservados mientras su cuenta permanezca activa o mientras sean
               necesarios para las finalidades descritas. Cuando solicite la eliminación de su cuenta, sus
@@ -176,7 +164,7 @@ export default function PoliticaTratamientoDatosPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-bold text-slate-800">9. Menores de edad</h2>
+            <h2 className="mb-2 text-base font-bold text-slate-800">8. Menores de edad</h2>
             <p className="text-sm leading-relaxed text-slate-600">
               Aurora está dirigida a estudiantes de secundaria y educación superior. Los usuarios menores
               de 14 años deben contar con la autorización expresa de su padre, madre o representante
@@ -186,20 +174,12 @@ export default function PoliticaTratamientoDatosPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-bold text-slate-800">10. Modificaciones a esta política</h2>
+            <h2 className="mb-2 text-base font-bold text-slate-800">9. Modificaciones a esta política</h2>
             <p className="text-sm leading-relaxed text-slate-600">
               Aurora se reserva el derecho de modificar la presente política en cualquier momento.
               Cualquier cambio será publicado en esta página con la fecha de actualización. Si los
               cambios son sustanciales, se notificará a los usuarios registrados por correo electrónico
               con al menos 15 días de antelación a su entrada en vigor.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="mb-2 text-base font-bold text-slate-800">11. Contacto</h2>
-            <p className="text-sm leading-relaxed text-slate-600">
-              Para consultas, solicitudes o quejas relacionadas con el tratamiento de sus datos personales,
-              puede comunicarse con nosotros a través de los canales disponibles en la plataforma Aurora.
             </p>
           </section>
 
