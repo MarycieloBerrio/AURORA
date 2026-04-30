@@ -9,7 +9,8 @@
  */
 
 import * as dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: ".env.local" });
+dotenv.config(); // fallback a .env si .env.local no existe
 
 import { PrismaClient } from "@prisma/client";
 
