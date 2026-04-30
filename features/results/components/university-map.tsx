@@ -31,18 +31,47 @@ function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
   useEffect(() => {
     let cancelled = false;
 
-    Promise.all([
-      import("leaflet"),
-      import("leaflet.markercluster"),
-    ]).then(([L]) => {
+    // leaflet.markercluster es un plugin CJS que parchea la instancia global de
+    // Leaflet (window.L) en lugar de la copia del módulo ESM. Por eso se importa
+    // secuencialmente: primero leaflet (para que window.L quede disponible) y
+    // luego el plugin (para que lo parchee), y finalmente se usa window.L para
+    // acceder a markerClusterGroup().
+    import("leaflet")
+      .then((L) => {
+        // Exponer window.L para que el plugin lo encuentre
+        if (typeof window !== "undefined") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window as any).L = L;
+        }
+        return import("leaflet.markercluster").then(() => L);
+      })
+      .then((L) => {
       if (cancelled) return;
 
       if (clusterRef.current) {
         map.removeLayer(clusterRef.current as Parameters<typeof map.removeLayer>[0]);
       }
 
+      // Intentar markerClusterGroup desde el módulo L o desde window.L
+      // (el plugin puede haber parchado cualquiera de las dos referencias).
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cluster = (L as any).markerClusterGroup();
+      const Lany = L as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clusterFn: (() => any) | undefined =
+        typeof Lany.markerClusterGroup === "function"
+          ? Lany.markerClusterGroup.bind(Lany)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          : typeof (window as any).L?.markerClusterGroup === "function"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ? (window as any).L.markerClusterGroup.bind((window as any).L)
+            : undefined;
+
+      if (!clusterFn) {
+        console.warn("[UniversityMap] markerClusterGroup no disponible; markers sin agrupar.");
+        return;
+      }
+
+      const cluster = clusterFn();
       clusterRef.current = cluster;
 
       const geocoded = offerings.filter((o) => o.lat !== null && o.lng !== null);
