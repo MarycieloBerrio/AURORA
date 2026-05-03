@@ -44,7 +44,7 @@ export interface ReadingPassage {
 }
 
 export type AttentionCellContent =
-  | { type: "text"; value: string; italic?: boolean }
+  | { type: "text"; value: string; italic?: boolean; monoZero?: boolean }
   | { type: "image"; src: string; alt: string };
 
 export interface AttentionQuestion {

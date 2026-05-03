@@ -211,6 +211,7 @@ export function SelectiveAttentionTest({
 
         <div className="flex justify-center">
           <div
+            key={currentQuestion.key}
             className="grid gap-1.5"
             style={{
               gridTemplateColumns: `repeat(${currentQuestion.gridCols}, minmax(0, 1fr))`,
