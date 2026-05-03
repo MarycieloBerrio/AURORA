@@ -46,15 +46,16 @@ function getCellStatus(
 }
 
 function buildGridMaxWidth(gridCols: number, isImageGrid: boolean): string {
-  const cellPx = isImageGrid ? 72 : gridCols <= 3 ? 72 : gridCols <= 5 ? 56 : 44;
+  const cellPx = isImageGrid
+    ? gridCols <= 5 ? 72 : 64
+    : gridCols <= 3 ? 72 : gridCols <= 5 ? 56 : gridCols <= 6 ? 54 : 50;
   const gapPx = 6;
   return `${gridCols * cellPx + (gridCols - 1) * gapPx}px`;
 }
 
 function buildFontSize(gridCols: number): string {
   if (gridCols <= 3) return "1.25rem";
-  if (gridCols <= 5) return "0.875rem";
-  return "0.75rem";
+  return "0.9rem";
 }
 
 export function SelectiveAttentionTest({
