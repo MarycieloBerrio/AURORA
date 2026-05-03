@@ -127,7 +127,7 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
 
     {tooltipPos && typeof window !== "undefined" && createPortal(
       <div
-        className="animate-fade-in pointer-events-none relative rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-xl"
+        className="animate-fade-in-opacity pointer-events-none relative rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-xl"
         style={{
           position: "fixed",
           right: window.innerWidth - tooltipPos.x + 10,
