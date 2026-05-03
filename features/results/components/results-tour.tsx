@@ -56,7 +56,7 @@ const TOUR_STEPS: TourStep[] = [
 
 function clearHighlights() {
   document.querySelectorAll("[data-tour]").forEach((el) => {
-    el.classList.remove("tour-highlight");
+    el.classList.remove("tour-highlight", "tour-blur");
   });
 }
 
@@ -78,10 +78,15 @@ export function ResultsTour() {
 
     const current = TOUR_STEPS[step - 1];
     if (current?.tourTarget) {
-      const el = document.querySelector(`[data-tour="${current.tourTarget}"]`);
-      if (el) {
-        el.classList.add("tour-highlight");
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Blur every section first, then un-blur + highlight the active one
+      document.querySelectorAll("[data-tour]").forEach((el) => {
+        el.classList.add("tour-blur");
+      });
+      const active = document.querySelector(`[data-tour="${current.tourTarget}"]`);
+      if (active) {
+        active.classList.remove("tour-blur");
+        active.classList.add("tour-highlight");
+        active.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }
 

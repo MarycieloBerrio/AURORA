@@ -69,5 +69,12 @@ body {
 
 .tour-highlight {
   box-shadow: 0 0 0 3px #d97706, 0 8px 30px rgb(15 23 42 / 0.05);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+}
+
+.tour-blur {
+  filter: blur(3px);
+  opacity: 0.35;
+  pointer-events: none;
+  transition: filter 0.3s ease, opacity 0.3s ease;
 }
