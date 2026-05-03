@@ -49,6 +49,7 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
 
   function handleMouseEnter() {
     if (!cardRef.current) return;
+    if (!window.matchMedia("(hover: hover)").matches) return;
     const r = cardRef.current.getBoundingClientRect();
     setTooltipPos({ x: r.left, y: r.top, h: r.height });
   }
