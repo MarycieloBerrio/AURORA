@@ -8,6 +8,7 @@ import { Card } from "@/components/atoms/card";
 import { AdminStatCards } from "./_components/admin-stat-cards";
 import { AdminUserTable } from "./_components/admin-user-table";
 import { AdminSniesButton } from "./_components/admin-snies-button";
+import { AdminBackfillButton } from "./_components/admin-backfill-button";
 import type { AdminUserRow } from "./_components/admin-user-table";
 
 export default async function AdminPage() {
@@ -107,6 +108,18 @@ export default async function AdminPage() {
           </p>
         </div>
         <AdminSniesButton />
+      </div>
+
+      <div className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Perfiles históricos
+          </p>
+          <p className="text-sm text-slate-500">
+            Calcula el vector de perfil para usuarios que completaron tests antes de esta actualización
+          </p>
+        </div>
+        <AdminBackfillButton />
       </div>
 
       <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
