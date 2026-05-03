@@ -106,6 +106,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ tes
       });
     }
 
+    await testService.updateProfile(session.user.id);
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ message: "No se pudieron guardar las respuestas." }, { status: 500 });

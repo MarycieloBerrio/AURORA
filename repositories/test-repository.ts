@@ -34,6 +34,13 @@ export const testRepository = {
     });
   },
 
+  async saveProfile(userId: string, profile: (number | null)[]) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { profile },
+    });
+  },
+
   async getAllTestResults(userId: string) {
     return prisma.user.findUniqueOrThrow({
       where: { id: userId },

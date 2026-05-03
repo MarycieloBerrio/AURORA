@@ -168,6 +168,44 @@ export const testService = {
     return result;
   },
 
+  async updateProfile(userId: string): Promise<void> {
+    const data = await testRepository.getAllTestResults(userId);
+
+    const completedRiasec = [data.testRiasec1, data.testRiasec2, data.testRiasec3, data.testRiasec4]
+      .filter(Boolean) as unknown as RiasecBlockResult[];
+
+    const riasec: (number | null)[] = completedRiasec.length > 0
+      ? RIASEC_DIMENSIONS.map((dim) =>
+          completedRiasec.reduce((sum, t) => sum + t[dim], 0) / completedRiasec.length
+        )
+      : [null, null, null, null, null, null];
+
+    const completedHexaco = [data.testHexaco1, data.testHexaco2, data.testHexaco3]
+      .filter(Boolean) as unknown as HexacoBlockResult[];
+
+    const hexaco: (number | null)[] = completedHexaco.length > 0
+      ? HEXACO_DIMENSIONS.map((dim) =>
+          completedHexaco.reduce((sum, t) => sum + t[dim], 0) / completedHexaco.length
+        )
+      : [null, null, null, null, null, null];
+
+    const skillFields: [keyof typeof data, keyof SkillsDict][] = [
+      ["testReadingComprehension", "RC"],
+      ["testDeductiveReasoning",   "DR"],
+      ["testInductiveReasoning",   "IR"],
+      ["testMathematicalReasoning","MR"],
+      ["testSpatialReasoning",     "SR"],
+      ["testSelectiveAttention",   "SA"],
+    ];
+    const skills: (number | null)[] = skillFields.map(([field]) => {
+      const test = data[field] as SkillTestResult | null;
+      return test ? test.points / test.max : null;
+    });
+
+    // [R,I,A,S,E,C, H,E,X,A,C,O, RC,DR,IR,MR,SR,SA]
+    await testRepository.saveProfile(userId, [...riasec, ...hexaco, ...skills]);
+  },
+
   async computeInterests(userId: string): Promise<InterestsList> {
     const data = await testRepository.getAllTestResults(userId);
     const riasecFields = [data.testRiasec1, data.testRiasec2, data.testRiasec3, data.testRiasec4];
