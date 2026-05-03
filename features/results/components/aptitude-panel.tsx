@@ -4,44 +4,62 @@ import { AptitudeChart } from "@/features/results/components/aptitude-chart";
 
 const SKILL_META: Record<
   keyof SkillsDict,
-  { label: string; description: string; stemImpact: string }
+  { label: string; description: string; stemImpact: string; high: string; medium: string; low: string }
 > = {
   RC: {
     label: "Comprension Lectora",
     description: "Mide la capacidad para comprender textos escritos, identificar ideas principales y extraer informacion relevante.",
     stemImpact: "Esencial para interpretar publicaciones cientificas, documentacion tecnica, manuales de ingenieria y enunciados de problemas complejos.",
+    high: "Fortaleza destacada. Comprendes textos complejos con facilidad, lo que amplía tus opciones en cualquier carrera con alto componente teórico o técnico.",
+    medium: "En desarrollo. Lees con comprensión aceptable; practicar con textos más técnicos y académicos fortalecerá esta habilidad.",
+    low: "Área de mejora. Reforzar la comprensión lectora ampliará tus opciones en carreras con alto componente teórico.",
   },
   DR: {
     label: "Razonamiento Deductivo",
     description: "Evalua la capacidad para derivar conclusiones validas a partir de premisas y reglas logicas.",
     stemImpact: "Base del pensamiento computacional, la demostracion matematica, la programacion logica y el analisis formal de sistemas.",
+    high: "Fortaleza destacada. Derivas conclusiones con precisión lógica, una habilidad clave en programación, matemáticas y derecho.",
+    medium: "En desarrollo. Tu razonamiento lógico es funcional; los ejercicios de lógica formal y programación básica pueden potenciarlo.",
+    low: "Área de mejora. Ejercitar la lógica formal y la programación básica puede fortalecer significativamente esta capacidad.",
   },
   IR: {
     label: "Razonamiento Inductivo",
     description: "Mide la capacidad para identificar patrones en datos visuales o abstractos y generalizar reglas a partir de ellos.",
     stemImpact: "Fundamental en ciencia de datos, biologia, fisica experimental y aprendizaje automatico, donde se infieren reglas desde observaciones.",
+    high: "Fortaleza destacada. Identificas patrones con rapidez, una ventaja directa en ciencia de datos, biología e inteligencia artificial.",
+    medium: "En desarrollo. Reconoces patrones con regularidad; la práctica con series y matrices puede elevar esta habilidad.",
+    low: "Área de mejora. Los ejercicios de series, matrices y analogías pueden ayudarte a desarrollar esta capacidad.",
   },
   MR: {
     label: "Razonamiento Matematico",
     description: "Evalua el razonamiento logico-matematico aplicado a la resolucion de problemas numericos y geometricos.",
     stemImpact: "Nucleo de la ingenieria, fisica, quimica cuantitativa, econometria y ciencias computacionales. Alta correlacion con rendimiento en STEM.",
+    high: "Fortaleza destacada. Tu capacidad cuantitativa es alta, lo que abre puertas directas a ingeniería, física y ciencias computacionales.",
+    medium: "En desarrollo. Tu rendimiento matemático es adecuado; consolidar bases en álgebra y aritmética puede abrirte más opciones STEM.",
+    low: "Área de mejora. Reforzar conceptos matemáticos fundamentales amplía significativamente tus opciones en carreras técnicas.",
   },
   SR: {
     label: "Razonamiento Espacial",
     description: "Mide la capacidad para visualizar y rotar mentalmente objetos en el espacio tridimensional.",
     stemImpact: "Fundamental en arquitectura, diseno mecanico, cirugia, robotica y visualizacion de estructuras moleculares o datos 3D.",
+    high: "Fortaleza destacada. Visualizas y manipulas objetos en el espacio con facilidad, una ventaja directa en arquitectura, ingeniería y diseño.",
+    medium: "En desarrollo. Tienes capacidad espacial funcional; el dibujo técnico y los puzzles 3D pueden potenciarla.",
+    low: "Área de mejora. La práctica con puzzles espaciales y modelado 3D puede desarrollar esta habilidad con el tiempo.",
   },
   SA: {
     label: "Atencion Selectiva",
     description: "Evalua la rapidez y precision para localizar un estimulo diferente dentro de un conjunto de distractores similares.",
     stemImpact: "Clave en medicina clinica, ciberseguridad, pilotaje, control de sistemas criticos y cualquier rol que requiera monitoreo continuo.",
+    high: "Fortaleza destacada. Localizas estímulos relevantes con rapidez y precisión, una habilidad crítica en medicina, ciberseguridad y control de sistemas.",
+    medium: "En desarrollo. Tu atención selectiva es adecuada; actividades de concentración y vigilancia sostenida pueden fortalecerla.",
+    low: "Área de mejora. Mejorar esta habilidad puede abrirte roles que exigen monitoreo detallado o trabajo en entornos de alta alerta.",
   },
 };
 
-function scoreLabel(pct: number): { text: string; color: string } {
-  if (pct >= 70) return { text: "Fortaleza — rendimiento destacado.", color: "text-emerald-600" };
-  if (pct >= 40) return { text: "En desarrollo — dentro del promedio.", color: "text-amber-600" };
-  return { text: "Area de mejora — reforzar amplia tus opciones STEM.", color: "text-rose-500" };
+function scoreLabel(meta: (typeof SKILL_META)[keyof SkillsDict], pct: number): { text: string; color: string } {
+  if (pct >= 70) return { text: meta.high, color: "text-emerald-600" };
+  if (pct >= 40) return { text: meta.medium, color: "text-amber-600" };
+  return { text: meta.low, color: "text-rose-500" };
 }
 
 interface AptitudePanelProps {
@@ -61,8 +79,8 @@ export function AptitudePanel({ skills, overlays }: AptitudePanelProps) {
       <div className="space-y-2">
         {(Object.keys(SKILL_META) as (keyof SkillsDict)[]).map((key) => {
           const pct = Math.round(skills[key] * 100);
-          const { text: interpText, color: interpColor } = scoreLabel(pct);
           const meta = SKILL_META[key];
+          const { text: interpText, color: interpColor } = scoreLabel(meta, pct);
 
           return (
             <details key={key} className="group rounded-xl border border-slate-100 bg-white">

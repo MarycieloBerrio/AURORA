@@ -4,15 +4,52 @@ import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const DIMENSION_INFO: Record<
   keyof InterestsList,
-  { name: string; description: string }
+  { name: string; high: string; medium: string; low: string }
 > = {
-  R: { name: "Realista", description: "Prefiere actividades practicas con objetos, herramientas y maquinaria. Orientado a lo concreto y manual." },
-  I: { name: "Investigativo", description: "Orientado al analisis, la ciencia y la resolucion de problemas complejos. Disfruta explorar ideas y datos." },
-  A: { name: "Artistico", description: "Valora la creatividad, la expresion y los entornos no estructurados. Sensible a la estetica y la innovacion." },
-  S: { name: "Social", description: "Disfruta ensenar, ayudar e interactuar de manera significativa con personas. Orientado al servicio." },
-  E: { name: "Emprendedor", description: "Orientado al liderazgo, la persuasion y el logro de objetivos. Disfruta los retos competitivos." },
-  C: { name: "Convencional", description: "Le gustan las tareas ordenadas, los datos y los sistemas estructurados. Alto sentido de la precision." },
+  R: {
+    name: "Realista",
+    high: "Tienes una marcada preferencia por trabajar con herramientas, máquinas y entornos físicos. Eres práctico, concreto y disfrutas ver resultados tangibles de tu trabajo. Carreras como ingeniería mecánica, arquitectura técnica o tecnología industrial son un ajuste natural para ti.",
+    medium: "Tienes cierta afinidad por lo práctico y manual, aunque no es tu orientación dominante. Puedes desempeñarte bien en roles que combinen trabajo técnico con otras dimensiones más desarrolladas en tu perfil.",
+    low: "Prefieres entornos que no dependan del trabajo físico o mecánico directo. Roles de investigación abstracta, trabajo social o gestión creativa se alinean mejor con tu perfil.",
+  },
+  I: {
+    name: "Investigativo",
+    high: "Tienes una orientación científica y analítica muy marcada. Disfrutas investigar, resolver problemas complejos y explorar ideas en profundidad. Eres independiente intelectualmente y buscas entender el porqué de las cosas. Las ciencias, la investigación y el pensamiento computacional son áreas naturales para ti.",
+    medium: "Tienes interés por el análisis y la resolución de problemas, aunque combinas esta orientación con otros estilos. Roles que requieran pensamiento crítico sin ser puramente investigativos pueden ser un buen ajuste.",
+    low: "Prefieres la acción y la interacción sobre el análisis profundo. Roles más prácticos, creativos o sociales pueden resultarte más motivadores que la investigación abstracta.",
+  },
+  A: {
+    name: "Artístico",
+    high: "Tienes una fuerte orientación creativa y expresiva. Valoras la originalidad, la autonomía y los entornos no estructurados. Tu sensibilidad estética e imaginación son activos clave en diseño, artes, comunicación, publicidad y humanidades.",
+    medium: "Tienes un componente creativo que puede enriquecer tu perfil en roles que combinen creatividad con habilidades analíticas o sociales más desarrolladas en ti.",
+    low: "Tiendes a preferir entornos más estructurados y predecibles sobre los creativos o ambiguos. Esto puede ser una ventaja en áreas técnicas, organizacionales o científicas donde prima la precisión.",
+  },
+  S: {
+    name: "Social",
+    high: "Tienes una orientación genuina hacia las personas: enseñar, ayudar, escuchar y colaborar te resultan actividades naturalmente satisfactorias. Carreras en educación, salud, psicología y trabajo social se alinean directamente con tu perfil.",
+    medium: "Disfrutas la interacción social pero también puedes trabajar de forma independiente. Roles que combinen trabajo con personas y tareas técnicas o creativas pueden ser un buen ajuste.",
+    low: "Prefieres entornos de trabajo más independientes o estructurados que los roles de alta interacción social. Esto es completamente válido y compatible con carreras técnicas, científicas o creativas.",
+  },
+  E: {
+    name: "Emprendedor",
+    high: "Tienes un perfil de liderazgo y persuasión muy marcado. Disfrutas influir en otros, tomar decisiones y asumir retos competitivos. Administración de empresas, derecho, emprendimiento y ventas son entornos donde puedes destacar.",
+    medium: "Tienes cierta capacidad de iniciativa y liderazgo, aunque no es tu rasgo dominante. Roles con autonomía moderada y trabajo en equipo pueden potenciar esta dimensión.",
+    low: "Prefieres roles de ejecución o especialización sobre los de liderazgo o gestión comercial. Esto te hace especialmente apto para roles técnicos, investigativos o creativos donde el expertise es más valorado que la persuasión.",
+  },
+  C: {
+    name: "Convencional",
+    high: "Tienes una marcada preferencia por el orden, la precisión y los sistemas estructurados. Eres metódico, detallista y confiable en la ejecución. Contabilidad, administración, sistemas de información y finanzas son áreas que aprovechan directamente estas fortalezas.",
+    medium: "Valoras cierta estructura y organización en tu trabajo, aunque también puedes adaptarte a entornos más flexibles. Este equilibrio es una ventaja en muchos roles profesionales.",
+    low: "Prefieres entornos con flexibilidad y variedad sobre los altamente estructurados o rutinarios. Tu perfil encaja mejor con roles creativos, investigativos o de liderazgo dinámico.",
+  },
 };
+
+function dimensionText(dim: keyof InterestsList, pct: number): string {
+  const info = DIMENSION_INFO[dim];
+  if (pct >= 70) return info.high;
+  if (pct >= 40) return info.medium;
+  return info.low;
+}
 
 function hollandCode(interests: InterestsList): string {
   return (Object.keys(interests) as (keyof InterestsList)[])
@@ -102,7 +139,7 @@ export function RiasecPanel({ interests, overlays }: RiasecPanelProps) {
                   />
                 </div>
                 <p className="text-[10px] leading-snug text-slate-500">
-                  {DIMENSION_INFO[dim].description}
+                  {dimensionText(dim, pct)}
                 </p>
               </div>
             );
