@@ -31,72 +31,63 @@ function MarkersLayer({ offerings, focusedOffering }: MarkersLayerProps) {
   useEffect(() => {
     let cancelled = false;
 
-    // leaflet.markercluster es un plugin CJS que parchea la instancia global de
-    // Leaflet (window.L) en lugar de la copia del módulo ESM. Por eso se importa
-    // secuencialmente: primero leaflet (para que window.L quede disponible) y
-    // luego el plugin (para que lo parchee), y finalmente se usa window.L para
-    // acceder a markerClusterGroup().
     import("leaflet")
-      .then((L) => {
-        // Exponer window.L para que el plugin lo encuentre
+      .then((leafletNS) => {
+        // Use L.default (the actual Leaflet object) so the markercluster plugin,
+        // which internally calls require('leaflet'), patches the same reference.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const LObj = (leafletNS as any).default ?? leafletNS;
         if (typeof window !== "undefined") {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window as any).L = L;
+          (window as any).L = LObj;
         }
-        return import("leaflet.markercluster").then(() => L);
+        return import("leaflet.markercluster").then(() => LObj);
       })
-      .then((L) => {
-      if (cancelled) return;
-
-      if (clusterRef.current) {
-        map.removeLayer(clusterRef.current as Parameters<typeof map.removeLayer>[0]);
-      }
-
-      // Intentar markerClusterGroup desde el módulo L o desde window.L
-      // (el plugin puede haber parchado cualquiera de las dos referencias).
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const Lany = L as any;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const clusterFn: (() => any) | undefined =
-        typeof Lany.markerClusterGroup === "function"
-          ? Lany.markerClusterGroup.bind(Lany)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          : typeof (window as any).L?.markerClusterGroup === "function"
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ? (window as any).L.markerClusterGroup.bind((window as any).L)
-            : undefined;
+      .then((L: any) => {
+        if (cancelled) return;
 
-      if (!clusterFn) {
-        console.warn("[UniversityMap] markerClusterGroup no disponible; markers sin agrupar.");
-        return;
-      }
+        if (clusterRef.current) {
+          map.removeLayer(clusterRef.current as Parameters<typeof map.removeLayer>[0]);
+        }
 
-      const cluster = clusterFn();
-      clusterRef.current = cluster;
+        const geocoded = offerings.filter((o) => o.lat !== null && o.lng !== null);
 
-      const geocoded = offerings.filter((o) => o.lat !== null && o.lng !== null);
+        const makeIcon = (character: string) => {
+          const color = CHARACTER_COLOR[character] ?? DEFAULT_MARKER_COLOR;
+          return L.divIcon({
+            className: "",
+            html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);"></div>`,
+            iconSize:   [12, 12],
+            iconAnchor: [6, 6],
+          });
+        };
 
-      for (const offering of geocoded) {
-        const character = offering.nombrecaracteracademico ?? "";
-        const color = CHARACTER_COLOR[character] ?? DEFAULT_MARKER_COLOR;
+        const makePopup = (o: EnrichedSniesProgram) =>
+          `<strong style="font-size:12px;line-height:1.4">${o.nombreinstitucion ?? "—"}</strong>` +
+          `<br><span style="font-size:11px;color:#64748b">${o.nombremunicipioprograma ?? ""}, ${o.nombredepartprograma ?? ""}</span>`;
 
-        const icon = L.divIcon({
-          className: "",
-          html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);"></div>`,
-          iconSize:   [12, 12],
-          iconAnchor: [6, 6],
-        });
-
-        const marker = L.marker([offering.lat!, offering.lng!], { icon });
-        marker.bindPopup(
-          `<strong style="font-size:12px;line-height:1.4">${offering.nombreinstitucion ?? "—"}</strong>` +
-          `<br><span style="font-size:11px;color:#64748b">${offering.nombremunicipioprograma ?? ""}, ${offering.nombredepartprograma ?? ""}</span>`,
-        );
-        cluster.addLayer(marker);
-      }
-
-      map.addLayer(cluster);
-    });
+        if (typeof L.markerClusterGroup === "function") {
+          const cluster = L.markerClusterGroup();
+          clusterRef.current = cluster;
+          for (const o of geocoded) {
+            L.marker([o.lat!, o.lng!], { icon: makeIcon(o.nombrecaracteracademico ?? "") })
+              .bindPopup(makePopup(o))
+              .addTo(cluster);
+          }
+          map.addLayer(cluster);
+        } else {
+          // Fallback: add markers directly without clustering
+          const group = L.featureGroup();
+          clusterRef.current = group;
+          for (const o of geocoded) {
+            L.marker([o.lat!, o.lng!], { icon: makeIcon(o.nombrecaracteracademico ?? "") })
+              .bindPopup(makePopup(o))
+              .addTo(group);
+          }
+          map.addLayer(group);
+        }
+      });
 
     return () => {
       cancelled = true;
