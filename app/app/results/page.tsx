@@ -9,6 +9,7 @@ import { ResultsDashboard } from "@/features/results/components/results-dashboar
 import { ResultTierBadge } from "@/features/results/components/result-tier-badge";
 import { Button } from "@/components/atoms/button";
 import { LogoutButton } from "@/components/organisms/logout-button";
+import { ResultsTour } from "@/features/results/components/results-tour";
 
 export default async function ResultsPage() {
   const session = await getServerSession(authOptions);
@@ -59,6 +60,8 @@ export default async function ResultsPage() {
           skills={skills}
         />
       </div>
+
+      <ResultsTour />
     </main>
   );
 }

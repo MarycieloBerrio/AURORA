@@ -37,19 +37,19 @@ export function ResultsDashboard({ careers, interests, personality, skills }: Re
   return (
     <div className="flex flex-col gap-5 lg:flex-row">
       <div className="flex flex-col gap-5 lg:w-1/2">
-        <Card className="p-5">
+        <Card data-tour="riasec" className="p-5">
           <RiasecPanel interests={interests} overlays={overlays} />
         </Card>
-        <Card className="p-5">
+        <Card data-tour="hexaco" className="p-5">
           <HexacoPanel personality={personality} overlays={overlays} />
         </Card>
-        <Card className="p-5">
+        <Card data-tour="aptitude" className="p-5">
           <AptitudePanel skills={skills} overlays={overlays} />
         </Card>
       </div>
 
       <div className="lg:w-1/2">
-        <Card className="sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto p-5">
+        <Card data-tour="careers" className="sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto p-5">
           <CareersPanel careers={careers} overlays={overlays} onSelect={handleSelect} />
         </Card>
       </div>

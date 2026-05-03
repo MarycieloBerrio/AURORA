@@ -12,6 +12,7 @@ import { authOptions } from "@/lib/auth";
 import { FLOORS } from "@/constants/floors";
 import { testService } from "@/services/test-service";
 import { hasMinimumResults } from "@/features/results/lib/result-tier";
+import { FloorUnlockTour } from "@/components/organisms/floor-unlock-tour";
 
 export default async function FloorPage() {
   const session = await getServerSession(authOptions);
@@ -122,6 +123,8 @@ export default async function FloorPage() {
           </SpeechBubble>
         </div>
       </section>
+
+      <FloorUnlockTour canViewResults={canViewResults} />
     </main>
   );
 }
