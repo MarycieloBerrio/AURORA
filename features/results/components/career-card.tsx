@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import type { CareerWithAffinity } from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
@@ -39,14 +43,31 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
   const levelLabel    = LEVEL_LABELS[career.academic_level];
   const levelStyle    = LEVEL_STYLES[career.academic_level];
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
+  function handleMouseEnter() {
+    if (!cardRef.current) return;
+    const r = cardRef.current.getBoundingClientRect();
+    setTooltipPos({ x: r.left, y: r.top });
+  }
+
+  function handleMouseLeave() {
+    setTooltipPos(null);
+  }
+
   return (
+    <>
     <div
+      ref={cardRef}
       role="button"
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") onClick?.();
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-left shadow-sm transition-all hover:shadow-md ${
         isSelected ? "border-2" : "border-slate-100 bg-white"
       }`}
@@ -103,5 +124,24 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
         </div>
       </div>
     </div>
+
+    {tooltipPos && typeof window !== "undefined" && createPortal(
+      <div
+        className="animate-fade-in pointer-events-none rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-xl"
+        style={{
+          position: "fixed",
+          left: tooltipPos.x,
+          top: tooltipPos.y - 8,
+          transform: "translateY(-100%)",
+          zIndex: 200,
+          maxWidth: "280px",
+          minWidth: "180px",
+        }}
+      >
+        <p className="text-[11px] leading-relaxed text-slate-600">{career.description}</p>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
