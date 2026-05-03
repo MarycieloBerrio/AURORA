@@ -83,6 +83,25 @@ export default async function FloorPage() {
           ))}
         </div>
 
+        {/* Acerca de button */}
+        <Link
+          href="/acerca-de"
+          className="group absolute bottom-4 right-4 z-20 flex flex-col items-center gap-1 transition-transform hover:scale-110 active:scale-95 md:bottom-6 md:right-6"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/40 bg-white/20 shadow-lg backdrop-blur-sm transition group-hover:bg-white/30 md:h-14 md:w-14">
+            <Image
+              src="/assets/favicon.png"
+              alt="Aurora"
+              width={32}
+              height={32}
+              className="drop-shadow-sm md:h-9 md:w-9"
+            />
+          </div>
+          <span className="rounded-full bg-black/30 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-white/90 backdrop-blur-sm">
+            Acerca de
+          </span>
+        </Link>
+
         {/* Aurora guide (desktop only) */}
         <div className="pointer-events-none absolute bottom-0 left-2 z-10 hidden items-end gap-1 sm:left-3 md:left-4 md:flex">
           <div className="relative h-[180px] w-[90px] shrink-0 sm:h-[260px] sm:w-[130px] md:h-[380px] md:w-[190px] lg:h-[480px] lg:w-[240px]">
