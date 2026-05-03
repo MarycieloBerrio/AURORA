@@ -44,12 +44,12 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
   const levelStyle    = LEVEL_STYLES[career.academic_level];
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; h: number } | null>(null);
 
   function handleMouseEnter() {
     if (!cardRef.current) return;
     const r = cardRef.current.getBoundingClientRect();
-    setTooltipPos({ x: r.left, y: r.top });
+    setTooltipPos({ x: r.left, y: r.top, h: r.height });
   }
 
   function handleMouseLeave() {
@@ -127,18 +127,29 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
 
     {tooltipPos && typeof window !== "undefined" && createPortal(
       <div
-        className="animate-fade-in pointer-events-none rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-xl"
+        className="animate-fade-in pointer-events-none relative rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-xl"
         style={{
           position: "fixed",
-          left: tooltipPos.x,
-          top: tooltipPos.y - 8,
-          transform: "translateY(-100%)",
+          right: window.innerWidth - tooltipPos.x + 10,
+          top: tooltipPos.y + tooltipPos.h / 2,
+          transform: "translateY(-50%)",
           zIndex: 200,
-          maxWidth: "280px",
+          maxWidth: "260px",
           minWidth: "180px",
         }}
       >
         <p className="text-[11px] leading-relaxed text-slate-600">{career.description}</p>
+        {/* Right-pointing arrow toward the card */}
+        <span
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full"
+          style={{
+            width: 0, height: 0,
+            borderTop: "6px solid transparent",
+            borderBottom: "6px solid transparent",
+            borderLeft: "7px solid white",
+            filter: "drop-shadow(1px 0 1px rgb(0 0 0 / 0.06))",
+          }}
+        />
       </div>,
       document.body
     )}
