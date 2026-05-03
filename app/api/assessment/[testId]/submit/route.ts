@@ -11,7 +11,7 @@ import type { RiasecBlock, HexacoBlock } from "@/types/test-results";
 
 const likertResponseSchema = z.object({
   questionKey: z.string().min(1),
-  value: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
+  value: z.number().int().min(0).max(100),
 });
 
 const likertPayloadSchema = z.object({

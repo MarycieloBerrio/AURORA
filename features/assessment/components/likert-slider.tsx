@@ -1,7 +1,5 @@
 "use client";
 
-import type { LikertValue } from "@/types/test-results";
-
 type AccentColor = "blue" | "amber" | "emerald";
 
 const FILL_PALETTE: Record<AccentColor, { negative: string; neutral: string; positive: string }> = {
@@ -11,14 +9,6 @@ const FILL_PALETTE: Record<AccentColor, { negative: string; neutral: string; pos
 };
 
 const TRACK_EMPTY = "#e2e8f0";
-
-const PERCENT_LIKERT_BANDS: ReadonlyArray<{ maxInclusive: number; likert: LikertValue }> = [
-  { maxInclusive: 25,  likert: 1 },
-  { maxInclusive: 49,  likert: 2 },
-  { maxInclusive: 50,  likert: 3 },
-  { maxInclusive: 75,  likert: 4 },
-  { maxInclusive: 100, likert: 5 },
-];
 
 function lerpColor(a: string, b: string, t: number): string {
   const ch = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16);
@@ -32,10 +22,6 @@ function getFillColor(percent: number, accentColor: AccentColor): string {
   const { negative, neutral, positive } = FILL_PALETTE[accentColor];
   if (percent <= 50) return lerpColor(negative, neutral, percent / 50);
   return lerpColor(neutral, positive, (percent - 50) / 50);
-}
-
-export function percentToLikert(percent: number): LikertValue {
-  return PERCENT_LIKERT_BANDS.find((band) => percent <= band.maxInclusive)?.likert ?? 5;
 }
 
 interface LikertSliderProps {

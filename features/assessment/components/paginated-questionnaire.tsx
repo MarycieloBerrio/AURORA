@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
-import { LikertSlider, percentToLikert } from "@/features/assessment/components/likert-slider";
+import { LikertSlider } from "@/features/assessment/components/likert-slider";
 import type { QuestionView } from "@/features/assessment/types";
 
 const QUESTIONS_PER_PAGE = 6;
@@ -77,7 +77,7 @@ export function PaginatedQuestionnaire({
     const payload = {
       responses: questions.map((q) => ({
         questionKey: q.key,
-        value: percentToLikert(answers[q.key] ?? 50),
+        value: answers[q.key] ?? 50,
       })),
     };
 

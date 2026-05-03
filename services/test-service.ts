@@ -3,7 +3,6 @@ import { getBlockQuestions as getRiasecBlockQuestions } from "@/constants/questi
 import { getBlockQuestions as getHexacoBlockQuestions } from "@/constants/questions/hexaco";
 import { testRepository, type TestFieldKey } from "@/repositories/test-repository";
 import type {
-  LikertValue,
   RiasecBlockResult,
   HexacoBlockResult,
   SkillTestResult,
@@ -19,13 +18,13 @@ import { RIASEC_DIMENSIONS, HEXACO_DIMENSIONS } from "@/types/test-results";
 
 export interface LikertResponse {
   questionKey: string;
-  value: LikertValue;
+  value: number;
 }
 
-const LIKERT_MIN = 1;
-const LIKERT_MAX = 5;
+const LIKERT_MIN = 0;
+const LIKERT_MAX = 100;
 
-function applyReverseScore(value: LikertValue, reversed: boolean): number {
+function applyReverseScore(value: number, reversed: boolean): number {
   return reversed ? LIKERT_MIN + LIKERT_MAX - value : value;
 }
 
