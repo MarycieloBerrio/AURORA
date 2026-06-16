@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { APP_ROUTES, getAdminUserResultsPath } from "@/constants/routes";
 import { prisma } from "@/lib/prisma";
 import { AppShellTemplate } from "@/components/templates/app-shell-template";
 import { Card } from "@/components/atoms/card";
+import { ADMIN_RESULTS_COPY, ADMIN_TEST_TOTALS } from "@/features/admin/constants";
+import { requireAdminSession } from "@/features/admin/lib/admin-auth";
+import { hasMinimumResults } from "@/features/results/lib/result-tier";
 import { AdminStatCards } from "./_components/admin-stat-cards";
 import { AdminUserTable } from "./_components/admin-user-table";
 import { AdminSniesButton } from "./_components/admin-snies-button";
@@ -12,9 +13,7 @@ import { AdminExportButton } from "./_components/admin-export-button";
 import type { AdminUserRow } from "./_components/admin-user-table";
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
-  if (!session.user.isAdmin) redirect("/app/floor");
+  const session = await requireAdminSession();
 
   const users = await prisma.user.findMany({
     select: {
@@ -55,6 +54,7 @@ export default async function AdminPage() {
       u.testSpatialReasoning,
       u.testSelectiveAttention,
     ].filter(Boolean).length;
+    const canViewResults = hasMinimumResults(riasecDone, hexacoDone, skillDone);
 
     return {
       id:               u.id,
@@ -68,7 +68,8 @@ export default async function AdminPage() {
       hexacoDone,
       skillDone,
       profileCompleted: Boolean(u.name && u.birthdate && u.educationalLevel),
-      canViewResults:   riasecDone >= 1 && hexacoDone >= 1 && skillDone >= 1,
+      canViewResults,
+      resultsPath: canViewResults ? getAdminUserResultsPath(u.id) : null,
     };
   });
 
@@ -77,7 +78,10 @@ export default async function AdminPage() {
     profileCompleted: userData.filter((u) => u.profileCompleted).length,
     canViewResults:   userData.filter((u) => u.canViewResults).length,
     allTestsDone:     userData.filter(
-      (u) => u.riasecDone === 4 && u.hexacoDone === 3 && u.skillDone === 6
+      (u) =>
+        u.riasecDone === ADMIN_TEST_TOTALS.riasec &&
+        u.hexacoDone === ADMIN_TEST_TOTALS.hexaco &&
+        u.skillDone === ADMIN_TEST_TOTALS.skill
     ).length,
   };
 
@@ -87,13 +91,13 @@ export default async function AdminPage() {
       subtitle="Estado general de la plataforma AURORA"
       action={
         <Link
-          href="/app/floor"
+          href={APP_ROUTES.floor}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
             <path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" />
           </svg>
-          Volver al piso
+          {ADMIN_RESULTS_COPY.backToFloor}
         </Link>
       }
     >
