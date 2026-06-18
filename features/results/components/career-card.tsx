@@ -2,7 +2,11 @@
 
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import type { CareerWithAffinity } from "@/constants/careers";
+import {
+  CAREER_ACADEMIC_LEVEL_LABELS,
+  type CareerAcademicLevel,
+  type CareerWithAffinity,
+} from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const AFFINITY_STYLES = [
@@ -12,12 +16,8 @@ const AFFINITY_STYLES = [
   { threshold: 0,  badge: "bg-slate-100 text-slate-600 border-slate-200" },
 ] as const;
 
-const LEVEL_LABELS: Record<"TG" | "UN", string> = {
-  TG: "Tecnología",
-  UN: "Profesional",
-};
-
-const LEVEL_STYLES: Record<"TG" | "UN", string> = {
+const LEVEL_STYLES: Record<CareerAcademicLevel, string> = {
+  TC: "bg-emerald-50 text-emerald-600 border-emerald-200",
   TG: "bg-sky-50 text-sky-600 border-sky-200",
   UN: "bg-violet-50 text-violet-600 border-violet-200",
 };
@@ -40,7 +40,7 @@ interface CareerCardProps {
 export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: CareerCardProps) {
   const isSelected    = !!overlay;
   const affinityStyle = resolveAffinityStyle(career.affinity);
-  const levelLabel    = LEVEL_LABELS[career.academic_level];
+  const levelLabel    = CAREER_ACADEMIC_LEVEL_LABELS[career.academic_level];
   const levelStyle    = LEVEL_STYLES[career.academic_level];
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -79,7 +79,6 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
           : undefined
       }
     >
-      {/* Main row */}
       <div className="flex w-full items-center gap-3">
         {isSelected && (
           <div
@@ -101,7 +100,6 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
             <span className={`rounded-lg border px-2 py-0.5 text-xs font-bold ${affinityStyle.badge}`}>
               {career.affinity}%
             </span>
-            {/* Mobile-only expand button — hidden on pointer/hover devices */}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
@@ -149,7 +147,6 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
         </div>
       </div>
 
-      {/* Mobile inline description — only visible on touch devices when expanded */}
       {expanded && (
         <p className="[@media(hover:hover)]:hidden mt-2 border-t border-slate-100 pt-2 text-[11px] leading-relaxed text-slate-600">
           {career.description}
@@ -171,7 +168,6 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
         }}
       >
         <p className="text-[11px] leading-relaxed text-slate-600">{career.description}</p>
-        {/* Right-pointing arrow toward the card */}
         <span
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full"
           style={{

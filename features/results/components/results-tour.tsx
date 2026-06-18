@@ -48,7 +48,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     message:
-      "¡Aquí están tus carreras recomendadas! Filtra por nivel académico (Profesional o Tecnología). Selecciona hasta 3 carreras para comparar su perfil ideal con el tuyo en las gráficas. Y usa la 🔍 para ver dónde estudiarla en Colombia.",
+      "Aquí están tus carreras recomendadas. Filtra por nivel académico (Profesional, Tecnología o Técnica). Selecciona hasta 3 carreras para comparar su perfil ideal con el tuyo en las gráficas y usa el botón de búsqueda para ver dónde estudiarla en Colombia.",
     showArrow: false,
     tourTarget: "careers",
   },
