@@ -3,17 +3,26 @@
 import { useState } from "react";
 import { CareerCard } from "@/features/results/components/career-card";
 import { ProgramOfferingsModal } from "@/features/results/components/program-offerings-modal";
-import type { CareerWithAffinity } from "@/constants/careers";
+import {
+  CAREER_ACADEMIC_LEVEL_LABELS,
+  type CareerAcademicLevel,
+  type CareerWithAffinity,
+} from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
+
+const LEVEL_FILTER_ALL = "all";
 
 type SortBy  = "affinity" | "alpha";
 type SortDir = "desc" | "asc";
-type LevelFilter = "all" | "TG" | "UN";
+type LevelFilter = typeof LEVEL_FILTER_ALL | CareerAcademicLevel;
 
+const CAREER_LEVEL_FILTER_ORDER: CareerAcademicLevel[] = ["UN", "TG", "TC"];
 const LEVEL_FILTERS: Array<{ key: LevelFilter; label: string }> = [
-  { key: "all", label: "Todos" },
-  { key: "UN",  label: "Profesional" },
-  { key: "TG",  label: "Tecnología" },
+  { key: LEVEL_FILTER_ALL, label: "Todos" },
+  ...CAREER_LEVEL_FILTER_ORDER.map((level) => ({
+    key: level,
+    label: CAREER_ACADEMIC_LEVEL_LABELS[level],
+  })),
 ];
 
 const SORT_BY_OPTIONS: Array<{ key: SortBy; label: string }> = [
@@ -49,12 +58,14 @@ interface CareersPanelProps {
 }
 
 export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps) {
-  const [levelFilter,    setLevelFilter]    = useState<LevelFilter>("all");
+  const [levelFilter,    setLevelFilter]    = useState<LevelFilter>(LEVEL_FILTER_ALL);
   const [sortBy,         setSortBy]         = useState<SortBy>("affinity");
   const [sortDir,        setSortDir]        = useState<SortDir>("desc");
   const [offeringsCareer, setOfferingsCareer] = useState<CareerWithAffinity | null>(null);
 
-  const filtered = careers.filter((c) => levelFilter === "all" || c.academic_level === levelFilter);
+  const filtered = careers.filter(
+    (career) => levelFilter === LEVEL_FILTER_ALL || career.academic_level === levelFilter,
+  );
   const sorted   = sortCareers(filtered, sortBy, sortDir);
 
   return (
@@ -69,9 +80,7 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
         </p>
       </div>
 
-      {/* Filters row */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Level filter */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
           {LEVEL_FILTERS.map(({ key, label }) => (
             <button
@@ -90,9 +99,7 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
         </div>
       </div>
 
-      {/* Sort row */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Sort criterion */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
           {SORT_BY_OPTIONS.map(({ key, label }) => (
             <button
@@ -110,7 +117,6 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
           ))}
         </div>
 
-        {/* Sort direction — options change based on criterion */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
           {SORT_DIR_OPTIONS[sortBy].map(({ key, label }) => (
             <button
@@ -129,7 +135,6 @@ export function CareersPanel({ careers, overlays, onSelect }: CareersPanelProps)
         </div>
       </div>
 
-      {/* Career list */}
       <div className="space-y-2">
         {sorted.length === 0 ? (
           <p className="rounded-lg bg-slate-50 px-3 py-4 text-center text-[11px] text-slate-400">
