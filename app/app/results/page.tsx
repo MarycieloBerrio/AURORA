@@ -3,12 +3,14 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { APP_ROUTES } from "@/constants/routes";
+import { AuroraChatFloatingButton } from "@/features/aurora-chat/components/aurora-chat-floating-button";
+import { CompleteResultsTour } from "@/features/aurora-chat/components/complete-results-tour";
 import { getResultsProfile } from "@/features/results/lib/results-profile";
 import { ResultsDashboard } from "@/features/results/components/results-dashboard";
 import { ResultTierBadge } from "@/features/results/components/result-tier-badge";
+import { ResultsTour } from "@/features/results/components/results-tour";
 import { Button } from "@/components/atoms/button";
 import { LogoutButton } from "@/components/organisms/logout-button";
-import { ResultsTour } from "@/features/results/components/results-tour";
 
 export default async function ResultsPage() {
   const session = await getServerSession(authOptions);
@@ -17,6 +19,8 @@ export default async function ResultsPage() {
 
   const profile = await getResultsProfile(session.user.id);
   if (!profile) redirect(APP_ROUTES.floor);
+
+  const hasCompleteResults = profile.tier === "complete";
 
   return (
     <main className="min-h-screen bg-[var(--background)] p-4 md:p-6">
@@ -46,7 +50,9 @@ export default async function ResultsPage() {
         />
       </div>
 
-      <ResultsTour />
+      <ResultsTour enabled={!hasCompleteResults} />
+      <CompleteResultsTour enabled={hasCompleteResults} />
+      <AuroraChatFloatingButton enabled={hasCompleteResults} />
     </main>
   );
 }

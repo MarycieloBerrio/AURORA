@@ -44,10 +44,36 @@ model User {
   emailVerified DateTime?
   image         String?
   accounts      Account[]
-  sessions      Session[]
+  sessions           Session[]
+  auroraChatSessions AuroraChatSession[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuroraChatSession {
+  id        String   @id @default(uuid())
+  userId    String
+  status    String   @default("active")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AuroraChatMessage[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status, updatedAt])
+  @@map("aurora_chat_sessions")
+}
+
+model AuroraChatMessage {
+  id        String            @id @default(uuid())
+  sessionId String
+  role      String
+  content   String            @db.Text
+  session   AuroraChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  createdAt DateTime          @default(now())
+
+  @@index([sessionId, createdAt])
+  @@map("aurora_chat_messages")
 }
 
 model Account {

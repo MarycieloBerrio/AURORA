@@ -1,15 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const STORAGE_KEY = "aurora-results-tour-v1";
 
 function storageGet(key: string): string | null {
-  try { return localStorage.getItem(key); } catch { return null; }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
+
 function storageSet(key: string, value: string): void {
-  try { localStorage.setItem(key, value); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    return;
+  }
 }
 
 type TourStep = {
@@ -60,16 +69,24 @@ function clearHighlights() {
   });
 }
 
-export function ResultsTour() {
+interface ResultsTourProps {
+  enabled?: boolean;
+}
+
+export function ResultsTour({ enabled = true }: ResultsTourProps) {
   const [step, setStep] = useState(0);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!storageGet(STORAGE_KEY)) {
+    if (!enabled || storageGet(STORAGE_KEY)) return;
+
+    const timeoutId = window.setTimeout(() => {
       setStep(1);
       setVisible(true);
-    }
-  }, []);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [enabled]);
 
   useEffect(() => {
     if (!visible || step === 0) return;
@@ -79,7 +96,6 @@ export function ResultsTour() {
     const current = TOUR_STEPS[step - 1];
 
     if (current?.tourTarget) {
-      // Steps 2–5: blur everything, then un-blur + highlight the active section
       document.querySelectorAll("[data-tour]").forEach((el) => {
         el.classList.add("tour-blur");
       });
@@ -90,28 +106,21 @@ export function ResultsTour() {
         active.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } else {
-      // Step 1 (intro): blur all sections — the backdrop covers the page
       document.querySelectorAll("[data-tour]").forEach((el) => {
         el.classList.add("tour-blur");
       });
     }
 
-    return () => { clearHighlights(); };
+    return () => {
+      clearHighlights();
+    };
   }, [step, visible]);
 
-  if (!visible || step === 0) return null;
+  if (!enabled || !visible || step === 0) return null;
 
   const currentStep = TOUR_STEPS[step - 1];
   const isLast = step === TOUR_STEPS.length;
   const isIntro = step === 1;
-
-  function advance() {
-    if (!isLast) {
-      setStep((s) => s + 1);
-    } else {
-      finish();
-    }
-  }
 
   function finish() {
     storageSet(STORAGE_KEY, "1");
@@ -119,31 +128,34 @@ export function ResultsTour() {
     setVisible(false);
   }
 
+  function advance() {
+    if (!isLast) {
+      setStep((current) => current + 1);
+      return;
+    }
+    finish();
+  }
+
   const card = (
     <div className="flex items-end gap-3 rounded-2xl border border-indigo-100 bg-white p-4 shadow-xl">
       <div className="relative h-20 w-10 shrink-0 self-end">
-        <Image
-          src="/assets/aurora-guide.png"
-          alt="Aurora"
-          fill
-          className="object-contain drop-shadow"
-          sizes="40px"
-        />
+        <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain drop-shadow" sizes="40px" />
       </div>
       <div className="flex-1 space-y-3">
         <p className="text-xs leading-relaxed text-slate-700">{currentStep.message}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            {TOUR_STEPS.map((_, i) => (
+            {TOUR_STEPS.map((_, index) => (
               <div
-                key={i}
+                key={index}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i + 1 === step ? "w-4 bg-indigo-600" : "w-1.5 bg-slate-200"
+                  index + 1 === step ? "w-4 bg-indigo-600" : "w-1.5 bg-slate-200"
                 }`}
               />
             ))}
           </div>
           <button
+            type="button"
             onClick={advance}
             className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-indigo-500"
           >
@@ -154,23 +166,22 @@ export function ResultsTour() {
     </div>
   );
 
-  // Step 1: centered modal with full backdrop blur
   if (isIntro) {
     return (
       <div
         key="intro"
-        className="fixed inset-0 z-[45] flex items-center justify-center backdrop-blur-sm bg-black/20 animate-fade-in"
+        className="fixed inset-0 z-[45] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in"
       >
-        <div className="w-full max-w-sm px-4 md:max-w-md animate-slide-in">
-          {card}
-        </div>
+        <div className="w-full max-w-sm px-4 md:max-w-md animate-slide-in">{card}</div>
       </div>
     );
   }
 
-  // Steps 2–5: bottom-center floating card
   return (
-    <div key={`step-${step}`} className="fixed bottom-6 left-1/2 z-[45] -translate-x-1/2 w-full max-w-sm px-4 md:max-w-md animate-fade-in">
+    <div
+      key={`step-${step}`}
+      className="fixed bottom-6 left-1/2 z-[45] w-full max-w-sm -translate-x-1/2 px-4 md:max-w-md animate-fade-in"
+    >
       {currentStep.showArrow && (
         <div className="mb-2 flex justify-center animate-bounce-y">
           <span className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg">
