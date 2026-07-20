@@ -31,13 +31,12 @@ function resolveAffinityStyle(pct: number) {
 
 interface CareerCardProps {
   career:           CareerWithAffinity;
-  rank:             number;
   overlay?:         CareerOverlay;
   onClick?:         () => void;
   onViewOfferings?: () => void;
 }
 
-export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: CareerCardProps) {
+export function CareerCard({ career, overlay, onClick, onViewOfferings }: CareerCardProps) {
   const isSelected    = !!overlay;
   const affinityStyle = resolveAffinityStyle(career.affinity);
   const levelLabel    = CAREER_ACADEMIC_LEVEL_LABELS[career.academic_level];
@@ -86,8 +85,6 @@ export function CareerCard({ career, rank, overlay, onClick, onViewOfferings }: 
             style={{ backgroundColor: overlay!.color }}
           />
         )}
-
-        <span className="w-5 shrink-0 text-center text-xs font-bold text-slate-300">{rank}</span>
 
         <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
           <div className="min-w-0">

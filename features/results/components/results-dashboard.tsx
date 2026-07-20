@@ -50,7 +50,12 @@ export function ResultsDashboard({ careers, interests, personality, skills }: Re
 
       <div className="lg:w-1/2">
         <Card data-tour="careers" className="sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto p-5">
-          <CareersPanel careers={careers} overlays={overlays} onSelect={handleSelect} />
+          <CareersPanel
+            careers={careers}
+            overlays={overlays}
+            onSelect={handleSelect}
+            onClearSelections={() => setSelectedCareers([])}
+          />
         </Card>
       </div>
     </div>
