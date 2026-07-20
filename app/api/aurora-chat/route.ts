@@ -40,7 +40,23 @@ async function getAuthorizedUserId() {
 function serviceErrorStatus(error: AuroraChatServiceError): number {
   if (error.code === "rateLimited") return 429;
   if (error.code === "missingGeminiConfig") return 500;
+  if (error.code === "providerUnavailable") return 503;
+  if (
+    error.code === "providerRejectedRequest" ||
+    error.code === "providerUnauthorized" ||
+    error.code === "providerModelUnavailable"
+  ) {
+    return 502;
+  }
   return 500;
+}
+
+function logRouteError(operation: string, error: unknown) {
+  console.error("[aurora-chat] API operation failed", {
+    operation,
+    errorName: error instanceof Error ? error.name : "UnknownError",
+    errorMessage: error instanceof Error ? error.message : String(error),
+  });
 }
 
 export async function GET() {
@@ -50,7 +66,8 @@ export async function GET() {
   try {
     const session = await auroraChatRepository.getOrCreateActiveSession(authorized.userId);
     return NextResponse.json(session);
-  } catch {
+  } catch (error) {
+    logRouteError("load-session", error);
     return NextResponse.json({ message: AURORA_CHAT_ERRORS.generic }, { status: 500 });
   }
 }
@@ -79,9 +96,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ id: session.id, messages: updatedMessages, reply });
   } catch (error) {
     if (error instanceof AuroraChatServiceError) {
+      if (error.code === "missingGeminiConfig") {
+        logRouteError("send-message", error);
+      }
       return NextResponse.json({ message: error.message }, { status: serviceErrorStatus(error) });
     }
 
+    logRouteError("send-message", error);
+    return NextResponse.json({ message: AURORA_CHAT_ERRORS.generic }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  const authorized = await getAuthorizedUserId();
+  if (authorized.error) return authorized.error;
+
+  try {
+    const session = await auroraChatRepository.resetSession(authorized.userId);
+    return NextResponse.json(session);
+  } catch (error) {
+    logRouteError("reset-session", error);
     return NextResponse.json({ message: AURORA_CHAT_ERRORS.generic }, { status: 500 });
   }
 }

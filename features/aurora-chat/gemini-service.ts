@@ -25,6 +25,7 @@ interface GeminiResponseBody {
 export class AuroraChatServiceError extends Error {
   constructor(public readonly code: keyof typeof AURORA_CHAT_ERRORS) {
     super(AURORA_CHAT_ERRORS[code]);
+    this.name = "AuroraChatServiceError";
   }
 }
 
@@ -39,8 +40,8 @@ function getGeminiConfig() {
   return { apiKey, model };
 }
 
-function buildEndpoint(model: string, apiKey: string): string {
-  return `${GEMINI_CONFIG.endpointBase}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+function buildEndpoint(model: string): string {
+  return `${GEMINI_CONFIG.endpointBase}/${encodeURIComponent(model)}:generateContent`;
 }
 
 function toGeminiContents(messages: AuroraChatMessageDto[]) {
@@ -60,31 +61,63 @@ function isRateLimitResponse(status: number, body: GeminiErrorBody): boolean {
   return status === 429 || body.error?.status === GEMINI_CONFIG.resourceExhaustedCode;
 }
 
+function getProviderErrorCode(status: number): keyof typeof AURORA_CHAT_ERRORS {
+  if (status === 400) return "providerRejectedRequest";
+  if (status === 401 || status === 403) return "providerUnauthorized";
+  if (status === 404) return "providerModelUnavailable";
+  if (status >= 500) return "providerUnavailable";
+  return "generic";
+}
+
+function logProviderError(status: number, body: GeminiErrorBody, model: string) {
+  console.error("[aurora-chat] Gemini request failed", {
+    status,
+    providerCode: body.error?.code,
+    providerStatus: body.error?.status,
+    providerMessage: body.error?.message,
+    model,
+  });
+}
+
 export const auroraGeminiService = {
   async generateReply(messages: AuroraChatMessageDto[], profileContext: string): Promise<string> {
     const { apiKey, model } = getGeminiConfig();
-    const response = await fetch(buildEndpoint(model, apiKey), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{ text: `${AURORA_CHAT_SYSTEM_INSTRUCTION}\n\n${profileContext}` }],
+    let response: Response;
+
+    try {
+      response = await fetch(buildEndpoint(model), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          [GEMINI_CONFIG.apiKeyHeader]: apiKey,
         },
-        contents: toGeminiContents(messages),
-        generationConfig: {
-          temperature: AURORA_CHAT_LIMITS.temperature,
-          maxOutputTokens: AURORA_CHAT_LIMITS.maxOutputTokens,
-        },
-      }),
-    });
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: `${AURORA_CHAT_SYSTEM_INSTRUCTION}\n\n${profileContext}` }],
+          },
+          contents: toGeminiContents(messages),
+          generationConfig: {
+            temperature: AURORA_CHAT_LIMITS.temperature,
+            maxOutputTokens: AURORA_CHAT_LIMITS.maxOutputTokens,
+          },
+        }),
+      });
+    } catch (error) {
+      console.error("[aurora-chat] Gemini connection failed", {
+        error: error instanceof Error ? error.message : String(error),
+        model,
+      });
+      throw new AuroraChatServiceError("providerUnavailable");
+    }
 
     const body = (await response.json().catch(() => ({}))) as GeminiResponseBody & GeminiErrorBody;
 
     if (!response.ok) {
+      logProviderError(response.status, body, model);
       if (isRateLimitResponse(response.status, body)) {
         throw new AuroraChatServiceError("rateLimited");
       }
-      throw new AuroraChatServiceError("generic");
+      throw new AuroraChatServiceError(getProviderErrorCode(response.status));
     }
 
     const reply = extractReply(body);

@@ -28,6 +28,7 @@ export const AURORA_CHAT_LIMITS = {
 export const GEMINI_CONFIG = {
   endpointBase: "https://generativelanguage.googleapis.com/v1beta/models",
   defaultModel: "gemini-3.1-flash-lite",
+  apiKeyHeader: "x-goog-api-key",
   resourceExhaustedCode: "RESOURCE_EXHAUSTED",
 } as const;
 
@@ -45,6 +46,10 @@ export const AURORA_CHAT_COPY = {
   backToResults: "Volver a resultados",
   inputPlaceholder: "Escribe tu respuesta...",
   send: "Enviar",
+  newChat: "Nuevo chat",
+  resettingChat: "Reiniciando...",
+  confirmReset:
+    "Se borrará todo el historial de esta conversación y Aurora comenzará de nuevo. ¿Deseas continuar?",
   loadingSession: "Preparando tu conversación con Aurora...",
   loadingReply: "Aurora está analizando tu respuesta...",
   emptyState: "Aurora iniciará con una pregunta corta para complementar tus resultados.",
@@ -59,6 +64,14 @@ export const AURORA_CHAT_ERRORS = {
   completeResultsRequired: "Necesitas resultados completos para usar el chat con Aurora.",
   invalidPayload: "Mensaje inválido.",
   missingGeminiConfig: "La configuración de Aurora IA no está disponible.",
+  providerRejectedRequest:
+    "Aurora no pudo procesar la solicitud por un problema de configuración. Intenta de nuevo más tarde.",
+  providerUnauthorized:
+    "Aurora no pudo conectarse al servicio de IA. La configuración de acceso debe ser revisada.",
+  providerModelUnavailable:
+    "El modelo configurado para Aurora no está disponible. Intenta de nuevo más tarde.",
+  providerUnavailable:
+    "El servicio de IA no está disponible temporalmente. Intenta de nuevo en unos minutos.",
   rateLimited:
     "Aurora alcanzó el límite temporal de solicitudes de IA. Intenta de nuevo en unos minutos.",
   generic:

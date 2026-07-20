@@ -21,6 +21,7 @@ export function AuroraChatInterface() {
   const [input, setInput] = useState("");
   const [loadingSession, setLoadingSession] = useState(true);
   const [sending, setSending] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +58,7 @@ export function AuroraChatInterface() {
     event.preventDefault();
 
     const message = input.trim();
-    if (!message || sending) return;
+    if (!message || sending || resetting) return;
 
     setSending(true);
     setError(null);
@@ -86,6 +87,30 @@ export function AuroraChatInterface() {
     }
   }
 
+  async function handleReset() {
+    if (sending || resetting || !window.confirm(AURORA_CHAT_COPY.confirmReset)) return;
+
+    setResetting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(AURORA_CHAT_ROUTES.api, { method: "DELETE" });
+      const body = (await response.json().catch(() => ({}))) as { messages?: AuroraChatMessageDto[] } & ApiErrorResponse;
+
+      if (!response.ok) {
+        setError(body.message ?? AURORA_CHAT_ERRORS.generic);
+        return;
+      }
+
+      setMessages(body.messages ?? []);
+      setInput("");
+    } catch {
+      setError(AURORA_CHAT_ERRORS.generic);
+    } finally {
+      setResetting(false);
+    }
+  }
+
   if (loadingSession) {
     return (
       <Card className="flex min-h-[420px] items-center justify-center p-6">
@@ -96,14 +121,25 @@ export function AuroraChatInterface() {
 
   return (
     <Card className="flex h-[calc(100vh-13rem)] min-h-[520px] flex-col overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-        <div className="relative h-12 w-12 shrink-0 rounded-full border border-indigo-100 bg-indigo-50">
-          <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain p-1" sizes="48px" />
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative h-12 w-12 shrink-0 rounded-full border border-indigo-100 bg-indigo-50">
+            <Image src="/assets/aurora-guide.png" alt="Aurora" fill className="object-contain p-1" sizes="48px" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900">Aurora</p>
+            <p className="truncate text-xs text-slate-500">Orientación vocacional complementaria</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-slate-900">Aurora</p>
-          <p className="text-xs text-slate-500">Orientación vocacional complementaria</p>
-        </div>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleReset}
+          disabled={sending || resetting}
+          className="shrink-0"
+        >
+          {resetting ? AURORA_CHAT_COPY.resettingChat : AURORA_CHAT_COPY.newChat}
+        </Button>
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50/60 px-4 py-5 md:px-6">
@@ -149,10 +185,10 @@ export function AuroraChatInterface() {
           onChange={(event) => setInput(event.target.value)}
           placeholder={AURORA_CHAT_COPY.inputPlaceholder}
           rows={2}
-          disabled={sending}
+          disabled={sending || resetting}
           className="min-h-12 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 disabled:bg-slate-50"
         />
-        <Button type="submit" disabled={sending || input.trim().length === 0} className="self-end">
+        <Button type="submit" disabled={sending || resetting || input.trim().length === 0} className="self-end">
           {AURORA_CHAT_COPY.send}
         </Button>
       </form>

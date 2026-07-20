@@ -78,4 +78,29 @@ export const auroraChatRepository = {
 
     return messages.reverse().map(toMessageDto);
   },
+
+  async resetSession(userId: string): Promise<AuroraChatSessionDto> {
+    const created = await prisma.$transaction(async (transaction) => {
+      await transaction.auroraChatSession.deleteMany({ where: { userId } });
+
+      return transaction.auroraChatSession.create({
+        data: {
+          userId,
+          status: AURORA_CHAT_STATUS.active,
+          messages: {
+            create: {
+              role: AURORA_CHAT_ROLE.model,
+              content: AURORA_CHAT_COPY.initialAssistantMessage,
+            },
+          },
+        },
+        include: { messages: { orderBy: { createdAt: "asc" } } },
+      });
+    });
+
+    return {
+      id: created.id,
+      messages: created.messages.map(toMessageDto),
+    };
+  },
 };
