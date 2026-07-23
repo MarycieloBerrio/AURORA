@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/atoms/button";
 import { Card } from "@/components/atoms/card";
+import { MarkdownContent } from "@/components/atoms/markdown-content";
 import {
   AURORA_CHAT_COPY,
   AURORA_CHAT_ERRORS,
@@ -150,13 +151,13 @@ export function AuroraChatInterface() {
           return (
             <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm md:max-w-[72%] ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm md:max-w-[72%] ${
                   isUser
-                    ? "rounded-br-sm bg-indigo-600 text-white"
+                    ? "whitespace-pre-wrap rounded-br-sm bg-indigo-600 text-white"
                     : "rounded-bl-sm border border-slate-200 bg-white text-slate-700"
                 }`}
               >
-                {message.content}
+                {isUser ? message.content : <MarkdownContent content={message.content} />}
               </div>
             </div>
           );
