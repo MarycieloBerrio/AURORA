@@ -9,8 +9,8 @@ const AFFINITY_SCALE = {
   minScore: 0,
   percent: 100,
   oneDecimal: 10,
-  deficitExponent: 0.5,
-  surplusExponent: 2,
+  deficitExponent: 1 / 3,
+  surplusExponent: 3,
 } as const;
 
 const AFFINITY_ERROR_MESSAGES = {
