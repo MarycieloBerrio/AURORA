@@ -6,38 +6,17 @@ import { Input } from "@/components/atoms/input";
 import { UI_ICON_NAMES, UiIcon } from "@/components/atoms/ui-icon";
 import { SegmentedControl } from "@/components/molecules/segmented-control";
 import type { CareerWithAffinity } from "@/constants/careers";
-import { CareerCard } from "@/features/results/components/career-card";
+import { CareerGroup } from "@/features/results/components/career-group";
 import { ProgramOfferingsModal } from "@/features/results/components/program-offerings-modal";
 import {
   CAREER_FILTER_DEFAULTS,
   CAREER_LEVEL_FILTER_OPTIONS,
   CAREER_SEARCH_CONFIG,
-  CAREER_SORT_BY,
-  CAREER_SORT_DEFAULT_DIRECTION,
-  CAREER_SORT_DIRECTION,
-  CAREER_SORT_DIRECTION_OPTIONS,
-  CAREER_SORT_OPTIONS,
   CAREERS_PANEL_COPY,
   type CareerLevelFilter,
-  type CareerSortBy,
-  type CareerSortDirection,
 } from "@/features/results/constants/careers-panel";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
-
-function sortCareers(
-  careers: CareerWithAffinity[],
-  sortBy: CareerSortBy,
-  sortDirection: CareerSortDirection,
-): CareerWithAffinity[] {
-  return [...careers].sort((firstCareer, secondCareer) => {
-    const comparison =
-      sortBy === CAREER_SORT_BY.affinity
-        ? firstCareer.affinity - secondCareer.affinity
-        : firstCareer.title.localeCompare(secondCareer.title, CAREER_SEARCH_CONFIG.locale);
-
-    return sortDirection === CAREER_SORT_DIRECTION.descending ? -comparison : comparison;
-  });
-}
+import { groupCareersByAffinity } from "@/features/results/lib/career-groups";
 
 function normalizeSearchValue(value: string): string {
   return value
@@ -55,36 +34,28 @@ interface CareersPanelProps {
 
 export function CareersPanel({ careers, overlays, onSelect, onClearSelections }: CareersPanelProps) {
   const [levelFilter, setLevelFilter] = useState<CareerLevelFilter>(CAREER_FILTER_DEFAULTS.level);
-  const [sortBy, setSortBy] = useState<CareerSortBy>(CAREER_FILTER_DEFAULTS.sortBy);
-  const [sortDirection, setSortDirection] = useState<CareerSortDirection>(
-    CAREER_FILTER_DEFAULTS.sortDirection,
-  );
   const [searchQuery, setSearchQuery] = useState<string>(CAREER_FILTER_DEFAULTS.searchQuery);
   const [offeringsCareer, setOfferingsCareer] = useState<CareerWithAffinity | null>(null);
 
   const normalizedSearchQuery = normalizeSearchValue(searchQuery.trim());
-  const filteredCareers = careers.filter(
-    (career) =>
-      (levelFilter === CAREER_FILTER_DEFAULTS.level || career.academic_level === levelFilter) &&
-      normalizeSearchValue(career.title).includes(normalizedSearchQuery),
-  );
-  const sortedCareers = sortCareers(filteredCareers, sortBy, sortDirection);
+  const visibleCareerGroups = groupCareersByAffinity(careers)
+    .map((group) => ({
+      ...group,
+      careers: group.careers.filter(
+        (career) =>
+          (levelFilter === CAREER_FILTER_DEFAULTS.level ||
+            career.academic_level === levelFilter) &&
+          normalizeSearchValue(career.title).includes(normalizedSearchQuery),
+      ),
+    }))
+    .filter((group) => group.careers.length > 0);
   const hasFiltersOrSelections =
     levelFilter !== CAREER_FILTER_DEFAULTS.level ||
     searchQuery !== CAREER_FILTER_DEFAULTS.searchQuery ||
-    sortBy !== CAREER_FILTER_DEFAULTS.sortBy ||
-    sortDirection !== CAREER_FILTER_DEFAULTS.sortDirection ||
     overlays.length > 0;
-
-  function handleSortByChange(value: CareerSortBy) {
-    setSortBy(value);
-    setSortDirection(CAREER_SORT_DEFAULT_DIRECTION[value]);
-  }
 
   function handleClearFiltersAndSelections() {
     setLevelFilter(CAREER_FILTER_DEFAULTS.level);
-    setSortBy(CAREER_FILTER_DEFAULTS.sortBy);
-    setSortDirection(CAREER_FILTER_DEFAULTS.sortDirection);
     setSearchQuery(CAREER_FILTER_DEFAULTS.searchQuery);
     onClearSelections();
   }
@@ -140,45 +111,25 @@ export function CareersPanel({ careers, overlays, onSelect, onClearSelections }:
               value={levelFilter}
               onChange={setLevelFilter}
             />
-            <SegmentedControl
-              ariaLabel={CAREERS_PANEL_COPY.sortByLabel}
-              icon={UI_ICON_NAMES.sort}
-              options={CAREER_SORT_OPTIONS}
-              value={sortBy}
-              onChange={handleSortByChange}
-            />
-            <SegmentedControl
-              ariaLabel={CAREERS_PANEL_COPY.sortDirectionLabel}
-              icon={UI_ICON_NAMES.arrowUpDown}
-              options={CAREER_SORT_DIRECTION_OPTIONS[sortBy]}
-              value={sortDirection}
-              onChange={setSortDirection}
-            />
           </div>
         </div>
 
-        <div className="space-y-2">
-          {sortedCareers.length === 0 ? (
+        <div className="space-y-5">
+          {visibleCareerGroups.length === 0 ? (
             <div className="flex flex-col items-center rounded-xl bg-slate-50 px-3 py-5 text-center text-slate-400">
               <UiIcon name={UI_ICON_NAMES.emptySearch} className="mb-1.5 h-5 w-5" />
               <p className="text-[11px]">{CAREERS_PANEL_COPY.emptyState}</p>
             </div>
           ) : (
-            sortedCareers.map((career) => {
-              const overlay = overlays.find(
-                (item) => item.career.onetsoc_code === career.onetsoc_code,
-              );
-
-              return (
-                <CareerCard
-                  key={career.onetsoc_code}
-                  career={career}
-                  overlay={overlay}
-                  onClick={() => onSelect(career)}
-                  onViewOfferings={() => setOfferingsCareer(career)}
-                />
-              );
-            })
+            visibleCareerGroups.map((group) => (
+              <CareerGroup
+                key={group.id}
+                group={group}
+                overlays={overlays}
+                onSelect={onSelect}
+                onViewOfferings={setOfferingsCareer}
+              />
+            ))
           )}
         </div>
       </div>

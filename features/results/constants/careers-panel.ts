@@ -6,19 +6,6 @@ import { MAX_SELECTED_CAREERS } from "@/features/results/lib/career-colors";
 
 export const CAREER_LEVEL_FILTER_ALL = "all";
 
-export const CAREER_SORT_BY = {
-  affinity: "affinity",
-  alphabetical: "alphabetical",
-} as const;
-
-export const CAREER_SORT_DIRECTION = {
-  ascending: "ascending",
-  descending: "descending",
-} as const;
-
-export type CareerSortBy = (typeof CAREER_SORT_BY)[keyof typeof CAREER_SORT_BY];
-export type CareerSortDirection =
-  (typeof CAREER_SORT_DIRECTION)[keyof typeof CAREER_SORT_DIRECTION];
 export type CareerLevelFilter = typeof CAREER_LEVEL_FILTER_ALL | CareerAcademicLevel;
 
 export const CAREER_LEVEL_FILTER_ORDER: readonly CareerAcademicLevel[] = ["UN", "TG", "TC"];
@@ -31,35 +18,9 @@ export const CAREER_LEVEL_FILTER_OPTIONS = [
   })),
 ] as const;
 
-export const CAREER_SORT_OPTIONS = [
-  { value: CAREER_SORT_BY.affinity, label: "Afinidad" },
-  { value: CAREER_SORT_BY.alphabetical, label: "Alfabético" },
-] as const;
-
-export const CAREER_SORT_DIRECTION_OPTIONS: Record<
-  CareerSortBy,
-  ReadonlyArray<{ value: CareerSortDirection; label: string }>
-> = {
-  [CAREER_SORT_BY.affinity]: [
-    { value: CAREER_SORT_DIRECTION.descending, label: "Mayor" },
-    { value: CAREER_SORT_DIRECTION.ascending, label: "Menor" },
-  ],
-  [CAREER_SORT_BY.alphabetical]: [
-    { value: CAREER_SORT_DIRECTION.ascending, label: "A → Z" },
-    { value: CAREER_SORT_DIRECTION.descending, label: "Z → A" },
-  ],
-};
-
-export const CAREER_SORT_DEFAULT_DIRECTION: Record<CareerSortBy, CareerSortDirection> = {
-  [CAREER_SORT_BY.affinity]: CAREER_SORT_DIRECTION.descending,
-  [CAREER_SORT_BY.alphabetical]: CAREER_SORT_DIRECTION.ascending,
-};
-
 export const CAREER_FILTER_DEFAULTS = {
   level: CAREER_LEVEL_FILTER_ALL as CareerLevelFilter,
   searchQuery: "",
-  sortBy: CAREER_SORT_BY.affinity as CareerSortBy,
-  sortDirection: CAREER_SORT_DIRECTION.descending as CareerSortDirection,
 } as const;
 
 export const CAREER_SEARCH_CONFIG = {
@@ -68,13 +29,33 @@ export const CAREER_SEARCH_CONFIG = {
   diacriticsPattern: /[\u0300-\u036f]/g,
 } as const;
 
+export const CAREER_GROUP_IDS = {
+  topTwenty: "top-twenty",
+  topThirty: "top-thirty",
+  topForty: "top-forty",
+  topFifty: "top-fifty",
+  remaining: "remaining",
+} as const;
+
+export type CareerGroupId = (typeof CAREER_GROUP_IDS)[keyof typeof CAREER_GROUP_IDS];
+
+export const CAREER_GROUP_DEFINITIONS = [
+  { id: CAREER_GROUP_IDS.topTwenty, label: "Top 20%", upperPercentile: 0.2 },
+  { id: CAREER_GROUP_IDS.topThirty, label: "Top 30%", upperPercentile: 0.3 },
+  { id: CAREER_GROUP_IDS.topForty, label: "Top 40%", upperPercentile: 0.4 },
+  { id: CAREER_GROUP_IDS.topFifty, label: "Top 50%", upperPercentile: 0.5 },
+  { id: CAREER_GROUP_IDS.remaining, label: "Resto de carreras", upperPercentile: 1 },
+] as const satisfies ReadonlyArray<{
+  id: CareerGroupId;
+  label: string;
+  upperPercentile: number;
+}>;
+
 export const CAREERS_PANEL_COPY = {
   title: "Carreras recomendadas",
   subtitle: `Selecciona hasta ${MAX_SELECTED_CAREERS} para comparar — Solo carreras STEM`,
   searchPlaceholder: "Buscar carrera por nombre",
   clearFilters: "Limpiar filtros y selecciones",
   levelFilterLabel: "Filtrar por nivel académico",
-  sortByLabel: "Ordenar carreras por",
-  sortDirectionLabel: "Dirección del orden",
   emptyState: "No hay carreras que coincidan con los filtros",
 } as const;

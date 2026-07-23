@@ -9,25 +9,11 @@ import {
 } from "@/constants/careers";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
-const AFFINITY_STYLES = [
-  { threshold: 80, badge: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  { threshold: 60, badge: "bg-indigo-100 text-indigo-700 border-indigo-200" },
-  { threshold: 40, badge: "bg-amber-100 text-amber-700 border-amber-200" },
-  { threshold: 0,  badge: "bg-slate-100 text-slate-600 border-slate-200" },
-] as const;
-
 const LEVEL_STYLES: Record<CareerAcademicLevel, string> = {
   TC: "bg-emerald-50 text-emerald-600 border-emerald-200",
   TG: "bg-sky-50 text-sky-600 border-sky-200",
   UN: "bg-violet-50 text-violet-600 border-violet-200",
 };
-
-function resolveAffinityStyle(pct: number) {
-  return (
-    AFFINITY_STYLES.find((s) => pct >= s.threshold) ??
-    AFFINITY_STYLES[AFFINITY_STYLES.length - 1]
-  );
-}
 
 interface CareerCardProps {
   career:           CareerWithAffinity;
@@ -38,7 +24,6 @@ interface CareerCardProps {
 
 export function CareerCard({ career, overlay, onClick, onViewOfferings }: CareerCardProps) {
   const isSelected    = !!overlay;
-  const affinityStyle = resolveAffinityStyle(career.affinity);
   const levelLabel    = CAREER_ACADEMIC_LEVEL_LABELS[career.academic_level];
   const levelStyle    = LEVEL_STYLES[career.academic_level];
 
@@ -94,9 +79,6 @@ export function CareerCard({ career, overlay, onClick, onViewOfferings }: Career
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            <span className={`rounded-lg border px-2 py-0.5 text-xs font-bold ${affinityStyle.badge}`}>
-              {career.affinity}%
-            </span>
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
