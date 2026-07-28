@@ -30,26 +30,79 @@ export const CAREER_SEARCH_CONFIG = {
 } as const;
 
 export const CAREER_GROUP_IDS = {
+  topTen: "top-ten",
   topTwenty: "top-twenty",
   topThirty: "top-thirty",
   topForty: "top-forty",
   topFifty: "top-fifty",
+  topSixtyFive: "top-sixty-five",
+  topEighty: "top-eighty",
   remaining: "remaining",
 } as const;
 
 export type CareerGroupId = (typeof CAREER_GROUP_IDS)[keyof typeof CAREER_GROUP_IDS];
 
-export const CAREER_GROUP_DEFINITIONS = [
-  { id: CAREER_GROUP_IDS.topTwenty, label: "Top 20%", upperPercentile: 0.2 },
-  { id: CAREER_GROUP_IDS.topThirty, label: "Top 30%", upperPercentile: 0.3 },
-  { id: CAREER_GROUP_IDS.topForty, label: "Top 40%", upperPercentile: 0.4 },
-  { id: CAREER_GROUP_IDS.topFifty, label: "Top 50%", upperPercentile: 0.5 },
-  { id: CAREER_GROUP_IDS.remaining, label: "Resto de carreras", upperPercentile: 1 },
-] as const satisfies ReadonlyArray<{
+export interface CareerGroupDefinition {
   id: CareerGroupId;
   label: string;
   upperPercentile: number;
-}>;
+  initiallyExpanded: boolean;
+}
+
+export const CAREER_GROUP_DEFINITIONS = [
+  {
+    id: CAREER_GROUP_IDS.topTen,
+    label: "Top 10%",
+    upperPercentile: 0.1,
+    initiallyExpanded: true,
+  },
+  {
+    id: CAREER_GROUP_IDS.topTwenty,
+    label: "Top 20%",
+    upperPercentile: 0.2,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.topThirty,
+    label: "Top 30%",
+    upperPercentile: 0.3,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.topForty,
+    label: "Top 40%",
+    upperPercentile: 0.4,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.topFifty,
+    label: "Top 50%",
+    upperPercentile: 0.5,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.topSixtyFive,
+    label: "Top 65%",
+    upperPercentile: 0.65,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.topEighty,
+    label: "Top 80%",
+    upperPercentile: 0.8,
+    initiallyExpanded: false,
+  },
+  {
+    id: CAREER_GROUP_IDS.remaining,
+    label: "Resto de carreras",
+    upperPercentile: 1,
+    initiallyExpanded: false,
+  },
+] as const satisfies readonly CareerGroupDefinition[];
+
+export const CAREER_GROUP_UI_CONFIG = {
+  contentIdPrefix: "career-group-content",
+} as const;
 
 export const CAREERS_PANEL_COPY = {
   title: "Carreras recomendadas",
