@@ -4,6 +4,10 @@ export const ADMIN_TEST_TOTALS = {
   skill: 6,
 } as const;
 
+export const ADMIN_USER_TABLE_LAYOUT = {
+  minimumWidthClassName: "min-w-[1120px]",
+} as const;
+
 export const ADMIN_PROFILE_FILTERS = {
   all: "all",
   complete: "complete",

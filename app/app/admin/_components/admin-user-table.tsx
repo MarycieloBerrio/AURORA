@@ -8,6 +8,7 @@ import {
   ADMIN_PROFILE_FILTERS,
   ADMIN_RESULTS_FILTERS,
   ADMIN_TEST_TOTALS,
+  ADMIN_USER_TABLE_LAYOUT,
   ADMIN_USER_TABLE_COPY,
   type AdminProfileFilter,
   type AdminResultsFilter,
@@ -112,7 +113,7 @@ export function AdminUserTable({ initialRows }: AdminUserTableProps) {
   }, [initialRows, search, profileFilter, resultsFilter]);
 
   return (
-    <div>
+    <div className="min-w-0">
       <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
         <div className="relative flex-1 min-w-48">
           <svg
@@ -165,7 +166,9 @@ export function AdminUserTable({ initialRows }: AdminUserTableProps) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table
+          className={`w-full text-sm ${ADMIN_USER_TABLE_LAYOUT.minimumWidthClassName}`}
+        >
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
               <th className="px-5 py-3">Usuario</th>

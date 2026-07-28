@@ -104,7 +104,22 @@ export const CAREER_GROUP_UI_CONFIG = {
   contentIdPrefix: "career-group-content",
 } as const;
 
+export const CAREER_AFFINITY_FORMAT_CONFIG = {
+  divisor: 100,
+  locale: "es-CO",
+  options: {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  },
+} as const satisfies {
+  divisor: number;
+  locale: string;
+  options: Intl.NumberFormatOptions;
+};
+
 export const CAREERS_PANEL_COPY = {
+  affinityLabel: "Afinidad",
   title: "Carreras recomendadas",
   subtitle: `Selecciona hasta ${MAX_SELECTED_CAREERS} para comparar — Solo carreras STEM`,
   searchPlaceholder: "Buscar carrera por nombre",

@@ -30,9 +30,16 @@ interface CareersPanelProps {
   overlays: CareerOverlay[];
   onSelect: (career: CareerWithAffinity) => void;
   onClearSelections: () => void;
+  showCareerAffinity?: boolean;
 }
 
-export function CareersPanel({ careers, overlays, onSelect, onClearSelections }: CareersPanelProps) {
+export function CareersPanel({
+  careers,
+  overlays,
+  onSelect,
+  onClearSelections,
+  showCareerAffinity = false,
+}: CareersPanelProps) {
   const [levelFilter, setLevelFilter] = useState<CareerLevelFilter>(CAREER_FILTER_DEFAULTS.level);
   const [searchQuery, setSearchQuery] = useState<string>(CAREER_FILTER_DEFAULTS.searchQuery);
   const [offeringsCareer, setOfferingsCareer] = useState<CareerWithAffinity | null>(null);
@@ -128,6 +135,7 @@ export function CareersPanel({ careers, overlays, onSelect, onClearSelections }:
                 overlays={overlays}
                 onSelect={onSelect}
                 onViewOfferings={setOfferingsCareer}
+                showCareerAffinity={showCareerAffinity}
               />
             ))
           )}

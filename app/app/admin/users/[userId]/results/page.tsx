@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { APP_SHELL_CONTENT_WIDTHS } from "@/constants/layout";
 import { APP_ROUTES } from "@/constants/routes";
 import { AppShellTemplate } from "@/components/templates/app-shell-template";
 import { ADMIN_RESULTS_COPY } from "@/features/admin/constants";
@@ -34,6 +35,7 @@ export default async function AdminUserResultsPage({ params }: AdminUserResultsP
     <AppShellTemplate
       title={ADMIN_RESULTS_COPY.pageTitle}
       subtitle={`${displayName} - ${ADMIN_RESULTS_COPY.tierSubtitle}`}
+      contentWidth={APP_SHELL_CONTENT_WIDTHS.wide}
       action={
         <div className="flex flex-wrap items-center gap-2">
           <ResultTierBadge tier={profile.tier} />
@@ -51,6 +53,7 @@ export default async function AdminUserResultsPage({ params }: AdminUserResultsP
         interests={profile.interests}
         personality={profile.personality}
         skills={profile.skills}
+        showCareerAffinity
       />
     </AppShellTemplate>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { APP_ROUTES, getAdminUserResultsPath } from "@/constants/routes";
+import { APP_SHELL_CONTENT_WIDTHS } from "@/constants/layout";
 import { prisma } from "@/lib/prisma";
 import { AppShellTemplate } from "@/components/templates/app-shell-template";
 import { Card } from "@/components/atoms/card";
@@ -89,6 +90,7 @@ export default async function AdminPage() {
     <AppShellTemplate
       title="Panel de administración"
       subtitle="Estado general de la plataforma AURORA"
+      contentWidth={APP_SHELL_CONTENT_WIDTHS.wide}
       action={
         <Link
           href={APP_ROUTES.floor}
@@ -102,7 +104,7 @@ export default async function AdminPage() {
       }
     >
       <AdminStatCards stats={stats} totalUsers={stats.totalUsers} />
-      <div className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             Datos SNIES
@@ -114,7 +116,7 @@ export default async function AdminPage() {
         <AdminSniesButton />
       </div>
 
-      <div className="flex items-start justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
             Exportar perfiles
@@ -125,7 +127,7 @@ export default async function AdminPage() {
         </div>
         <AdminExportButton userId={session.user.id} userEmail={session.user.email ?? ""} />
       </div>
-      <Card className="p-0 overflow-hidden">
+      <Card className="min-w-0 overflow-hidden p-0">
         <AdminUserTable initialRows={userData} />
       </Card>
     </AppShellTemplate>

@@ -15,9 +15,16 @@ interface ResultsDashboardProps {
   interests: InterestsList;
   personality: PersonalityList;
   skills: SkillsDict;
+  showCareerAffinity?: boolean;
 }
 
-export function ResultsDashboard({ careers, interests, personality, skills }: ResultsDashboardProps) {
+export function ResultsDashboard({
+  careers,
+  interests,
+  personality,
+  skills,
+  showCareerAffinity = false,
+}: ResultsDashboardProps) {
   const [selectedCareers, setSelectedCareers] = useState<CareerWithAffinity[]>([]);
 
   function handleSelect(career: CareerWithAffinity) {
@@ -35,8 +42,8 @@ export function ResultsDashboard({ careers, interests, personality, skills }: Re
   }));
 
   return (
-    <div className="flex flex-col gap-5 lg:flex-row">
-      <div className="flex flex-col gap-5 lg:w-1/2">
+    <div className="flex min-w-0 flex-col gap-5 lg:flex-row">
+      <div className="flex min-w-0 flex-1 flex-col gap-5">
         <Card data-tour="riasec" className="p-5">
           <RiasecPanel interests={interests} overlays={overlays} />
         </Card>
@@ -48,13 +55,14 @@ export function ResultsDashboard({ careers, interests, personality, skills }: Re
         </Card>
       </div>
 
-      <div className="lg:w-1/2">
+      <div className="min-w-0 flex-1">
         <Card data-tour="careers" className="sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto p-5">
           <CareersPanel
             careers={careers}
             overlays={overlays}
             onSelect={handleSelect}
             onClearSelections={() => setSelectedCareers([])}
+            showCareerAffinity={showCareerAffinity}
           />
         </Card>
       </div>

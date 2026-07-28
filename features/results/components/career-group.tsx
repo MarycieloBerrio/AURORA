@@ -14,6 +14,7 @@ interface CareerGroupProps {
   overlays: CareerOverlay[];
   onSelect: (career: CareerWithAffinity) => void;
   onViewOfferings: (career: CareerWithAffinity) => void;
+  showCareerAffinity?: boolean;
 }
 
 export function CareerGroup({
@@ -21,6 +22,7 @@ export function CareerGroup({
   overlays,
   onSelect,
   onViewOfferings,
+  showCareerAffinity = false,
 }: CareerGroupProps) {
   const [isExpanded, setIsExpanded] = useState(group.initiallyExpanded);
   const contentId = `${CAREER_GROUP_UI_CONFIG.contentIdPrefix}-${group.id}`;
@@ -57,6 +59,7 @@ export function CareerGroup({
               overlay={overlay}
               onClick={() => onSelect(career)}
               onViewOfferings={() => onViewOfferings(career)}
+              showCareerAffinity={showCareerAffinity}
             />
           );
         })}

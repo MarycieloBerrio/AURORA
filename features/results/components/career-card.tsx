@@ -2,11 +2,16 @@
 
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
+import { Badge } from "@/components/atoms/badge";
 import {
   CAREER_ACADEMIC_LEVEL_LABELS,
   type CareerAcademicLevel,
   type CareerWithAffinity,
 } from "@/constants/careers";
+import {
+  CAREER_AFFINITY_FORMAT_CONFIG,
+  CAREERS_PANEL_COPY,
+} from "@/features/results/constants/careers-panel";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const LEVEL_STYLES: Record<CareerAcademicLevel, string> = {
@@ -15,17 +20,32 @@ const LEVEL_STYLES: Record<CareerAcademicLevel, string> = {
   UN: "bg-violet-50 text-violet-600 border-violet-200",
 };
 
+const CAREER_AFFINITY_FORMATTER = new Intl.NumberFormat(
+  CAREER_AFFINITY_FORMAT_CONFIG.locale,
+  CAREER_AFFINITY_FORMAT_CONFIG.options,
+);
+
 interface CareerCardProps {
   career:           CareerWithAffinity;
   overlay?:         CareerOverlay;
   onClick?:         () => void;
   onViewOfferings?: () => void;
+  showCareerAffinity?: boolean;
 }
 
-export function CareerCard({ career, overlay, onClick, onViewOfferings }: CareerCardProps) {
+export function CareerCard({
+  career,
+  overlay,
+  onClick,
+  onViewOfferings,
+  showCareerAffinity = false,
+}: CareerCardProps) {
   const isSelected    = !!overlay;
   const levelLabel    = CAREER_ACADEMIC_LEVEL_LABELS[career.academic_level];
   const levelStyle    = LEVEL_STYLES[career.academic_level];
+  const formattedAffinity = CAREER_AFFINITY_FORMATTER.format(
+    career.affinity / CAREER_AFFINITY_FORMAT_CONFIG.divisor,
+  );
 
   const cardRef = useRef<HTMLDivElement>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; h: number } | null>(null);
@@ -79,6 +99,15 @@ export function CareerCard({ career, overlay, onClick, onViewOfferings }: Career
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
+            {showCareerAffinity ? (
+              <Badge
+                variant="indigo"
+                className="tabular-nums"
+                aria-label={`${CAREERS_PANEL_COPY.affinityLabel}: ${formattedAffinity}`}
+              >
+                {formattedAffinity}
+              </Badge>
+            ) : null}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
