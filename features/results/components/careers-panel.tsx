@@ -6,8 +6,13 @@ import { Input } from "@/components/atoms/input";
 import { UI_ICON_NAMES, UiIcon } from "@/components/atoms/ui-icon";
 import { SegmentedControl } from "@/components/molecules/segmented-control";
 import type { CareerWithAffinity } from "@/constants/careers";
+import { AffinityLegend } from "@/features/results/components/affinity-legend";
 import { CareerGroup } from "@/features/results/components/career-group";
 import { ProgramOfferingsModal } from "@/features/results/components/program-offerings-modal";
+import {
+  CAREER_AFFINITY_DISPLAY_MODES,
+  type CareerAffinityDisplayMode,
+} from "@/features/results/constants/affinity-categories";
 import {
   CAREER_FILTER_DEFAULTS,
   CAREER_LEVEL_FILTER_OPTIONS,
@@ -16,7 +21,7 @@ import {
   type CareerLevelFilter,
 } from "@/features/results/constants/careers-panel";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
-import { groupCareersByAffinity } from "@/features/results/lib/career-groups";
+import { groupCareersByAffinityCategory } from "@/features/results/lib/career-groups";
 
 function normalizeSearchValue(value: string): string {
   return value
@@ -30,7 +35,7 @@ interface CareersPanelProps {
   overlays: CareerOverlay[];
   onSelect: (career: CareerWithAffinity) => void;
   onClearSelections: () => void;
-  showCareerAffinity?: boolean;
+  affinityDisplayMode?: CareerAffinityDisplayMode;
 }
 
 export function CareersPanel({
@@ -38,14 +43,14 @@ export function CareersPanel({
   overlays,
   onSelect,
   onClearSelections,
-  showCareerAffinity = false,
+  affinityDisplayMode = CAREER_AFFINITY_DISPLAY_MODES.category,
 }: CareersPanelProps) {
   const [levelFilter, setLevelFilter] = useState<CareerLevelFilter>(CAREER_FILTER_DEFAULTS.level);
   const [searchQuery, setSearchQuery] = useState<string>(CAREER_FILTER_DEFAULTS.searchQuery);
   const [offeringsCareer, setOfferingsCareer] = useState<CareerWithAffinity | null>(null);
 
   const normalizedSearchQuery = normalizeSearchValue(searchQuery.trim());
-  const visibleCareerGroups = groupCareersByAffinity(careers)
+  const visibleCareerGroups = groupCareersByAffinityCategory(careers)
     .map((group) => ({
       ...group,
       careers: group.careers.filter(
@@ -60,6 +65,8 @@ export function CareersPanel({
     levelFilter !== CAREER_FILTER_DEFAULTS.level ||
     searchQuery !== CAREER_FILTER_DEFAULTS.searchQuery ||
     overlays.length > 0;
+  const displaysCategoryIndicators =
+    affinityDisplayMode === CAREER_AFFINITY_DISPLAY_MODES.category;
 
   function handleClearFiltersAndSelections() {
     setLevelFilter(CAREER_FILTER_DEFAULTS.level);
@@ -81,6 +88,8 @@ export function CareersPanel({
             <p className="mt-0.5 text-[11px] text-slate-400">{CAREERS_PANEL_COPY.subtitle}</p>
           </div>
         </div>
+
+        {displaysCategoryIndicators ? <AffinityLegend /> : null}
 
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-0 flex-1">
@@ -135,19 +144,19 @@ export function CareersPanel({
                 overlays={overlays}
                 onSelect={onSelect}
                 onViewOfferings={setOfferingsCareer}
-                showCareerAffinity={showCareerAffinity}
+                affinityDisplayMode={affinityDisplayMode}
               />
             ))
           )}
         </div>
       </div>
 
-      {offeringsCareer && (
+      {offeringsCareer ? (
         <ProgramOfferingsModal
           career={offeringsCareer}
           onClose={() => setOfferingsCareer(null)}
         />
-      )}
+      ) : null}
     </>
   );
 }

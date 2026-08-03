@@ -3,18 +3,21 @@
 import { createPortal } from "react-dom";
 
 interface FloatingTooltipProps {
+  id?: string;
   x: number;
   y: number;
   label: string;
-  value: string;
-  color: string;
+  value?: string;
+  color?: string;
 }
 
-export function FloatingTooltip({ x, y, label, value, color }: FloatingTooltipProps) {
+export function FloatingTooltip({ id, x, y, label, value, color }: FloatingTooltipProps) {
   if (typeof document === "undefined") return null;
 
   return createPortal(
     <div
+      id={id}
+      role="tooltip"
       style={{
         position: "fixed",
         left: x,
@@ -26,7 +29,11 @@ export function FloatingTooltip({ x, y, label, value, color }: FloatingTooltipPr
       className="rounded-lg border border-slate-100 bg-white px-2.5 py-1.5 shadow-lg"
     >
       <p className="whitespace-nowrap text-center text-xs text-slate-500">{label}</p>
-      <p className="whitespace-nowrap text-center text-sm font-bold" style={{ color }}>{value}</p>
+      {value ? (
+        <p className="whitespace-nowrap text-center text-sm font-bold" style={{ color }}>
+          {value}
+        </p>
+      ) : null}
     </div>,
     document.body,
   );

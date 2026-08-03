@@ -7,6 +7,7 @@ import { ADMIN_RESULTS_COPY } from "@/features/admin/constants";
 import { requireAdminSession } from "@/features/admin/lib/admin-auth";
 import { getResultsProfile } from "@/features/results/lib/results-profile";
 import { ResultsDashboard } from "@/features/results/components/results-dashboard";
+import { CAREER_AFFINITY_DISPLAY_MODES } from "@/features/results/constants/affinity-categories";
 import { ResultTierBadge } from "@/features/results/components/result-tier-badge";
 import { prisma } from "@/lib/prisma";
 
@@ -53,7 +54,7 @@ export default async function AdminUserResultsPage({ params }: AdminUserResultsP
         interests={profile.interests}
         personality={profile.personality}
         skills={profile.skills}
-        showCareerAffinity
+        affinityDisplayMode={CAREER_AFFINITY_DISPLAY_MODES.exact}
       />
     </AppShellTemplate>
   );

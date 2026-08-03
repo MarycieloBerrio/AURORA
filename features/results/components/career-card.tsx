@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
 import { Badge } from "@/components/atoms/badge";
 import {
@@ -8,10 +8,15 @@ import {
   type CareerAcademicLevel,
   type CareerWithAffinity,
 } from "@/constants/careers";
+import { AffinityIndicator } from "@/features/results/components/affinity-indicator";
 import {
+  AFFINITY_COPY,
+  AFFINITY_UI_CONFIG,
+  CAREER_AFFINITY_DISPLAY_MODES,
   CAREER_AFFINITY_FORMAT_CONFIG,
-  CAREERS_PANEL_COPY,
-} from "@/features/results/constants/careers-panel";
+  type CareerAffinityDisplayMode,
+} from "@/features/results/constants/affinity-categories";
+import { CAREERS_PANEL_COPY } from "@/features/results/constants/careers-panel";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
 
 const LEVEL_STYLES: Record<CareerAcademicLevel, string> = {
@@ -30,7 +35,7 @@ interface CareerCardProps {
   overlay?:         CareerOverlay;
   onClick?:         () => void;
   onViewOfferings?: () => void;
-  showCareerAffinity?: boolean;
+  affinityDisplayMode?: CareerAffinityDisplayMode;
 }
 
 export function CareerCard({
@@ -38,7 +43,7 @@ export function CareerCard({
   overlay,
   onClick,
   onViewOfferings,
-  showCareerAffinity = false,
+  affinityDisplayMode = CAREER_AFFINITY_DISPLAY_MODES.category,
 }: CareerCardProps) {
   const isSelected    = !!overlay;
   const levelLabel    = CAREER_ACADEMIC_LEVEL_LABELS[career.academic_level];
@@ -51,7 +56,8 @@ export function CareerCard({
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number; h: number } | null>(null);
   const [expanded, setExpanded] = useState(false);
 
-  function handleMouseEnter() {
+  function handleMouseEnter(event: MouseEvent<HTMLDivElement>) {
+    if ((event.target as Element).closest(AFFINITY_UI_CONFIG.indicatorSelector)) return;
     if (!cardRef.current) return;
     if (!window.matchMedia("(hover: hover)").matches) return;
     const r = cardRef.current.getBoundingClientRect();
@@ -60,6 +66,10 @@ export function CareerCard({
 
   function handleMouseLeave() {
     setTooltipPos(null);
+  }
+
+  function handleAffinityTooltipVisibilityChange(isVisible: boolean) {
+    setTooltipPos((currentPosition) => (isVisible ? null : currentPosition));
   }
 
   return (
@@ -99,19 +109,28 @@ export function CareerCard({
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            {showCareerAffinity ? (
+            {affinityDisplayMode === CAREER_AFFINITY_DISPLAY_MODES.exact ? (
               <Badge
                 variant="indigo"
                 className="tabular-nums"
-                aria-label={`${CAREERS_PANEL_COPY.affinityLabel}: ${formattedAffinity}`}
+                aria-label={`${AFFINITY_COPY.ariaLabel}: ${formattedAffinity}`}
               >
                 {formattedAffinity}
               </Badge>
-            ) : null}
+            ) : (
+              <AffinityIndicator
+                affinity={career.affinity}
+                onTooltipVisibilityChange={handleAffinityTooltipVisibilityChange}
+              />
+            )}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
-              aria-label={`${expanded ? "Ocultar" : "Ver"} descripción de ${career.title}`}
+              aria-label={`${
+                expanded
+                  ? CAREERS_PANEL_COPY.hideCareerDescription
+                  : CAREERS_PANEL_COPY.showCareerDescription
+              } ${career.title}`}
               className="[@media(hover:hover)]:hidden rounded-lg border border-slate-200 p-1 text-slate-400 transition"
             >
               <svg
@@ -134,7 +153,7 @@ export function CareerCard({
                   e.stopPropagation();
                   onViewOfferings();
                 }}
-                aria-label={`Ver oferta universitaria para ${career.title}`}
+                aria-label={`${CAREERS_PANEL_COPY.viewCareerOfferings} ${career.title}`}
                 className="rounded-lg border border-slate-200 p-1 text-slate-400 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
               >
                 <svg

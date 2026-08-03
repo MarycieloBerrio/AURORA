@@ -5,16 +5,20 @@ import { Button } from "@/components/atoms/button";
 import { UI_ICON_NAMES, UiIcon } from "@/components/atoms/ui-icon";
 import type { CareerWithAffinity } from "@/constants/careers";
 import { CareerCard } from "@/features/results/components/career-card";
-import { CAREER_GROUP_UI_CONFIG } from "@/features/results/constants/careers-panel";
+import {
+  AFFINITY_UI_CONFIG,
+  CAREER_AFFINITY_DISPLAY_MODES,
+  type CareerAffinityDisplayMode,
+} from "@/features/results/constants/affinity-categories";
 import type { CareerOverlay } from "@/features/results/lib/career-colors";
-import type { CareerGroup as CareerGroupData } from "@/features/results/lib/career-groups";
+import type { CareerAffinityGroup } from "@/features/results/lib/career-groups";
 
 interface CareerGroupProps {
-  group: CareerGroupData;
+  group: CareerAffinityGroup;
   overlays: CareerOverlay[];
   onSelect: (career: CareerWithAffinity) => void;
   onViewOfferings: (career: CareerWithAffinity) => void;
-  showCareerAffinity?: boolean;
+  affinityDisplayMode?: CareerAffinityDisplayMode;
 }
 
 export function CareerGroup({
@@ -22,10 +26,10 @@ export function CareerGroup({
   overlays,
   onSelect,
   onViewOfferings,
-  showCareerAffinity = false,
+  affinityDisplayMode = CAREER_AFFINITY_DISPLAY_MODES.category,
 }: CareerGroupProps) {
-  const [isExpanded, setIsExpanded] = useState(group.initiallyExpanded);
-  const contentId = `${CAREER_GROUP_UI_CONFIG.contentIdPrefix}-${group.id}`;
+  const [isExpanded, setIsExpanded] = useState<boolean>(AFFINITY_UI_CONFIG.groupsInitiallyExpanded);
+  const contentId = `${AFFINITY_UI_CONFIG.groupContentIdPrefix}-${group.id}`;
 
   return (
     <section className="space-y-2">
@@ -59,7 +63,7 @@ export function CareerGroup({
               overlay={overlay}
               onClick={() => onSelect(career)}
               onViewOfferings={() => onViewOfferings(career)}
-              showCareerAffinity={showCareerAffinity}
+              affinityDisplayMode={affinityDisplayMode}
             />
           );
         })}

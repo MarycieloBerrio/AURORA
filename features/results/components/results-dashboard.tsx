@@ -1,21 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import type { InterestsList, PersonalityList, SkillsDict } from "@/types/test-results";
+import { Card } from "@/components/atoms/card";
 import type { CareerWithAffinity } from "@/constants/careers";
-import { CAREER_COLORS, MAX_SELECTED_CAREERS, type CareerOverlay } from "@/features/results/lib/career-colors";
-import { RiasecPanel } from "@/features/results/components/riasec-panel";
-import { HexacoPanel } from "@/features/results/components/hexaco-panel";
 import { AptitudePanel } from "@/features/results/components/aptitude-panel";
 import { CareersPanel } from "@/features/results/components/careers-panel";
-import { Card } from "@/components/atoms/card";
+import { HexacoPanel } from "@/features/results/components/hexaco-panel";
+import { RiasecPanel } from "@/features/results/components/riasec-panel";
+import {
+  CAREER_AFFINITY_DISPLAY_MODES,
+  type CareerAffinityDisplayMode,
+} from "@/features/results/constants/affinity-categories";
+import {
+  CAREER_COLORS,
+  MAX_SELECTED_CAREERS,
+  type CareerOverlay,
+} from "@/features/results/lib/career-colors";
+import type { InterestsList, PersonalityList, SkillsDict } from "@/types/test-results";
 
 interface ResultsDashboardProps {
   careers: CareerWithAffinity[];
   interests: InterestsList;
   personality: PersonalityList;
   skills: SkillsDict;
-  showCareerAffinity?: boolean;
+  affinityDisplayMode?: CareerAffinityDisplayMode;
 }
 
 export function ResultsDashboard({
@@ -23,22 +31,31 @@ export function ResultsDashboard({
   interests,
   personality,
   skills,
-  showCareerAffinity = false,
+  affinityDisplayMode = CAREER_AFFINITY_DISPLAY_MODES.category,
 }: ResultsDashboardProps) {
   const [selectedCareers, setSelectedCareers] = useState<CareerWithAffinity[]>([]);
 
   function handleSelect(career: CareerWithAffinity) {
-    setSelectedCareers((prev) => {
-      const idx = prev.findIndex((c) => c.onetsoc_code === career.onetsoc_code);
-      if (idx !== -1) return prev.filter((_, i) => i !== idx);
-      if (prev.length >= MAX_SELECTED_CAREERS) return prev;
-      return [...prev, career];
+    setSelectedCareers((currentCareers) => {
+      const selectedCareerIndex = currentCareers.findIndex(
+        (selectedCareer) => selectedCareer.onetsoc_code === career.onetsoc_code,
+      );
+
+      if (selectedCareerIndex !== -1) {
+        return currentCareers.filter((_, index) => index !== selectedCareerIndex);
+      }
+
+      if (currentCareers.length >= MAX_SELECTED_CAREERS) {
+        return currentCareers;
+      }
+
+      return [...currentCareers, career];
     });
   }
 
-  const overlays: CareerOverlay[] = selectedCareers.map((career, i) => ({
+  const overlays: CareerOverlay[] = selectedCareers.map((career, index) => ({
     career,
-    color: CAREER_COLORS[i],
+    color: CAREER_COLORS[index],
   }));
 
   return (
@@ -62,7 +79,7 @@ export function ResultsDashboard({
             overlays={overlays}
             onSelect={handleSelect}
             onClearSelections={() => setSelectedCareers([])}
-            showCareerAffinity={showCareerAffinity}
+            affinityDisplayMode={affinityDisplayMode}
           />
         </Card>
       </div>
