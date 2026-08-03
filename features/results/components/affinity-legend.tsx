@@ -25,9 +25,8 @@ export function AffinityLegend() {
             >
               <AffinityThermometerIcon level={category.thermometerLevel} />
             </span>
-            <span className="min-w-0">
-              <span className="block text-xs font-semibold text-slate-700">{category.label}</span>
-              <span className="block text-[10px] text-slate-400">{category.rangeLabel}</span>
+            <span className="min-w-0 text-xs font-semibold text-slate-700">
+              {category.label}
             </span>
           </div>
         ))}

@@ -29,7 +29,6 @@ export type AffinityThermometerLevel = 1 | 2 | 3 | 4;
 export interface AffinityCategoryDefinition {
   id: AffinityCategoryId;
   label: string;
-  rangeLabel: string;
   minimumExclusive: number;
   thermometerLevel: AffinityThermometerLevel;
   colorClassName: string;
@@ -40,7 +39,6 @@ export const AFFINITY_CATEGORY_DEFINITIONS = [
   {
     id: AFFINITY_CATEGORY_IDS.veryHigh,
     label: "Muy alta",
-    rangeLabel: "(85, 100]",
     minimumExclusive: AFFINITY_SCORE_LIMITS.veryHigh,
     thermometerLevel: 4,
     colorClassName: "text-rose-600",
@@ -49,7 +47,6 @@ export const AFFINITY_CATEGORY_DEFINITIONS = [
   {
     id: AFFINITY_CATEGORY_IDS.high,
     label: "Alta",
-    rangeLabel: "(70, 85]",
     minimumExclusive: AFFINITY_SCORE_LIMITS.high,
     thermometerLevel: 3,
     colorClassName: "text-orange-500",
@@ -58,7 +55,6 @@ export const AFFINITY_CATEGORY_DEFINITIONS = [
   {
     id: AFFINITY_CATEGORY_IDS.medium,
     label: "Media",
-    rangeLabel: "(50, 70]",
     minimumExclusive: AFFINITY_SCORE_LIMITS.medium,
     thermometerLevel: 2,
     colorClassName: "text-amber-500",
@@ -67,7 +63,6 @@ export const AFFINITY_CATEGORY_DEFINITIONS = [
   {
     id: AFFINITY_CATEGORY_IDS.low,
     label: "Baja",
-    rangeLabel: "[0, 50]",
     minimumExclusive: Number.NEGATIVE_INFINITY,
     thermometerLevel: 1,
     colorClassName: "text-sky-600",
