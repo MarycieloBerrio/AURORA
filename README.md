@@ -6,13 +6,12 @@
 
 ## Características principales
 
-- 🏠 **4 pisos interactivos** — cada piso contiene 3-4 pruebas de tipos distintos, distribuidas visualmente sobre la ilustración del entorno
+- 🏠 **Un piso interactivo** — con pruebas de distintos tipos, distribuidas visualmente sobre la ilustración del entorno
 - 🎨 **Tests diferenciados por color** — Intereses (índigo), Personalidad (ámbar), Aptitudes (esmeralda)
 - 📋 **Cuestionario paginado** — preguntas agrupadas con tarjetas clickeables (escala Likert de 5 opciones)
 - 📊 **Barras de progreso global** — widget flotante con avance en Intereses, Personalidad y Aptitudes
 - 🔐 **Autenticación** — Credentials + Google OAuth (NextAuth.js)
 - 👤 **Perfil de usuario** — nombre, género, fecha de nacimiento, nivel educativo
-- 🧮 **Resultados persistidos** — 15 campos JSON en BD (4 RIASEC + 3 HEXACO + 8 aptitudes)
 
 ---
 
@@ -157,25 +156,4 @@ La aplicación estará disponible en [http://localhost:3000](http://localhost:30
                           └─► /app/floor/floor-1/test/riasec-1/completed
 ```
 
----
 
-## Pisos y pruebas
-
-| Piso | Intereses | Personalidad | Aptitudes |
-|---|---|---|---|
-| Piso 1 | Intereses I | Personalidad I | Comprensión Lectora, Razonamiento Deductivo |
-| Piso 2 | Intereses II | Personalidad II | Razonamiento Inductivo, Razonamiento Matemático |
-| Piso 3 | Intereses III | Personalidad III | Memorización, Velocidad Perceptual |
-| Piso 4 | Intereses IV | — | Razonamiento Espacial, Atención Selectiva |
-
----
-
-## Google OAuth — configuración
-
-Añade el URI de redirección en la consola de Google Cloud:
-
-```
-http://localhost:3000/api/auth/callback/google
-```
-
-Para producción, reemplaza con la URL del dominio desplegado.
